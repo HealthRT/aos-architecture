@@ -1,0 +1,100 @@
+openapi: 3.0.0
+info:
+  title: Hub to EVV API
+  description: |-
+    This API defines the secure data connection from the Hub (HR/Training) system to the EVV (HIPAA/Care) system.
+    - The Hub is the source of truth for all employee and compliance data.
+    - The EVV system is a consumer of this data.
+    - All communication is secured via OAuth 2.0 Client Credentials.
+  version: 1.0.0
+
+servers:
+  - url: https://hub.yourcompany.com/api/v1
+    description: Production Server
+
+security:
+  - oAuth2ClientCredentials: [read:compliance]
+
+paths:
+  /staff/{employee_id}/capabilities:
+    get:
+      summary: Get Compliance Capabilities for a Staff Member
+      description: |-
+        Retrieves a list of active compliance qualifications and certifications for a single staff member. 
+        This is the primary endpoint for the EVV scheduling module to verify that a staff member is qualified for a specific task.
+      security:
+        - oAuth2ClientCredentials: [read:compliance]
+      parameters:
+        - name: employee_id
+          in: path
+          required: true
+          description: The unique identifier of the staff member in the Hub system.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A successful response with the staff member's capabilities.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffCapabilities'
+        '401':
+          description: Unauthorized. The access token is missing or invalid.
+        '404':
+          description: Not Found. A staff member with the specified ID was not found.
+
+components:
+  securitySchemes:
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://hub.yourcompany.com/api/auth/token
+          scopes:
+            read:compliance: Read compliance data for staff members
+
+  schemas:
+    StaffCapabilities:
+      type: object
+      properties:
+        employee_id:
+          type: integer
+          description: The unique ID of the staff member.
+          example: 101
+        last_updated:
+          type: string
+          format: date-time
+          description: The timestamp when the capabilities were last updated in the Hub.
+        capabilities:
+          type: array
+          description: A list of the staff member's current, valid compliance capabilities.
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: A machine-readable key for the capability.
+                example: "diabetic_trained"
+              name:
+                type: string
+                description: The human-readable name of the capability.
+                example: "Diabetic Training"
+              expiry_date:
+                type: string
+                format: date
+                description: The expiration date of the capability, if applicable.
+                nullable: true
+                example: "2026-10-05"
+      example:
+        employee_id: 101
+        last_updated: "2025-10-06T12:00:00Z"
+        capabilities:
+          - key: "cpr_certified"
+            name: "CPR Certification"
+            expiry_date: "2026-08-15"
+          - key: "diabetic_trained"
+            name: "Diabetic Training"
+            expiry_date: null
+          - key: "has_valid_drivers_license"
+            name: "Valid Driver's License"
+            expiry_date: "2028-05-20"

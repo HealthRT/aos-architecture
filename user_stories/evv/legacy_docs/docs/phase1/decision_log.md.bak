@@ -1,0 +1,52 @@
+# Architecture & Business Rule Decision Log
+
+This document records key decisions made for the EVV MVP project to provide a clear, centralized history of project direction.
+
+---
+
+### Decision Log Workflow
+
+This log uses a two-way synchronization process to facilitate feedback from Subject Matter Experts (SMEs).
+
+**To Add a New Question:**
+1.  Add a new row to the "Pending Decisions" table below.
+2.  Commit the change to this file.
+3.  Ask the AI assistant to "sync the decision log". This will add your new question to the `pending_decisions.csv` file.
+
+**To Get Answers from SMEs:**
+1.  After syncing, copy the contents of `pending_decisions.csv` to a shared spreadsheet (Excel, Google Sheets).
+2.  Have SMEs fill in the `SME Owner`, `SME Feedback`, and `Decision` columns.
+3.  Copy their answers back into the `pending_decisions.csv` file in this repository and commit the changes.
+4.  Ask the AI assistant to "sync the decision log". The assistant will automatically move the answered questions from this section to the "Decided" table.
+
+---
+
+### Pending Decisions
+
+The following topics are awaiting feedback from Subject Matter Experts (SMEs) or other stakeholders.
+
+| Topic                        | Details                                                                                                                                                                                            | Status                       | Date Raised  |
+| :--------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- | :----------- |
+| **Unit of Service Definition** | **CRITICAL**: The `mn_245d_hcbs_summary.md` states units can be variable, but our assumption has been "1 Unit = 15 minutes". Must the MVP support configurable unit definitions per payer, or is a single 15-minute rule safe? | **High Priority - Blocking** | 2025-10-04   |
+| Multi-Segment Rounding       | When a visit has multiple segments for the same service (e.g., two 7-minute segments), should we sum the total minutes *before* rounding, or round each segment individually?                                                       | Pending SME Feedback         | 2025-10-04   |
+| Unit Cap Window Definitions  | Are unit caps (daily, weekly) based on calendar windows (midnight-to-midnight, Sun-Sat) or rolling windows (last 24 hours, last 7 days)?                                                                                             | Pending SME Feedback         | 2025-10-04   |
+| Short-Segment Handling       | How should the system handle segments shorter than the 8-minute minimum? Should they be automatically discarded, flagged for review, or rounded up to 1 unit?                                                                       | Pending SME Feedback         | 2025-10-04   |
+| Supervisor Override Policy   | 1. What user roles can perform overrides (Supervisor, Admin)? 2. Which validation errors are overridable? 3. Do overrides adjust balances directly or use a separate "override bucket"?                                           | Pending SME Feedback         | 2025-10-04   |
+| Supervisor Review UI         | To approve a visit, what is the most critical information to display on the supervisor review screen (e.g., remaining units, recent client visits, validation warning flags)?                                                         | Pending SME Feedback         | 2025-10-04   |
+| Service Agreement Carryover  | Do service agreements support carryover (unused units roll to the next period), or is it always "use-it-or-lose-it"?                                                                                                                | Pending SME Feedback         | 2025-10-04   |
+| Service Agreement Import Logic | When a new service agreement is imported, should it replace existing agreements for the client, or be added alongside them (e.g., a Jan-Jun agreement followed by a Jul-Dec agreement)?                                               | Pending SME Feedback         | 2025-10-04   |
+
+---
+
+### Decided
+
+| Topic                            | Decision                                                                                                                                                                             | Status                                 | Date Decided |
+| :------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------- | :----------- |
+| Capture-Time Unit Validation     | A **hard block** will be enforced at capture/switch. If a provisional check shows insufficient units, the segment **cannot be started**. Overrides are post-MVP.                        | Decided                                | 2025-10-04   |
+| CSV Export Strategy              | Provide two profiles: a `basic` (default, no PHI) for electronic submission and a secured `phi` profile (gated by role/MFA) for manual, internal use.                                     | Decided                                | 2025-10-04   |
+| Visit Segment Concurrency        | No concurrency is allowed. Visits are composed of strictly sequential, non-overlapping segments. A DSP must stop one segment before starting another.                                  | Decided                                | 2025-10-04   |
+| Future Integrations              | The MVP architecture will anticipate a future billing engine (EDI 837/835), HHAeXchange integration, and automated ingestion of PDF service agreements.                                 | Decided                                | 2025-10-04   |
+| MVP Service Agreement Data Source| Service agreement data will be entered manually into Odoo by authorized staff for the MVP.                                                                                               | Decided                                | 2025-10-04   |
+| MVP Logging Level                | The system will be configured for `DEBUG` level logging for the MVP period to ensure maximum visibility during rollout.                                                                  | Decided                                | 2025-10-04   |
+| Authentication Method            | The specific method (Odoo standard vs. SSO) is TBD, but 2FA will be a mandatory security requirement regardless of the chosen system.                                                     | Partially Decided (2FA is confirmed)   | 2025-10-04   |
+| Pavillio CSV Spec Change Process | The CSV is uploaded manually. The staff member performing the upload is responsible for immediately reporting any file rejections or UI changes to the development team.                 | Decided                                | 2025-10-04   |
