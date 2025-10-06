@@ -1,4 +1,4 @@
-# 1. Hub-to-EVV Server Authentication
+2# 1. Hub-to-EVV Server Authentication
 
 **Date:** 2025-10-06
 

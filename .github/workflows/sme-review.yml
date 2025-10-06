@@ -1,0 +1,54 @@
+name: Create SME Review Issue
+
+on:
+  workflow_dispatch:
+    inputs:
+      story_path:
+        description: 'Path to the user story file (e.g., user_stories/hub/compliance/ADMIN-001.md)'
+        required: true
+        type: string
+
+jobs:
+  create_issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Read File Content
+        id: file_content
+        run: |
+          CONTENT=$(cat "${{ github.event.inputs.story_path }}")
+          echo "file_body<<EOF" >> $GITHUB_OUTPUT
+          echo "$CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create SME Review Issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          STORY_PATH: ${{ github.event.inputs.story_path }}
+        run: |
+          TITLE="SME Review: $(basename $STORY_PATH .md)"
+          
+          BODY=$(cat <<-EOF
+          *Hello! We are seeking your expert feedback on the following user story. Please review the details below and provide your thoughts by checking the boxes in the checklist and/or leaving comments.*
+
+          ---
+
+          ${{ steps.file_content.outputs.file_body }}
+
+          ---
+
+          ### SME Validation Checklist
+          - [ ] **Accuracy:** Does this workflow accurately reflect real-world operations?
+          - [ ] **Completeness:** Are there any missing steps or edge cases we haven't considered?
+          - [ ] **Clarity:** Is the language clear and unambiguous?
+          EOF
+          )
+          
+          gh issue create --title "$TITLE" --body "$BODY"
