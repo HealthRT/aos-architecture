@@ -43,8 +43,9 @@ This checklist must be included in every work order issue and completed by the A
 ```markdown
 - [ ] 1. Code is written and adheres to `01-odoo-coding-standards.md`.
 - [ ] 2. All UI elements adhere to `02-ui-ux-and-security-principles.md`.
-- [ ] 3. **Local Odoo instance boots successfully with the new code.**
-- [ ] 4. Code is self-documented with appropriate comments and docstrings.
+- [ ] 3. **The code is "tenancy-aware" as per ADR-006** (e.g., does not hardcode company-specific values).
+- [ ] 4. Local Odoo instance boots successfully with the new code.
+- [ ] 5. Code is self-documented with appropriate comments and docstrings.
 ```
 
 ## Phase 3: User Story Lifecycle & Status Tracking

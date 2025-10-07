@@ -43,6 +43,52 @@ paths:
         '404':
           description: Not Found. A staff member with the specified ID was not found.
 
+  /ask-if:
+    post:
+      summary: Submit a query to the Ask IF AI Assistant
+      description: |-
+        Allows a user on the EVV platform to submit a natural language query. 
+        The Hub will process the query using the "Ask IF" module and return a grounded answer.
+      security:
+        - oAuth2ClientCredentials: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AskIfQuery'
+      responses:
+        '200':
+          description: A successful response containing the answer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AskIfResponse'
+        '401':
+          description: Unauthorized.
+
+  /signals:
+    post:
+      summary: Ingest a behavioral signal from the EVV
+      description: |-
+        Allows the EVV system to send a non-PHI behavioral signal to the Hub's `if_signals` module. 
+        This is used to track events like overtime for the retention and engagement engine.
+      security:
+        - oAuth2ClientCredentials: [write:signals]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signal'
+      responses:
+        '202':
+          description: Accepted. The signal was received and will be processed asynchronously.
+        '400':
+          description: Bad Request. The signal format was invalid.
+        '401':
+          description: Unauthorized. The token is missing or lacks the 'write:signals' scope.
+
 components:
   securitySchemes:
     oAuth2ClientCredentials:
@@ -52,6 +98,7 @@ components:
           tokenUrl: https://hub.yourcompany.com/api/auth/token
           scopes:
             read:compliance: Read compliance data for staff members
+            write:signals: Allow the EVV system to write behavioral signals to the Hub
 
   schemas:
     StaffCapabilities:
@@ -98,3 +145,59 @@ components:
           - key: "has_valid_drivers_license"
             name: "Valid Driver's License"
             expiry_date: "2028-05-20"
+
+    AskIfQuery:
+      type: object
+      properties:
+        query:
+          type: string
+          description: "The user's natural language question."
+          example: "How do I request time off?"
+        user_language:
+          type: string
+          description: "The language code of the user (e.g., 'en', 'es')."
+          example: "es"
+
+    AskIfResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: "The generated, natural language answer."
+        source_articles:
+          type: array
+          description: "A list of source documents from the knowledge base used to generate the answer."
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Paid Time Off (PTO) Policy"
+              url:
+                type: string
+                example: "/knowledge/article/123"
+
+    Signal:
+      type: object
+      required:
+        - employee_id
+        - signal_type
+      properties:
+        employee_id:
+          type: integer
+          description: "The unique Hub ID of the employee generating the signal."
+          example: 123
+        signal_type:
+          type: string
+          description: "A machine-readable key for the type of signal."
+          example: "worked_overtime"
+        timestamp:
+          type: string
+          format: date-time
+          description: "The ISO 8601 timestamp of when the event occurred. Defaults to now if not provided."
+        payload:
+          type: object
+          description: "A flexible JSON object containing additional data about the signal."
+          example:
+            hours: 45
+            pay_period_end: "2025-10-10"
