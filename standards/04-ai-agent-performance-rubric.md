@@ -18,6 +18,12 @@ All agents assigned a task should expect their output to be judged against these
 -   **High-Quality Response:** The agent uses the precise file paths provided in prompts or documentation. It does not "hallucinate" or guess the location of critical files like ADRs or standards documents.
 -   **Low-Quality Response:** The agent fails to find files, invents incorrect paths, or requires manual correction to locate its source material.
 
+### 2.5. Communication & Output Formatting
+
+-   **Description:** The agent's ability to provide clear, direct, and unambiguous output, especially when returning the results of file system or version control commands.
+-   **High-Quality Response:** When asked to provide the content of a file or the result of a command (like `git diff`), the agent provides the complete, raw, and un-summarized text output. It does not attempt to interpret or summarize the output unless explicitly asked to do so.
+-   **Low-Quality Response:** The agent provides a high-level summary in place of the requested raw output, forcing the reviewer to ask again for the specific data.
+
 ### 2.2. Architectural Comprehension
 
 -   **Description:** The agent's ability to understand and correctly apply the project's formal architectural principles (as defined in the `/decisions` and `/standards` directories).

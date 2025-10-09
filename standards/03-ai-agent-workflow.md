@@ -25,16 +25,16 @@ Every piece of work must be atomic, verifiable, and clearly communicated. We use
 
 For every "work order" issue, we deploy a pair of specialized agents: an **AI Coder** and an **AI Tester**.
 
-1.  **Assignment:** The GitHub Issue is assigned to an AI Coder.
-2.  **Implementation:** The AI Coder reads the issue and implements the required code changes, adhering to all documented standards.
-3.  **Local Validation (Self-Test):** Before handing off to the Tester, the AI Coder **must** validate its changes in an isolated, local Odoo container.
-4.  **Handoff to Tester:** The Coder requests a test from its paired AI Tester by commenting in the GitHub Issue. This request must include a link to a private commit/branch.
-5.  **Test Implementation:** The AI Tester reads the original Work Order Issue and the Coder's implementation. It then writes the necessary unit/integration tests to validate the code against the acceptance criteria.
+1.  **Assignment:** The GitHub Issue is assigned to an AI Coder, who creates a feature branch.
+2.  **Implementation:** The AI Coder implements the required code changes, adhering to all standards. Upon completion, it commits the code to the feature branch.
+3.  **Handoff to Tester:** The Coder re-assigns the GitHub issue to its paired AI Tester.
+4.  **Mandatory Smoke Test (Tester's First Action):** The AI Tester checks out the Coder's branch and runs an automated "smoke test" script. This script's only job is to build the Docker container and confirm that the Odoo server boots successfully. **If the smoke test fails, the work is immediately rejected** and sent back to the Coder.
+5.  **Test Implementation:** If the smoke test passes, the AI Tester proceeds to write and run the necessary unit/integration tests to validate the code against the acceptance criteria.
 6.  **Test Execution & Feedback Loop:**
-    -   **If tests fail:** The AI Tester commits the failing tests and assigns the issue back to the AI Coder with the test logs. The Coder must fix the code to make the new tests pass. This loop continues until all tests pass.
-    -   **If tests pass:** The AI Tester provides a "Test-Approved" comment.
-7.  **Pull Request Submission:** Only after receiving "Test-Approved" status can the AI Coder submit the final Pull Request. The PR must include both the feature code and the accompanying tests.
-8.  **Final Architect Review:** The Architect performs the final review of the PR, which now contains both the implementation and the proof of its correctness.
+    -   If functional tests fail, the AI Tester re-assigns the issue back to the AI Coder with the test logs.
+    -   If all tests pass, the AI Tester provides a "Test-Approved" comment and a link to the passing test run.
+7.  **Pull Request Submission:** Only after receiving "Test-Approved" status can the AI Coder submit the final Pull Request.
+8.  **Final Architect Review:** The Architect performs the final review of the PR.
 
 ### Definition of Done Checklist
 
@@ -43,27 +43,9 @@ This checklist must be included in every work order issue and completed by the A
 ```markdown
 - [ ] 1. Code is written and adheres to `01-odoo-coding-standards.md`.
 - [ ] 2. All UI elements adhere to `02-ui-ux-and-security-principles.md`.
-- [ ] 3. **The code is "tenancy-aware" as per ADR-006** (e.g., does not hardcode company-specific values).
-- [ ] 4. Local Odoo instance boots successfully with the new code.
+- [ ] 3. The code is "tenancy-aware" as per ADR-006 (e.g., does not hardcode company-specific values).
+- [ ] 4. **Module installs successfully.** (Validated by running `odoo -u <module_name> --stop-after-init` and confirming a zero exit code).
 - [ ] 5. Code is self-documented with appropriate comments and docstrings.
 ```
 
 ## Phase 3: User Story Lifecycle & Status Tracking
-
-To track the progress of a user story from concept to completion, we use a system of "Epic" issues in the `aos-architecture` repository.
-
-1.  **Epic Creation:** For each user story file (e.g., `ADMIN-001.md`), the Architect creates a corresponding **"Epic" Issue**. This Epic serves as the single source of truth for the *status* of that user story.
-2.  **Task Association:** All "work order" issues created during decomposition are linked as tasks to the parent Epic issue.
-3.  **Automated Status:** The status of the Epic is derived automatically from the state of its child tasks.
-    -   **Pending:** The Epic is open, but no work order issues are in progress.
-    -   **In Progress:** The first work order issue is moved to "In Progress".
-    -   **Completed:** All child work order issues are complete and merged to production.
-
-## Phase 4: SME Review Workflow
-
-This process is used to gather feedback from non-technical Subject Matter Experts (SMEs) on user stories and architectural decisions.
-
-1.  **Trigger:** The workflow is initiated when the human overseer gives a natural language command to the Architect (e.g., *"Architect, send user story `ADMIN-001` for SME review."*).
-2.  **Automated Issue Creation:** The Architect triggers a GitHub Action that reads the specified Markdown file and creates a new **"SME Review" Issue** in the `aos-architecture` repository.
-3.  **Structured Issue Content:** The issue is pre-populated with the full text of the document and a standardized checklist to guide the SME's feedback.
-4.  **Feedback Loop:** The SME is provided a direct link to the issue, where they can provide feedback by checking boxes and leaving comments. This creates a centralized, traceable record of the review.
