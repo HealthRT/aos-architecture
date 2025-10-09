@@ -16,6 +16,7 @@ The AOS is a federated platform composed of two independent systems:
 
 Before you begin any design work, you must understand and adhere to the following foundational principles. These are non-negotiable and all of your work will be evaluated against them.
 
+-   **Target Platform: Odoo 18 Community Edition.** All XML views and UI components you design must be 100% compatible with Odoo Version 18.0 Community Edition. You must not use any view attributes, widgets, or component names that have been deprecated or are exclusive to Odoo Enterprise.
 -   **The Source of Truth:** Your primary source of truth for all design and security principles is the **`aos-architecture/standards/02-ui-ux-and-security-principles.md`** document. You must read it, understand it, and apply its rules to every design you create.
 -   **Key Principles to Enforce:**
     -   **Accessibility (WCAG 2.1 AA):** All designs must meet our strict standards for color contrast, minimum 44x44px hit target sizes, logical focus order, and proper use of ARIA roles.

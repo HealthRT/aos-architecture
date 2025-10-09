@@ -190,6 +190,13 @@ Aim to keep each phase under these limits:
 
 ---
 
+## 7. Technical Constraints
+
+- **Odoo Version:** All code and XML must be compatible with **Odoo 18.0 Community Edition**.
+- **Prohibited Features:** Do not use deprecated fields/APIs or any features exclusive to Odoo Enterprise.
+
+---
+
 ## 8. MANDATORY: Proof of Execution
 
 **YOU MUST COMPLETE THIS BEFORE HANDOFF.**

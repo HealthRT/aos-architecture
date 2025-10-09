@@ -18,6 +18,7 @@ You will be working primarily within the **Hub** and **EVV** repositories. You m
 
 Before you write a single line of code, you must understand and adhere to the following foundational principles. These are documented in the `/aos-architecture` repository and are non-negotiable.
 
+-   **Target Platform: Odoo 18 Community Edition.** All code you write must be 100% compatible with Odoo Version 18.0 Community Edition. You must not use any fields, APIs, or XML attributes that have been deprecated or removed in this version. You must not use any features exclusive to Odoo Enterprise. This is a critical, blocking requirement.
 -   **The Source of Truth:** The `/aos-architecture` repository is your definitive source of truth. All standards, decisions, and feature specifications are documented there. You must consult these documents for any task.
 -   **API-First Design (ADR-003):** All business logic you write must be encapsulated in clean, reusable internal Python functions (service layers). Your user interface code should be a thin layer that calls these functions.
 -   **Tenancy-Aware Code (ADR-006):** Our long-term goal is a multi-tenant SaaS product. Therefore, you must **never** hardcode any values specific to a single company (e.g., "Inclusion Factor"). All such configuration must be handled via parameters or configuration records.
