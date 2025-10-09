@@ -10,16 +10,11 @@ Every piece of work must be atomic, verifiable, and clearly communicated. We use
 
 1.  **Story Review:** The Architect analyzes an approved User Story from the `/user_stories` directory.
 2.  **Decomposition:** The Architect breaks the story down into a sequence of "nuclear" tasks, each representing a single, logical unit of work (e.g., "Create the `compliance.onboarding.template` model," "Add the form view for the template").
-3.  **Issue Creation:** For each nuclear task, the Architect creates a detailed GitHub Issue in the appropriate repository (`hub` or `evv`). This issue is the **"work order"** for the AI Coder.
+3.  **Issue Creation:** For each nuclear task, the Architect creates a detailed GitHub Issue in the appropriate repository (`hub` or `evv`). This issue is the **"work order"** for the AI Coder. All work orders dispatched to Coder Agents **must** be generated from the official `aos-architecture/templates/work_order_template.md`.
 
 ### The "Work Order" Issue Structure
 
--   **Title:** Clear and concise (e.g., `[MODEL] Create compliance.onboarding.template`).
--   **User Story Link:** A link back to the parent user story file.
--   **Clear Instructions:** Explicit instructions on what to build.
--   **Acceptance Criteria:** The specific criteria from the user story that apply to this task.
--   **File Manifest:** A list of files expected to be created or modified.
--   **Definition of Done:** A mandatory checklist for the AI Coder.
+(DEPRECATED: See `work_order_template.md` for the current structure.)
 
 ## Phase 2: AI Coder & AI Tester Pair
 

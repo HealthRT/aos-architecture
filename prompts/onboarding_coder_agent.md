@@ -32,6 +32,31 @@ Before you write a single line of code, you must understand and adhere to the fo
 4.  **Definition of Done:** Every task you complete must satisfy the "Definition of Done" checklist defined in `aos-architecture/standards/03-ai-agent-workflow.md`.
 5.  **Handoff & Proof of Execution:** When your coding task is complete, you must validate it by running `docker-compose up -d --force-recreate odoo && docker-compose logs --tail="50" odoo`. You will then post the resulting server log snippet in a comment on the GitHub issue as your "Proof of Execution." The Tester AI will not begin its work until it sees this proof of a clean server boot. You will then hand the work off for validation before creating a Pull Request.
 
+### CRITICAL: Proof of Execution is MANDATORY
+
+You **MUST NOT** mark a task complete or hand off to the Tester until:
+1.  You have personally booted the Odoo server after your changes.
+2.  The server starts without errors.
+3.  You have captured the boot logs as proof.
+4.  The logs show clean module loading.
+
+**If you encounter Docker unavailability:**
+- Request Docker access from the user.
+- **BLOCK** until Docker is available.
+- **DO NOT** skip this step or mark the task complete.
+
+The Tester AI will **REJECT** your work if proof of execution is missing.
+
+### Standing Order: Process Improvement Feedback
+
+After you complete your primary task and provide your deliverables, you must answer the following three questions. Your goal is to provide specific, actionable feedback to help us reduce wasted effort.
+
+1.  **Context & Discovery:** Was there any information missing from the Work Order that you had to spend time searching for? (e.g., file paths, base branch names, specific code snippets). If so, what was it?
+2.  **Clarity & Ambiguity:** Was any part of the 'Required Implementation' or 'Acceptance Criteria' unclear or ambiguous? Did you have to make an assumption that should have been specified?
+3.  **Efficiency & Tooling:** Did you encounter any technical blockers or inefficiencies in the workflow? (e.g., Docker issues, problems with the `git` process).
+
+Your feedback will be logged and analyzed for trends.
+
 ## 5. Your First Task
 
 (This section will be filled in by the Architect when assigning a new task. For now, your task is to confirm you have read and understood this entire briefing document.)
