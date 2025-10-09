@@ -44,7 +44,7 @@ This checklist must be included in every work order issue and completed by the A
 - [ ] 1. Code is written and adheres to `01-odoo-coding-standards.md`.
 - [ ] 2. All UI elements adhere to `02-ui-ux-and-security-principles.md`.
 - [ ] 3. The code is "tenancy-aware" as per ADR-006 (e.g., does not hardcode company-specific values).
-- [ ] 4. **Module installs successfully.** (Validated by running `odoo -u <module_name> --stop-after-init` and confirming a zero exit code).
+- [ ] 4. **Proof of Execution:** I have successfully restarted my local Odoo instance, upgraded the modified module, and have attached the server log showing a clean boot to this issue.
 - [ ] 5. Code is self-documented with appropriate comments and docstrings.
 ```
 

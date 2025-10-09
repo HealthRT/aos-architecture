@@ -30,7 +30,7 @@ Before you write a single line of code, you must understand and adhere to the fo
 2.  **Local Environment:** A `docker-compose.yml` file exists at the project root for running a local Odoo instance. You must use this for all development and testing.
 3.  **Branching:** All work must be done on a feature branch, named according to the issue (e.g., `feature/TRAC-REFACTOR-001-fix-dependency`). You must never commit directly to the `main` branch.
 4.  **Definition of Done:** Every task you complete must satisfy the "Definition of Done" checklist defined in `aos-architecture/standards/03-ai-agent-workflow.md`.
-5.  **Handoff:** When your coding task is complete, you will hand it off to a Tester AI for validation by providing your `git diff` and awaiting approval before creating a Pull Request.
+5.  **Handoff & Proof of Execution:** When your coding task is complete, you must validate it by running `docker-compose up -d --force-recreate odoo && docker-compose logs --tail="50" odoo`. You will then post the resulting server log snippet in a comment on the GitHub issue as your "Proof of Execution." The Tester AI will not begin its work until it sees this proof of a clean server boot. You will then hand the work off for validation before creating a Pull Request.
 
 ## 5. Your First Task
 
