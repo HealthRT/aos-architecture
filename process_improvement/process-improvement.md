@@ -136,3 +136,205 @@ When prompted for proof, agent immediately provided complete, well-formatted out
 4. **Documentation:** Add agent type selection guidance (successful models for different task types)
 
 ---
+
+## Entry #002 - Downstream Feedback (Code Quality - Bugbot Findings)
+
+**Date:** 2025-10-09  
+**Issue:** [Hub PR #4](https://github.com/HealthRT/hub/pull/4)  
+**Bugs Found:** 6 (by Cursor Bugbot code review)  
+**Feedback Source:** Automated code review tool  
+**Loop Type:** Downstream (Implementation Quality)
+
+### Summary
+Cursor Bugbot automated code review identified 6 bugs in committed code that passed "Proof of Execution" requirements. All bugs were runtime/logic errors that would only trigger under specific conditions, not during boot testing.
+
+### Specific Issues Identified
+
+#### 🔴 High Severity (3 bugs)
+
+1. **Indentation Error** (l10_meeting.py:318)
+   - `continue` statement over-indented
+   - Would cause `IndentationError` when user completes meeting with issue lines
+   - Status: ✅ FIXED (commit 8efc962)
+
+2. **Company ID Assignment** (eos_task.py:122, l10_meeting.py:132)
+   - `self.env.company.id` could raise `AttributeError` if `env.company` is None
+   - Would crash when creating records without company context
+   - Status: ✅ FIXED (commit 753c640)
+
+3. **SSRF Security Vulnerability** (l10_meeting.py:411, 444)
+   - Methods make HTTP requests to user-provided URLs without validation
+   - Allows Server-Side Request Forgery attacks (internal network scanning)
+   - Status: ✅ FIXED (commit 753c640)
+
+#### 🟡 Medium Severity (3 bugs)
+
+4. **Team Leader Validation** (eos_team.py:190)
+   - Validation skipped when `member_ids` is empty
+   - Allows assigning leaders who aren't members
+   - Status: ✅ FIXED (commit 753c640)
+
+5. **Invalid URL Format** (l10_meeting.py:478)
+   - Method prepends title to URL, breaking URL format
+   - Makes field unusable as actual URL
+   - Status: ✅ FIXED (commit 753c640)
+
+6. **XPath Too Broad** (settings.xml:9)
+   - XPath `//form` matches all form elements
+   - Could insert settings in wrong location or duplicate
+   - Status: ✅ FIXED (commit 753c640)
+
+### Root Cause Analysis
+
+**Why "Proof of Execution" Didn't Catch These:**
+
+All 6 bugs are **runtime bugs** triggered only when:
+- User performs specific actions (complete meeting, create task)
+- Specific conditions are met (no company context, empty members)
+- Security-sensitive operations attempted (external URLs)
+
+**Current "Proof of Execution":**
+- ✅ Tests that Odoo boots
+- ✅ Tests that module loads
+- ❌ Does NOT exercise code paths
+- ❌ Does NOT test edge cases
+- ❌ Does NOT test security
+
+**Gap:** Boot testing ≠ Functional testing
+
+### Testing Analysis: What Would Have Caught These?
+
+| Bug | Unit Tests? | Integration Tests? | Security Tests? |
+|-----|-------------|-------------------|-----------------|
+| #1 Indentation | ✅ YES | ✅ YES | ✅ YES |
+| #2 Company ID | ✅ YES (with edge case) | ✅ YES | ✅ YES |
+| #3 SSRF | ❌ NO | ❌ NO | ✅ YES |
+| #4 Validation | ✅ YES | ✅ YES | ✅ YES |
+| #5 URL Format | ✅ YES | ✅ YES | ✅ YES |
+| #6 XPath | ❌ NO | ✅ YES | ⚠️ N/A |
+
+**Score:**
+- Standard unit tests: **4/6 bugs** (67%)
+- + Integration tests: **5/6 bugs** (83%)
+- + Security tests: **6/6 bugs** (100%)
+
+**Current coverage: 0/6 bugs** (0%) - Only boot testing
+
+**See detailed analysis:** `review/bug-analysis-unit-testing.md`
+
+### Impact Metrics
+
+- **Discovery Method:** Automated code review (Cursor Bugbot)
+- **Discovery Time:** Post-commit, during PR review
+- **Bugs Shipped:** 6 (all runtime bugs, not boot failures)
+- **Security Issues:** 1 critical (SSRF)
+- **Fix Time:** ~45 minutes (all 6 bugs)
+
+**Cost:** High - Bugs reached committed code, required retrospective fixes
+
+### Recommendations for Process Improvement
+
+#### 1. **Enhance "Proof of Execution" Requirements** 🔴 HIGH PRIORITY
+
+**Current:**
+```markdown
+- [ ] Odoo boots without errors (MANDATORY)
+- [ ] Proof of execution logs captured
+```
+
+**Proposed:**
+```markdown
+- [ ] Odoo boots without errors (MANDATORY)
+- [ ] Unit tests written for all modified methods (MANDATORY)
+- [ ] Unit tests pass (MANDATORY)
+- [ ] Edge cases tested (no company, empty recordsets, etc.)
+- [ ] Security tests for external data handling
+- [ ] Proof of execution logs captured
+```
+
+**Rationale:** Boot testing alone is insufficient. Functional testing is required.
+
+#### 2. **Update Work Order Template** 🔴 HIGH PRIORITY
+
+Add to Section 5 (Acceptance Criteria):
+```markdown
+## 5. Acceptance Criteria
+
+### Functional Requirements
+- [ ] Requirement 1 is met
+- [ ] Requirement 2 is met
+
+### Testing Requirements (MANDATORY)
+- [ ] Unit tests written for all new/modified methods
+- [ ] Edge cases tested:
+  - [ ] Empty recordsets
+  - [ ] Missing company context
+  - [ ] Null/False values
+  - [ ] Validation constraints
+- [ ] Security considerations addressed:
+  - [ ] External URLs validated
+  - [ ] User input sanitized
+  - [ ] Private data access controlled
+- [ ] All tests passing (0 failures)
+```
+
+#### 3. **Create Testing Standards Document** 🟡 MEDIUM PRIORITY
+
+Document: `aos-architecture/standards/08-testing-requirements.md`
+
+**Content:**
+- When to write unit tests (always!)
+- How to test edge cases
+- Security testing checklist
+- Integration test examples
+- Test coverage targets
+
+#### 4. **Update Coder Agent Onboarding** 🟡 MEDIUM PRIORITY
+
+Add section: "Testing is Not Optional"
+- Examples of edge case tests
+- Security testing patterns
+- Common pitfalls (these 6 bugs as examples!)
+
+#### 5. **Consider Automated Code Review Integration** 🟢 LOW PRIORITY
+
+**Options:**
+- Cursor Bugbot Pro (paid)
+- GitHub Actions + pylint/flake8
+- Pre-commit hooks for common issues
+
+**Benefit:** Catches issues before human review
+
+### Validation of Previous Recommendations
+
+**From Entry #001:**
+- ✅ "Proof-of-execution enforcement needed" - VALIDATED
+- ✅ "Agent type selection matters" - Claude 4.5 Sonnet successfully fixed all bugs
+- ⚠️ "Proof-of-execution not just boot testing" - **CRITICAL GAP CONFIRMED**
+
+### Action Items for Process Improvement
+
+1. **Immediate (This Week):**
+   - [ ] Update Work Order Template with testing requirements
+   - [ ] Update Definition of Done in workflow standards
+   - [ ] Add testing section to Coder Agent onboarding
+
+2. **Short-term (Next Sprint):**
+   - [ ] Create `08-testing-requirements.md` standard
+   - [ ] Write example tests for common patterns
+   - [ ] Update all open issues with testing requirements
+
+3. **Long-term (Next Month):**
+   - [ ] Implement pre-commit hooks for common issues
+   - [ ] Set up automated code review pipeline
+   - [ ] Establish test coverage metrics
+
+### Attribution
+
+**Bugs Identified by:** Cursor Bugbot (automated code review)  
+**Bugs Fixed by:** Executive Architect (Reviewer Agent)  
+**Analysis by:** Executive Architect  
+**Approved for Log by:** @james-healthrt  
+**Status:** Logged for immediate action
+
+---
