@@ -34,3 +34,4 @@ Contains our standardized templates for creating artifacts, such as the `work_or
 
 ### `/process_improvement`
 Contains the `process-improvement.md` log file, which is our official, append-only record of feedback from our AI agents on how to improve our workflow.
+
