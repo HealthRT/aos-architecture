@@ -108,34 +108,33 @@ Our entire process is governed by the **Immutable Core Framework (ADR-009)**. Th
 
 ---
 
-### **PHASE 1: DEFINITION (The "Upstream")**
+### **PHASE 1: DEFINITION (The "Upstream" / Agentic Planning)**
 
 #### **Step 1.1: Ideation & Feature Brief**
 - **Who:** Human Overseer & Executive Architect
 - **What:** A high-level strategic idea is discussed. If deemed viable, the Architect creates a **Feature Brief** in the `/features` directory.
 
-#### **Step 1.2: User Story Creation**
+#### **Step 1.2: Specification Creation**
 - **Who:** Business Analyst (BA) AI Agent
-- **Trigger:** A directive from the Architect to create stories for a Feature Brief.
-- **Action:** The BA reads the Feature Brief and all relevant ADRs, then creates detailed user story `.md` files in the `/user_stories` directory, following the official template. Each story includes a mandatory **"Access Control & Permissions"** section.
+- **Trigger:** A directive from the Architect to create a spec for a Feature Brief.
+- **Action:** The BA reads the Feature Brief and all relevant ADRs, then creates a detailed **`Story.yaml`** specification file in the `/specs` directory, following the official `STORY.yaml.tpl` template.
 
 #### **Step 1.3: The "Upstream" Feedback Loop (Technical Review)**
 - **Who:** Coder Agent
-- **Trigger:** The BA agent finishes a user story and a `status:needs-technical-review` label is applied.
-- **Action (ADR-008):** A Coder Agent is assigned to review the user story for technical feasibility, clarity, and completeness. It provides feedback but does not write code.
-- **Loop:** The BA Agent incorporates the feedback, and the story is updated. This loop continues until the technical review is passed.
+- **Trigger:** The BA agent finishes a `Story.yaml` and a `status:needs-technical-review` label is applied.
+- **Action (ADR-008):** A Coder Agent is assigned to review the YAML spec for technical feasibility, clarity, and completeness.
 
 #### **Step 1.4: Final Architect & Human Approval**
 - **Who:** Executive Architect & Human Overseer
-- **Action:** The architect performs a final review of the technically-vetted user story, including its security design. Upon approval, an "Epic" issue is created in the `aos-architecture` repository to track its overall progress. The human overseer gives the final go-ahead.
+- **Action:** The architect performs a final review of the technically-vetted `Story.yaml`. Upon approval, an "Epic" issue is created in the `aos-architecture` repository to track its overall progress. The human overseer gives the final go-ahead.
 
 ---
 
 ### **PHASE 2: DECOMPOSITION & DISPATCH**
 
 #### **Step 2.1: Work Order Creation**
-- **Who:** Executive Architect
-- **Action:** The Architect decomposes the approved User Story into one or more "nuclear" Work Orders.
+- **Who:** Scrum Master Agent (or Executive Architect)
+- **Action:** The Scrum Master agent reads the approved `Story.yaml` and decomposes it into one or more "nuclear" Work Orders.
 
 #### **Step 2.2: Dispatch**
 - **Who:** Human Overseer (guided by the Coach AI)

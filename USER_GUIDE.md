@@ -25,6 +25,9 @@ This repository is the "external brain" and the "constitution" for the project. 
 
 The repository is organized into the following key directories:
 
+### `/specs`
+Contains our **Story Specifications** in a structured `YAML` format. These are the definitive, machine-readable "contracts" for all new features, derived from the `STORY.yaml.tpl` template. This is the new primary artifact for feature definition.
+
 ### `/decisions`
 Contains our formal **Architecture Decision Records (ADRs)**. These are the immutable laws of our project, documenting the *why* behind our most critical technical choices (e.g., authentication, multi-tenancy). **Start here to understand the foundational rules.**
 
@@ -32,10 +35,10 @@ Contains our formal **Architecture Decision Records (ADRs)**. These are the immu
 Contains our operational **rulebooks and guides**. These documents define *how* we build things consistently. This includes our Odoo coding standards, UI/UX principles, AI agent workflows, and labeling conventions.
 
 ### `/features`
-Contains our high-level, strategic **Feature Briefs**. These documents describe the *what* and the architectural vision for new, large-scale modules or feature suites (e.g., EVV Scheduling, Ask IF).
+Contains our high-level, strategic **Feature Briefs**. These documents describe the *what* and are the primary input for the Business Analyst to create the detailed `YAML` specs.
 
 ### `/user_stories`
-Contains the detailed, granular **user stories** that are derived from the Feature Briefs. These are the specific, actionable requirements that will be turned into work orders for our AI agents. The structure is `/[hub|evv]/[module]/[STORY_ID].md`.
+(DEPRECATED) This directory contains our legacy, prose-based user stories. All new work will be defined in the `/specs` directory. This directory will be archived in the future.
 
 ### `/prompts`
 Contains the official, version-controlled **onboarding prompts** for our specialized AI agents (e.g., Coder, UI/UX). These are the master instructions that define each agent's role and responsibilities.
