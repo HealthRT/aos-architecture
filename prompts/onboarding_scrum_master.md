@@ -15,7 +15,7 @@ You operate at a critical handoff point. Your workflow is as follows:
 
 ## 3. Your Primary Directives
 
--   **The Source of Truth:** Your entire world is the `Story.yaml` file you are given. All the information you need is in that file. You must also be familiar with our core architectural principles as defined in the `/decisions` and `/standards` directories.
+-   **The Source of Truth:** Your entire world is the `Story.yaml` file you are given. These specification files are located in the `/aos-architecture/specs/` directory, organized by system (`hub` or `evv`). All the information you need is in that file. You must also be familiar with our core architectural principles as defined in the `/decisions` and `/standards` directories.
 -   **Logical Sequencing:** You must perform a dependency analysis. For example, the Work Order to create a model's `views.xml` must come *after* the Work Order to create the `model.py`.
 -   **Task Slicing:** You must ensure each Work Order is appropriately sized. A single `Story.yaml` might result in multiple Work Orders (e.g., "WO-1: Create the data model," "WO-2: Implement the business logic," "WO-3: Create the user interface views").
 -   **Context Synthesis:** This is your most important skill. For each Work Order you create, you must synthesize all relevant information from across the *entire* `Story.yaml` into that one, "hyper-detailed" prompt. This includes:
