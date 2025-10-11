@@ -1,0 +1,95 @@
+id: AGMT-001
+title: "Create Simple Bucket Service Agreement"
+summary: "Enables a Designated Coordinator to manually create a basic, single-budget service agreement for a patient."
+
+# --- User Story (for human context) ---
+user_story: "As a Designated Coordinator, I want to manually create a 'Simple Bucket' Service Agreement, so that I can establish the total authorized service units for a patient's care period."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "DC (Designated Coordinator)"
+compliance:
+  hipaa_implicated: true
+  phi_fields:
+    - "service.agreement.patient_id"
+  access_control:
+    - role: "DC (Designated Coordinator)"
+      permissions: ["create", "read", "write", "delete"]
+  immutable_core_impact: false
+
+# --- Technical Specification ---
+module: "evv_agreements"
+depends_on:
+  - "evv_core" # Assuming a base module for patients
+out_of_scope:
+  - "Automated ingestion of agreements (SFTP, OCR, etc.)"
+  - "Support for complex rules (e.g., weekly/daily cadences)"
+  - "The Service Validation Engine's consumption of this data (will be defined in other stories)"
+  - "The override process for validation warnings"
+
+models:
+  - name: "service.agreement"
+    fields:
+      - { name: "patient_id", type: "Many2one", relation: "res.partner", required: true }
+      - { name: "start_date", type: "Date", required: true }
+      - { name: "end_date", type: "Date", required: true }
+      - { name: "total_units", type: "Float", required: true }
+      - { name: "state", type: "Selection", selection: "[('draft', 'Draft'), ('active', 'Active'), ('expired', 'Expired'), ('cancelled', 'Cancelled')]", required: true, default: "'draft'" }
+    methods:
+      - name: "action_activate"
+        signature: "def action_activate(self) -> None:"
+        intent: "Transitions the agreement state to 'Active'. Performs validation checks before activation."
+      - name: "action_cancel"
+        signature: "def action_cancel(self) -> None:"
+        intent: "Transitions the agreement state to 'Cancelled'."
+
+# --- User Experience ---
+ui_mockup: |
+  ┌──────────────────────────────────────────────────┐
+  │ Create Service Agreement                         │
+  ├──────────────────────────────────────────────────┤
+  │ Patient:        [Search: patient_id]             │
+  │ Start Date:     [Date Picker: start_date]        │
+  │ End Date:       [Date Picker: end_date]          │
+  │ Total Units:    [Number Input: total_units]      │
+  │                                                  │
+  │ [Save Button] [Activate Button] [Cancel Button]  │
+  └──────────────────────────────────────────────────┘
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "Can an agreement be created without a patient?"
+    a: "No, the patient field is mandatory."
+  - q: "What is the rule for start and end dates?"
+    a: "The start_date must be on or before the end_date."
+  - q: "Can the total_units be negative?"
+    a: "No, the total_units must be a positive number."
+  - q: "What is the initial state of a new agreement?"
+    a: "All new agreements start in the 'Draft' state."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN a user with the 'Designated Coordinator' role, WHEN they navigate to the Service Agreements area, THEN they can create a new record."
+  - "GIVEN a new Service Agreement form, WHEN the user selects a patient, sets a start_date after the end_date, and tries to save, THEN the system must raise a validation error."
+  - "GIVEN a valid draft agreement, WHEN the user clicks the 'Activate' button, THEN the agreement's state must change to 'Active'."
+  - "GIVEN a user without the 'Designated Coordinator' role, WHEN they attempt to create a Service Agreement, THEN the system must raise an AccessError."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "models/service_agreement.py"
+    - "views/service_agreement_views.xml"
+    - "security/ir.model.access.csv"
+    - "security/evv_agreements_security.xml"
+  tests:
+    - "tests/test_service_agreement_creation.py"
+  docs:
+    - "docs/models/service_agreement.md"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "Unified diff only. Stay in the specified module path. Adhere strictly to all ADRs."
+  qa_output: "Generate tests that explicitly cover every acceptance criterion. Include tests for permissions and error conditions."
+  security_focus: "Pay close attention to the `compliance` section. All `access_control` rules must be enforced via ir.model.access.csv and any necessary record rules."

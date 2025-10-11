@@ -1,0 +1,24 @@
+{
+  "name": "aos-architecture",
+  "version": "1.0.0",
+  "description": "Welcome to the **Agency Operating System (AOS)** project. This repository is the **single source of truth** for the architecture, standards, and strategic direction of the entire AOS platform.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HealthRT/aos-architecture.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HealthRT/aos-architecture/issues"
+  },
+  "homepage": "https://github.com/HealthRT/aos-architecture#readme",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

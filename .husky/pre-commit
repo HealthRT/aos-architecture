@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+STAGED_FILES=$(git diff --cached --name-only)
+PROTECTED_PATH="prompts/core/"
+
+for FILE in $STAGED_FILES; do
+    case "$FILE" in
+        ${PROTECTED_PATH}*)
+            echo "ERROR: Modification of the Immutable Core is prohibited. The file $FILE cannot be changed."
+            exit 1
+            ;;
+    esac
+done
+
+exit 0

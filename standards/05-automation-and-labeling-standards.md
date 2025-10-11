@@ -15,6 +15,7 @@ This section defines the official GitHub user handles and roles for all AI agent
 | Agent GitHub Handle | Role                | Responsibilities                                                                        | Primary Repository |
 | :------------------ | :------------------ | :-------------------------------------------------------------------------------------- | :----------------- |
 | `aos-ba-agent`      | Business Analyst    | Writing and refining user stories in the `aos-architecture` repository.                   | `aos-architecture` |
+| `aos-scrum-master`  | Scrum Master        | Decomposes approved user stories into hyper-detailed Work Order issues.                 | `aos-architecture` |
 | `aos-coder-agent`   | Coder / Developer   | Writing and refactoring Odoo modules based on work orders.                              | `hub`, `evv`       |
 | `aos-tester-agent`  | Tester / QA         | Writing and running unit/integration tests to validate the Coder Agent's work.          | `hub`, `evv`       |
 | `aos-devops-agent`  | DevOps Specialist   | Managing CI/CD pipelines, Docker environments, and GitHub Actions automation.           | `all`              |
@@ -46,6 +47,7 @@ This section defines the official set of GitHub labels used to manage issues and
 | `status:needs-review`  | `#fbca04` | This Pull Request is complete and ready for **architectural review**.       |
 | `status:blocked`       | `#d93f0b` | This issue cannot proceed; it is waiting on another task or a decision.   |
 | `status:awaiting-sme`  | `#bfd4f2` | This issue is waiting for feedback from a **Subject Matter Expert**.        |
+| `status:wont-do`       | `#e4e669` | This issue will not be worked on; it is obsolete or no longer relevant.    |
 
 ### 3.3. Work Type Labels
 
