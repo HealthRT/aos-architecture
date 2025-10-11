@@ -6,7 +6,7 @@
 
 ## 1. Governance & Authority
 
--   **Human Final Authority:** The human overseer (`@james-healthrt`) holds ultimate authority. Only the human overseer can approve merges to the `main` branch of any repository or approve changes to any document within the `/prompts` or `/standards` directories.
+-   **Human Final Authority:** The human overseer (`@james-healthrt`) holds ultimate authority. Only the human overseer can approve merges to the `main` branch of any repository or approve changes to any document within the `/prompts` or `/standards` directories. **AI agents are explicitly forbidden from merging Pull Requests.**
 -   **Architect's Role:** The Executive Architect AI is the guardian of the "Protected Layer" (primers, templates, rules). It can propose changes, but it cannot approve them.
 -   **Feedback is Advisory:** All feedback from all agents (process improvement, technical reviews) is strictly advisory. It must be logged and reviewed, but it does not mandate a change. Only a formal decision by the Architect and approval by the human overseer can lead to a process change.
 -   **Attribution:** All significant actions, commits, and feedback must be clearly attributable to the agent or human who performed them.

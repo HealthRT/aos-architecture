@@ -46,6 +46,7 @@ This section defines the official set of GitHub labels used to manage issues and
 | `status:needs-review`  | `#fbca04` | This Pull Request is complete and ready for **architectural review**.       |
 | `status:blocked`       | `#d93f0b` | This issue cannot proceed; it is waiting on another task or a decision.   |
 | `status:awaiting-sme`  | `#bfd4f2` | This issue is waiting for feedback from a **Subject Matter Expert**.        |
+| `status:wont-do`       | `#e4e669` | This issue will not be worked on; it is obsolete or no longer relevant.    |
 
 ### 3.3. Work Type Labels
 

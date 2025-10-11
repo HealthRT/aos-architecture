@@ -1,17 +1,56 @@
 # Complete AOS Development Workflow - End to End
 
 **Last Updated:** 2025-10-09  
-**Purpose:** Crystal-clear explanation of the entire development process, roles, and order of operations
+**Purpose:** The single source of truth for the entire development process, roles, and order of operations.
 
 ---
 
-## 🎯 **THE BIG PICTURE**
+## 🎯 **VISUAL SUMMARY: THE MASTER WORKFLOW**
 
-```
-User Story → Decomposition → Work Orders → Implementation → Testing → Review → Merge → Deploy
-     ↓            ↓              ↓              ↓             ↓          ↓        ↓       ↓
-  Architect      BA AI       GitHub Issue   Coder Agent   Coder Agent  Review  GitHub  Production
-                                                                         AI/Human
+The following diagram illustrates our complete, end-to-end process, from initial idea to production deployment.
+
+```mermaid
+graph TD
+    subgraph "Phase 1: Design (You & AI BA)"
+        A[1. You: Define Requirement] --> B[2. AI BA: Generate User Story];
+        B --> C[3. AI BA: Submit Story PR to platform-architecture];
+        C --> D{4. You: Review Story PR};
+        D -- Approved --> E[5. You: Merge Story PR];
+    end
+
+    subgraph "Phase 2: UI/UX Mockup (You, AI UI/UX, & SME)"
+        E --> F{6. Does story need a UI?};
+        F -- Yes --> G[7. You: Brief AI UI/UX Designer];
+        G --> H[8. AI UI/UX: Generate Mockups];
+        H --> I[9. You: Add mockup to Story PR];
+        I --> J{10. SME: Review Mockup PR};
+        J -- Approved --> K[11. You: Merge Mockup PR];
+        F -- No --> K;
+    end
+
+    subgraph "Phase 3: Decomposition (Automated)"
+        K --> L[12. You: Trigger 'Decompose Story' Action];
+        L --> M[13. GitHub Action: Reads story, briefs AI];
+        M --> N[14. AI Decomposer: Returns JSON of nuclear tasks];
+        N --> O[15. GitHub Action: Creates GitHub Issues];
+        O --> P[16. GitHub Action: Adds Issues to Project Board];
+    end
+
+    subgraph "Phase 4: Development & Deployment"
+        P --> Q[17. AI Coder is assigned an Issue];
+        Q --> R[18. AI Coder: Writes Code & submits PR];
+        R --> S[19. CI Pipeline: Runs tests];
+        S -- Fails --> R;
+        S -- Passes --> T{20. You: Review Code PR};
+        T -- Revisions Needed --> R;
+        T -- Approved --> U[21. You: Merge PR to 'staging'];
+        U --> V[22. Automated Deploy to Staging];
+        V --> W{23. You & SMEs: Perform UAT};
+        W -- Fails --> X[Create new Bug Issue];
+        X --> P;
+        W -- Approved --> Y[24. You: Trigger Prod Deploy];
+        Y --> Z((Done));
+    end
 ```
 
 ---
