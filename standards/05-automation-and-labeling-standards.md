@@ -19,6 +19,7 @@ This section defines the official GitHub user handles and roles for all AI agent
 | `aos-coder-agent`   | Coder / Developer   | Writing and refactoring Odoo modules based on work orders.                              | `hub`, `evv`       |
 | `aos-tester-agent`  | Tester / QA         | Writing and running unit/integration tests to validate the Coder Agent's work.          | `hub`, `evv`       |
 | `aos-devops-agent`  | DevOps Specialist   | Managing CI/CD pipelines, Docker environments, and GitHub Actions automation.           | `all`              |
+| `aos-github-coach`  | GitHub Coach        | Guiding the human overseer through GitHub operations, issue management, and git workflows. | `all`              |
 | `aos-architect`     | Executive Architect | (The AI in this chat) Reviewing code, making architectural decisions, creating work orders. | `all`              |
 
 ## 3. GitHub Label Glossary
@@ -83,6 +84,7 @@ This section defines the official set of GitHub labels used to manage issues and
 | `module:hub-compliance`      | `#1d76db` | Related to the Compliance and Onboarding module in the Hub.           |
 | `module:hub-traction`        | `#b662d0` | Related to the Traction/EOS module in the Hub.                        |
 | `module:hub-payroll`         | `#f9d0c4` | Related to the Payroll and Blended Overtime module in the Hub.        |
+| `module:evv-compliance`      | `#1d76db` | Related to the Compliance and Service Agreements module in the EVV.   |
 | `module:evv-scheduling`      | `#008672` | Related to the Scheduling and Matching Engine in the EVV.             |
 | `module:ask-if`              | `#f9d0c4` | Related to the "Ask IF" AI Assistant.                                 |
 | `module:employee-experience` | `#f9d0c4` | Related to the `if_*` suite of retention and engagement modules.      |
