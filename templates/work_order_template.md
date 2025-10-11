@@ -1,3 +1,9 @@
+---
+title: "[TYPE] WORK_ORDER_ID: Brief Title"
+repo: "[e.g., HealthRT/hub or HealthRT/evv]"
+assignee: "[e.g., aos-coder-agent]"
+labels: "agent:[agent-type],type:[work-type],module:[module-name],priority:[high|medium|low]"
+---
 # Work Order: [WORK_ORDER_ID] - [BRIEF_TITLE]
 
 ## 1. Context & Objective
