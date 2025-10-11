@@ -135,10 +135,14 @@ Our entire process is governed by the **Immutable Core Framework (ADR-009)**. Th
 #### **Step 2.1: Work Order Creation**
 - **Who:** Scrum Master Agent (or Executive Architect)
 - **Action:** The Scrum Master agent reads the approved `Story.yaml` and decomposes it into one or more "nuclear" Work Orders.
+- **Deliverable:** The agent creates a separate `.md` file for each Work Order and places it in the `aos-architecture/work_orders/pending/` directory.
 
-#### **Step 2.2: Dispatch**
+#### **Step 2.2: Review and Dispatch**
 - **Who:** Human Overseer (guided by the Coach AI)
-- **Action:** Creates a GitHub Issue in the target repository (`hub` or `evv`) for each Work Order, using the mandatory `work_order_template.md`. The issue is assigned to the appropriate agent (e.g., `aos-coder-agent`) and labeled correctly.
+- **Action:**
+    1.  The human overseer reviews the pending Work Order files in the `/work_orders/pending/` directory.
+    2.  Once a Work Order is approved for dispatch, the overseer executes the `dispatch.sh` script from the command line, providing the path to the Work Order file.
+    3.  The script automatically creates the corresponding GitHub Issue in the correct repository and moves the source file to `/work_orders/dispatched/`.
 
 ---
 
