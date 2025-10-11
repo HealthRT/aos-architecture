@@ -1,4 +1,4 @@
-# Agency Operating System (AOS) - Architecture Repository
+# Agency Operating System (AOS) - User Guide
 
 ## 1. Project Vision
 
@@ -8,9 +8,20 @@ The AOS is a federated system composed of two primary applications:
 -   **The Hub:** The administrative core for HR, compliance, and operations.
 -   **The EVV:** A HIPAA-compliant system for patient care and scheduling.
 
-## 2. Repository Purpose & Structure
+## 2. The AOS-BMAD Hybrid Framework
 
-This repository is the "external brain" and the "constitution" for the project. It does not contain application code, but rather the blueprints and rulebooks that govern that code.
+The AOS project follows a custom workflow that is philosophically aligned with the **BMAD-METHOD™**, an open-source methodology for agentic software development. We have formally adopted key concepts from BMAD to structure our process.
+
+Our workflow is divided into two main phases:
+
+1.  **Agentic Planning:** The strategic phase where humans and specialist AI agents (Architect, Business Analyst) collaborate to define the *what* and the *why* of the features we build. The output of this phase is a set of architecturally-vetted user stories.
+2.  **Context-Engineered Development:** The tactical phase where a **Scrum Master Agent** decomposes the approved user stories into "hyper-detailed" Work Orders. Specialist Coder, Tester, and DevOps agents then execute these work orders to build, validate, and deploy the software.
+
+This guide serves as the master reference for this entire end-to-end process.
+
+## 3. Repository Purpose & Structure
+
+This repository is the "external brain" and the "constitution" for the project. It is the central hub for our **Agentic Planning** phase. It does not contain application code, but rather the blueprints and rulebooks that govern that code.
 
 The repository is organized into the following key directories:
 

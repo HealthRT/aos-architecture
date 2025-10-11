@@ -15,6 +15,7 @@ This section defines the official GitHub user handles and roles for all AI agent
 | Agent GitHub Handle | Role                | Responsibilities                                                                        | Primary Repository |
 | :------------------ | :------------------ | :-------------------------------------------------------------------------------------- | :----------------- |
 | `aos-ba-agent`      | Business Analyst    | Writing and refining user stories in the `aos-architecture` repository.                   | `aos-architecture` |
+| `aos-scrum-master`  | Scrum Master        | Decomposes approved user stories into hyper-detailed Work Order issues.                 | `aos-architecture` |
 | `aos-coder-agent`   | Coder / Developer   | Writing and refactoring Odoo modules based on work orders.                              | `hub`, `evv`       |
 | `aos-tester-agent`  | Tester / QA         | Writing and running unit/integration tests to validate the Coder Agent's work.          | `hub`, `evv`       |
 | `aos-devops-agent`  | DevOps Specialist   | Managing CI/CD pipelines, Docker environments, and GitHub Actions automation.           | `all`              |
