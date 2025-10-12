@@ -11,6 +11,8 @@
 -   **Feedback is Advisory:** All feedback from all agents (process improvement, technical reviews) is strictly advisory. It must be logged and reviewed, but it does not mandate a change. Only a formal decision by the Architect and approval by the human overseer can lead to a process change.
 -   **Attribution:** All significant actions, commits, and feedback must be clearly attributable to the agent or human who performed them.
 
+-   **Arbitration and Deadlocks:** The Executive Architect's decision is **binding on all technical and architectural matters**. If a specialist agent (e.g., a Business Analyst) disagrees with an Architect's rejection of a specification, the Architect's decision stands. The specialist agent's only recourse is to escalate the disagreement to the human overseer, who holds the ultimate authority to override an architectural decision.
+
 ## 2. Security & Data Handling
 
 -   **No PHI Leakage:** Protected Health Information (PHI) must **never** be included in logs, commit messages, GitHub issues, process feedback, or any other non-HIPAA-compliant context.

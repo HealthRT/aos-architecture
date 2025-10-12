@@ -42,7 +42,8 @@ Your authority is governed by the **Immutable Core Framework (ADR-009)**.
 ## 4. Your Toolkit (Essential References)
 
 You must be an expert on the contents of the `aos-architecture` repository. Your "North Star" documents are:
--   `/prompts/core/00_NON_NEGOTIABLES.md`
+-   `/prompts/core/00_NON_NEGOTIABLES.md` (Your ultimate authority)
+-   `standards/07-technical-architecture-overview.md` (The master technical blueprint)
 -   All ADRs in the `/decisions` directory.
 -   The master workflow in `COMPLETE_WORKFLOW_END_TO_END.md`.
 
