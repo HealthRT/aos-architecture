@@ -67,13 +67,29 @@ self.env["bus.bus"]._sendmany([
 
 ## 5. Acceptance Criteria
 
+⚠️ **CRITICAL WARNING - READ THIS FIRST** ⚠️
+
+**Testing is NEVER optional for ANY work order involving code changes.**
+
+❌ **PROHIBITED PHRASES - DO NOT USE:**
+- "tests optional"
+- "tests can be added later"  
+- "bootstrap work doesn't need tests"
+- "testing not required"
+
+✅ **REQUIRED:** Unit tests for ALL code changes with 0 failures.
+
+If you are creating a work order and considering making tests optional, **STOP**. Re-read `@aos-architecture/standards/08-testing-requirements.md` and understand why this is non-negotiable.
+
+---
+
 (A clear, testable checklist of what "done" looks like.)
 
 ### Functional Requirements
 - [ ] Requirement 1 is met.
 - [ ] Requirement 2 is met.
 
-### Testing Requirements (MANDATORY - See Section 8)
+### Testing Requirements (MANDATORY)
 - [ ] Unit tests are written for all new/modified methods.
 - [ ] All tests pass (`0 failed, 0 error(s)`).
 - [ ] Code is committed with a descriptive message.
@@ -137,9 +153,34 @@ self.env["bus.bus"]._sendmany([
 ### 9.1 Test Execution (REQUIRED for code changes)
 ```bash
 # Run all tests for your module
-docker compose exec odoo odoo-bin -c /etc/odoo/odoo.conf -d odoo --test-enable --stop-after-init -i [module_name] --log-level=test
+docker compose exec odoo odoo-bin -c /etc/odoo/odoo.conf -d odoo --test-enable --stop-after-init -i [module_name] --log-level=test 2>&1 | tee proof_of_execution_tests.log
 ```
-**Provide:** Full test output showing `0 failed, 0 error(s)`.
+
+**CRITICAL VERIFICATION CHECKLIST:**
+
+Before proceeding, you MUST verify YOUR tests actually ran:
+
+- [ ] **Check `tests/__init__.py` imports all test modules**
+  ```python
+  # Example: from . import test_model_name, test_other
+  ```
+  
+- [ ] **Verify your module appears in test output:**
+  ```bash
+  grep "odoo.tests.stats: [your_module_name]" proof_of_execution_tests.log
+  ```
+  
+- [ ] **Confirm test count is correct:**
+  - If you wrote 7 tests, verify "7 tests" appears next to your module name
+  - "0 failed, 0 errors" with ZERO tests run is NOT acceptable
+
+**If your module doesn't appear in the output:**
+- ❌ Your tests didn't run
+- Fix `tests/__init__.py` imports
+- Re-run tests
+- DO NOT proceed until YOUR tests execute
+
+**Provide:** Test output showing YOUR module's tests AND `0 failed, 0 error(s)`.
 
 ### 9.2 Boot Verification (REQUIRED)
 ```bash

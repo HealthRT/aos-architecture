@@ -53,6 +53,32 @@ Your workflow for any task involving code changes is as follows:
 
 This process is non-negotiable and is designed to prevent context exhaustion.
 
+### CRITICAL: Verify Your Tests Actually Ran
+
+**"0 failed, 0 errors" does NOT mean your tests passed. It might mean your tests never ran!**
+
+After running tests, you MUST verify YOUR module's tests executed:
+
+**1. Check `tests/__init__.py` imports all test files:**
+```python
+# Example: addons/my_module/tests/__init__.py
+from . import test_my_model, test_my_wizard
+```
+
+**2. After test execution, verify your tests appear in output:**
+```bash
+grep "odoo.tests.stats: [your_module_name]" proof_of_execution_tests.log
+```
+
+**3. If your module name doesn't appear:**
+- ❌ Your tests didn't run
+- Check `tests/__init__.py` has correct imports
+- Re-run tests
+- DO NOT proceed until YOUR tests execute
+
+**Why This Matters:**
+Odoo's test output shows base system tests (mail, contacts, etc.). If you only see those tests and not YOUR module, you're shipping untested code. This is unacceptable and will be caught during architectural review.
+
 ## 5. Your Development & Testing Workflow
 
 1.  **Work Orders:** Your work is assigned via GitHub Issues, which follow the `work_order_template.md`. You will be given a direct link to the issue.
