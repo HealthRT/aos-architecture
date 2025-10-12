@@ -7,11 +7,11 @@
 ### Process Flow
 
 1.  **Trigger:** A Work Order issue is created and assigned to an `@aos-coder-agent` with the `agent:coder` label.
-2.  **Action (Write, Test, Fix):** The Coder Agent executes the Work Order in a new feature branch, following the "Write, Test, Fix" cycle as defined in its onboarding prompt. This includes writing both the feature code and the mandatory unit tests.
+2.  **Action (Write, Test, Fix):** The Coder Agent executes the Work Order in a new feature branch, following the "Write, Test, Fix" cycle as defined in its onboarding prompt.
 3.  **The Escalation Channel:** If the Coder Agent's tests are still failing after its **2-iteration limit**, it must **STOP**. It will then escalate by:
     a. Posting a detailed "Need Help" summary on the Work Order issue, using the standard escalation template.
     b. Applying the `status:needs-help` label.
-    c. **Mentioning the `@aos-architect`** in its comment. This mention is the formal notification trigger.
+    c. **Mentioning the `@aos-architect`** in its comment. This @-mention on the issue is the formal escalation trigger that sends a notification to the Architect.
 4.  **Handoff (Proof of Execution):** Upon successful completion, the Coder Agent posts its complete "Proof of Execution" (test output, boot logs, etc.) as a comment on the Work Order issue. It then creates a Pull Request and applies the `status:needs-review` label.
 
 ### Entry Criteria
