@@ -12,18 +12,75 @@ labels: "agent:[agent-type],type:[work-type],module:[module-name],priority:[high
 
 ---
 
-## 2. Repository Setup
+## 2. Development Environment (CRITICAL - Read First)
 
+**Per ADR-013 (Repository Boundaries) - MUST VERIFY BEFORE STARTING**
+
+### Target Repository
 **Repository:** [hub | evv]
+**GitHub URL:** [github.com/HealthRT/hub | github.com/HealthRT/evv]
+**Target Module:** [module_name]
+**Module Prefix:** [hub_* | evv_* | traction*]
+
+### Pre-Work Verification Checklist
+
+**BEFORE starting any work, you MUST complete these steps:**
+
+```bash
+# Step 1: Navigate to target repository
+cd /path/to/[hub | evv]/
+
+# Step 2: Verify correct repository (MANDATORY)
+git remote -v
+# Expected output: origin  https://github.com/HealthRT/[hub|evv].git
+
+# Step 3: Verify Docker environment exists
+ls docker-compose.yml
+# Must exist in repository root
+
+# Step 4: Verify module prefix matches repository
+# For Hub: module must be hub_* or traction*
+# For EVV: module must be evv_*
+```
+
+- [ ] Confirmed `git remote -v` shows correct repository (HealthRT/[hub|evv])
+- [ ] Confirmed `docker-compose.yml` exists in repository root
+- [ ] Confirmed module prefix matches repository per ADR-013
+- [ ] Read repository's `README.md` file
+
+### Docker Environment
+
+**Start Command:**
+```bash
+cd [repository_path]/
+docker compose up -d
+```
+
+**Access URL:**
+- Hub: `http://localhost:8090`
+- EVV: `http://localhost:8091`
+
+**Database:** postgres
+
+### Git Workflow
+
 **Base Branch:** [e.g., `main` or `feature/previous-task`]
-**New Branch:** [e.g., `feature/WORK_ORDER_ID-description`]
+**New Branch:** [e.g., `feature/WO-XXX-description`]
+
+**Branch Naming Convention (ADR-014):**
+```
+feature/WO-{ID}-{short-description}
+bugfix/ISSUE-{NUM}-{short-description}
+docs/WO-{ID}-{short-description}
+```
 
 **Setup Commands:**
 ```bash
-# Ensure you are in the correct repository before running
+# After verifying you're in the correct repository
 git checkout [Base Branch]
 git checkout -b [New Branch]
 ```
+
 **Note:** (Optional: Any critical information about the state of the repository, e.g., "The `main` branch does not yet contain the module source code. Service files were added in TRAC-REFACTOR-003.")
 
 ---

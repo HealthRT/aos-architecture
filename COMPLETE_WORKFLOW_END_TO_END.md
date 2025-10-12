@@ -82,7 +82,7 @@ Our entire process is governed by the **Immutable Core Framework (ADR-009)**. Th
 | **Product Owner** | Business requirements | Describes features, approves stories |
 | **Executive Architect** | Technical direction, ADRs | Approves architecture, reviews process |
 | **Developer (James)** | Oversight, orchestration | Dispatches agents, reviews work, merges |
-| **Workflow Coach AI** | Guides the human overseer through the established processes, helps dispatch work. |
+| **GitHub Coach AI** | GitHub operations guide | Manages issues, branches, PRs; educates on git workflows |
 
 ### **AI Agent Roles:**
 
@@ -101,6 +101,35 @@ Our entire process is governed by the **Immutable Core Framework (ADR-009)**. Th
 | **Cursor Bugbot** | Code analysis | On PR creation (manual trigger) |
 | **Pre-commit Hooks** | Lint/format | On git commit (when activated) |
 | **GitHub Actions** | CI/CD | On push/PR (future) |
+
+---
+
+## 🛡️ **QUALITY SAFEGUARDS**
+
+Our workflow includes multiple quality gates to prevent issues from reaching production:
+
+### **Work Order Quality Validation**
+
+**Automated Script:** `scripts/validate-work-order.sh`
+
+Validates every work order before dispatch:
+- ✅ No prohibited phrases ("tests optional", etc.)
+- ✅ Testing Requirements section present
+- ✅ Testing standards reference included
+- ✅ Proof of Execution section complete
+- ✅ All required structural sections present
+
+**Usage:**
+```bash
+./scripts/validate-work-order.sh path/to/WO-XXX.md
+```
+
+**Integration Points:**
+- Scrum Master self-check (mandatory before submission)
+- Architect pre-dispatch review
+- Can be added to pre-commit hooks or GitHub Actions
+
+**Rationale:** Process Improvement Entry #005 documented that "tests optional" language led to incomplete implementations. Automated validation prevents recurrence.
 
 ---
 

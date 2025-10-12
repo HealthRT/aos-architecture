@@ -14,6 +14,10 @@ compliance:
   hipaa_implicated: true
   phi_fields:
     - "service.agreement.patient_id"
+    - "service.agreement.recipient_id_external"
+    - "service.agreement.diagnosis_code"
+    - "service.agreement.service_description"
+    - "service.agreement.case_manager_id" # OPEN ITEM: Confirm with compliance if case manager assignment is PHI
   access_control:
     - role: "DC (Designated Coordinator)"
       permissions: ["create", "read", "write", "delete"]
@@ -30,51 +34,211 @@ out_of_scope:
   - "The override process for validation warnings"
 
 models:
-  - name: "service.agreement"
+  - name: "res.partner"
+    description: "Extension to Odoo's core contact model to support patient and case manager classification."
+    note: "This model is inherited/extended from Odoo core. We add custom fields to support the waiver service domain."
     fields:
-      - { name: "patient_id", type: "Many2one", relation: "res.partner", required: true }
-      - { name: "start_date", type: "Date", required: true }
-      - { name: "end_date", type: "Date", required: true }
-      - { name: "total_units", type: "Float", required: true }
-      - { name: "state", type: "Selection", selection: "[('draft', 'Draft'), ('active', 'Active'), ('expired', 'Expired'), ('cancelled', 'Cancelled')]", required: true, default: "'draft'" }
+      # --- Contact Classification (Boolean Flags) ---
+      - { name: "is_patient", type: "Boolean", required: false, default: "False", help: "If true, this contact is a patient/individual receiving services. Enables patient-specific features and filtering." }
+      - { name: "is_case_manager", type: "Boolean", required: false, default: "False", help: "If true, this contact is a county case manager. Enables case manager assignment and prevents duplicate entries." }
+      
+      # --- External System IDs ---
+      - { name: "recipient_id_external", type: "Char", required: false, help: "External recipient/patient ID from county system (e.g., 02002516). Used for integration and traceability." }
+      - { name: "case_manager_external_id", type: "Char", required: false, help: "External case manager ID from county system (e.g., A641415300). Used to prevent duplicate case manager records." }
+
+  - name: "service.agreement"
+    description: "Represents a single service authorization line from a county waiver agreement. Multiple service lines may share the same agreement_number but have different procedure codes, modifiers, or date ranges."
+    fields:
+      # --- Agreement Header & Traceability ---
+      - { name: "agreement_number", type: "Char", required: false, help: "External service agreement ID from county system (e.g., 32229002314). Multiple service lines may share same agreement number." }
+      - { name: "provider_id_external", type: "Char", required: false, help: "External provider ID from county system (e.g., 1316610249)" }
+      - { name: "line_number", type: "Char", required: false, help: "Line number within external agreement (e.g., '04', '05')" }
+      - { name: "line_status", type: "Selection", selection: "[('approved', 'Approved'), ('denied', 'Denied'), ('pending', 'Pending')]", required: false, help: "County approval status for this service line" }
+      
+      # --- Recipient/Patient Information ---
+      - { name: "patient_id", type: "Many2one", relation: "res.partner", required: true, domain: "[('is_patient', '=', True)]", help: "Internal patient/recipient record" }
+      - { name: "recipient_id_external", type: "Char", required: false, help: "External recipient ID from county system (e.g., 02002516)" }
+      
+      # --- Service Specification ---
+      - { name: "procedure_code", type: "Char", required: true, size: 10, help: "Service procedure code (e.g., H2014)" }
+      - { name: "modifier_1", type: "Char", required: false, size: 4, help: "First procedure modifier (e.g., UC)" }
+      - { name: "modifier_2", type: "Char", required: false, size: 4, help: "Second procedure modifier (e.g., U3)" }
+      - { name: "modifier_3", type: "Char", required: false, size: 4, help: "Third procedure modifier (e.g., U4)" }
+      - { name: "modifier_4", type: "Char", required: false, size: 4, help: "Fourth procedure modifier (MOD1-4 column)" }
+      - { name: "service_description", type: "Text", required: false, help: "Human-readable service description (e.g., 'INDV HOME SUPTS W/TRAINING 1 1')" }
+      
+      # --- Date Fields ---
+      - { name: "effective_date", type: "Date", required: true, help: "Service authorization start date (labeled 'EFFECTIVE DATE' on county document)" }
+      - { name: "through_date", type: "Date", required: true, help: "Service authorization end date (labeled 'THROUGH DATE' on county document)" }
+      - { name: "start_date", type: "Date", compute: "_compute_start_date", store: true, help: "Computed alias for effective_date (backward compatibility)" }
+      - { name: "end_date", type: "Date", compute: "_compute_end_date", store: true, help: "Computed alias for through_date (backward compatibility)" }
+      
+      # --- Authorization Quantities ---
+      - { name: "total_units", type: "Float", required: true, digits: "(12, 2)", help: "Total authorized units/quantity for this service line (e.g., 3509.00)" }
+      
+      # --- Financial Fields ---
+      - { name: "rate_per_unit", type: "Monetary", required: false, currency_field: "currency_id", help: "Authorized reimbursement rate per unit (e.g., $11.66)" }
+      - { name: "total_amount", type: "Monetary", required: false, currency_field: "currency_id", compute: "_compute_total_amount", store: true, help: "Total authorized amount (rate × units)" }
+      - { name: "currency_id", type: "Many2one", relation: "res.currency", required: true, default: "lambda self: self.env.company.currency_id", help: "Currency for financial amounts" }
+      
+      # --- Compliance & Regulatory ---
+      - { name: "diagnosis_code", type: "Char", required: false, size: 10, help: "ICD-10 diagnosis code at time of assessment (e.g., F70)" }
+      - { name: "case_manager_id", type: "Many2one", relation: "res.partner", required: false, domain: "[('is_case_manager', '=', True)]", help: "County case manager assigned to this service authorization. Links to a contact record with is_case_manager=True." }
+      
+      # --- State Management ---
+      - { name: "state", type: "Selection", selection: "[('draft', 'Draft'), ('active', 'Active'), ('expired', 'Expired'), ('cancelled', 'Cancelled')]", required: true, default: "'draft'", help: "Internal workflow state - independent of county approval status (line_status)" }
+      
     methods:
+      - name: "_compute_start_date"
+        signature: "@api.depends('effective_date')\ndef _compute_start_date(self) -> None:"
+        intent: "Computes start_date as alias for effective_date to maintain backward compatibility with existing interfaces."
+        
+      - name: "_compute_end_date"
+        signature: "@api.depends('through_date')\ndef _compute_end_date(self) -> None:"
+        intent: "Computes end_date as alias for through_date to maintain backward compatibility with existing interfaces."
+        
+      - name: "_compute_total_amount"
+        signature: "@api.depends('rate_per_unit', 'total_units')\ndef _compute_total_amount(self) -> None:"
+        intent: "Computes total authorized amount as rate_per_unit × total_units. Returns 0.0 if either value is missing."
+        
       - name: "action_activate"
         signature: "def action_activate(self) -> None:"
-        intent: "Transitions the agreement state to 'Active'. Performs validation checks before activation."
+        intent: "Transitions the agreement state to 'Active'. Performs validation checks before activation: validates mandatory fields (patient, procedure_code, dates, units), validates date range (effective_date <= through_date), validates positive units."
+        
       - name: "action_cancel"
         signature: "def action_cancel(self) -> None:"
-        intent: "Transitions the agreement state to 'Cancelled'."
+        intent: "Transitions the agreement state to 'Cancelled'. No validation required - cancellation is always allowed."
 
 # --- User Experience ---
 ui_mockup: |
-  ┌──────────────────────────────────────────────────┐
-  │ Create Service Agreement                         │
-  ├──────────────────────────────────────────────────┤
-  │ Patient:        [Search: patient_id]             │
-  │ Start Date:     [Date Picker: start_date]        │
-  │ End Date:       [Date Picker: end_date]          │
-  │ Total Units:    [Number Input: total_units]      │
-  │                                                  │
-  │ [Save Button] [Activate Button] [Cancel Button]  │
-  └──────────────────────────────────────────────────┘
+  ┌───────────────────────────────────────────────────────────────┐
+  │ Create Service Agreement Line                                 │
+  ├───────────────────────────────────────────────────────────────┤
+  │ ┌─ External Reference ────────────────────────────────┐       │
+  │ │ Agreement Number:  [Text: agreement_number]          │       │
+  │ │ Line Number:       [Text: line_number]              │       │
+  │ │ Provider ID:       [Text: provider_id_external]     │       │
+  │ │ Recipient ID:      [Text: recipient_id_external]    │       │
+  │ └─────────────────────────────────────────────────────┘       │
+  │                                                                │
+  │ ┌─ Patient & Service ─────────────────────────────────┐       │
+  │ │ Patient:           [Search: patient_id] (Required)   │       │
+  │ │ Procedure Code:    [Text: procedure_code] (Required) │       │
+  │ │ Modifier 1:        [Text: modifier_1]               │       │
+  │ │ Modifier 2:        [Text: modifier_2]               │       │
+  │ │ Modifier 3:        [Text: modifier_3]               │       │
+  │ │ Modifier 4:        [Text: modifier_4]               │       │
+  │ │ Service Desc:      [Text Area: service_description]  │       │
+  │ └─────────────────────────────────────────────────────┘       │
+  │                                                                │
+  │ ┌─ Authorization Period & Quantity ───────────────────┐       │
+  │ │ Effective Date:    [Date: effective_date] (Required) │       │
+  │ │ Through Date:      [Date: through_date] (Required)   │       │
+  │ │ Total Units:       [Number: total_units] (Required)  │       │
+  │ └─────────────────────────────────────────────────────┘       │
+  │                                                                │
+  │ ┌─ Financial ─────────────────────────────────────────┐       │
+  │ │ Rate Per Unit:     [Monetary: rate_per_unit]        │       │
+  │ │ Total Amount:      [Monetary: total_amount] (Computed) │     │
+  │ └─────────────────────────────────────────────────────┘       │
+  │                                                                │
+  │ ┌─ Compliance ────────────────────────────────────────┐       │
+  │ │ Diagnosis Code:    [Text: diagnosis_code]           │       │
+  │ │ Case Manager:      [Search: case_manager_id]        │       │
+  │ │                    (Links to contact with           │       │
+  │ │                     is_case_manager=True)           │       │
+  │ └─────────────────────────────────────────────────────┘       │
+  │                                                                │
+  │ ┌─ Status ────────────────────────────────────────────┐       │
+  │ │ County Status:     [Selection: line_status]          │       │
+  │ │ Internal State:    [Status Badge: state]            │       │
+  │ └─────────────────────────────────────────────────────┘       │
+  │                                                                │
+  │ [Save] [Save & Activate] [Cancel Action]                      │
+  └───────────────────────────────────────────────────────────────┘
+  
+  Note: Form should use collapsible groups/notebook tabs in actual 
+  implementation to avoid overwhelming users. External Reference and
+  Compliance sections can be collapsed by default.
 
 # --- Business Logic & Validation ---
 rules:
   - q: "Can an agreement be created without a patient?"
-    a: "No, the patient field is mandatory."
-  - q: "What is the rule for start and end dates?"
-    a: "The start_date must be on or before the end_date."
-  - q: "Can the total_units be negative?"
-    a: "No, the total_units must be a positive number."
+    a: "No, the patient_id field is mandatory (required=true)."
+    
+  - q: "Can an agreement be created without a procedure code?"
+    a: "No, the procedure_code field is mandatory (required=true). This identifies what service is being authorized."
+    
+  - q: "What is the rule for effective_date and through_date?"
+    a: "The effective_date must be on or before the through_date. This is enforced via a Python constraint on the model."
+    
+  - q: "Can the total_units be negative or zero?"
+    a: "No, the total_units must be a positive number (> 0). This is enforced via a SQL constraint."
+    
   - q: "What is the initial state of a new agreement?"
-    a: "All new agreements start in the 'Draft' state."
+    a: "All new agreements start in the 'draft' state. They must be explicitly activated via action_activate."
+    
+  - q: "What's the difference between 'state' and 'line_status'?"
+    a: "The 'state' field represents internal workflow (draft/active/expired/cancelled) and is managed by the provider. The 'line_status' field represents the county's approval status (approved/denied/pending) and is typically imported from external documents."
+    
+  - q: "How is total_amount calculated?"
+    a: "total_amount is automatically computed as rate_per_unit × total_units. If either value is missing, total_amount will be 0.0."
+    
+  - q: "Can I have multiple service lines for the same patient?"
+    a: "Yes. Each service line is a separate record with its own procedure code, modifiers, date range, and unit allocation. Multiple lines may share the same agreement_number if they came from the same external authorization document."
+    
+  - q: "What validation happens when activating an agreement?"
+    a: "The action_activate method validates: (1) patient_id is set, (2) procedure_code is set, (3) effective_date and through_date are set, (4) effective_date <= through_date, (5) total_units > 0."
+    
+  - q: "Can I activate an agreement with line_status='denied'?"
+    a: "For MVP, yes. The line_status field is informational only and does not block activation. Future validation engine stories will enforce business rules based on approval status."
+    
+  - q: "How do we prevent duplicate contacts (patients, case managers) in Odoo?"
+    a: "We use boolean classification flags (is_patient, is_case_manager) and external ID fields on res.partner. When importing or creating contacts, the system checks for existing records by external ID (recipient_id_external, case_manager_external_id) before creating new ones. Search domains are filtered by these boolean flags to show only relevant contacts."
+    
+  - q: "What happens when a user selects a case manager?"
+    a: "The case_manager_id field shows a filtered list of contacts where is_case_manager=True. If the case manager doesn't exist yet, the user can create a new contact record with is_case_manager=True. The system validates uniqueness using case_manager_external_id to prevent duplicates."
 
 # --- Testing & Verification ---
 acceptance_criteria:
+  # Access Control
   - "GIVEN a user with the 'Designated Coordinator' role, WHEN they navigate to the Service Agreements area, THEN they can create a new record."
-  - "GIVEN a new Service Agreement form, WHEN the user selects a patient, sets a start_date after the end_date, and tries to save, THEN the system must raise a validation error."
-  - "GIVEN a valid draft agreement, WHEN the user clicks the 'Activate' button, THEN the agreement's state must change to 'Active'."
   - "GIVEN a user without the 'Designated Coordinator' role, WHEN they attempt to create a Service Agreement, THEN the system must raise an AccessError."
+  
+  # Required Field Validation
+  - "GIVEN a new Service Agreement form, WHEN the user tries to save without selecting a patient, THEN the system must raise a validation error."
+  - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering a procedure_code, THEN the system must raise a validation error."
+  - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering effective_date, THEN the system must raise a validation error."
+  - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering through_date, THEN the system must raise a validation error."
+  - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering total_units, THEN the system must raise a validation error."
+  
+  # Date Range Validation
+  - "GIVEN a new Service Agreement form, WHEN the user sets effective_date after through_date and tries to save, THEN the system must raise a validation error."
+  - "GIVEN a new Service Agreement form, WHEN the user sets effective_date equal to through_date, THEN the system must allow the save (same-day authorization is valid)."
+  
+  # Units Validation
+  - "GIVEN a new Service Agreement form, WHEN the user enters a negative value for total_units, THEN the system must raise a validation error."
+  - "GIVEN a new Service Agreement form, WHEN the user enters zero for total_units, THEN the system must raise a validation error."
+  
+  # Computed Fields
+  - "GIVEN a Service Agreement with rate_per_unit=11.66 and total_units=3509, WHEN the record is saved, THEN total_amount must be computed as $40,914.94."
+  - "GIVEN a Service Agreement with rate_per_unit set but no total_units, WHEN the record is saved, THEN total_amount must be 0.0."
+  - "GIVEN a Service Agreement with effective_date set, WHEN the record is saved, THEN start_date must equal effective_date."
+  - "GIVEN a Service Agreement with through_date set, WHEN the record is saved, THEN end_date must equal through_date."
+  
+  # State Transitions
+  - "GIVEN a new Service Agreement, WHEN the record is created, THEN state must default to 'draft'."
+  - "GIVEN a valid draft agreement with all required fields, WHEN the user clicks the 'Activate' button, THEN the state must change to 'active'."
+  - "GIVEN a draft agreement missing required fields, WHEN the user tries to activate it, THEN the system must raise a validation error and state must remain 'draft'."
+  - "GIVEN an active agreement, WHEN the user clicks the 'Cancel' button, THEN the state must change to 'cancelled'."
+  
+  # Optional Fields & External Data
+  - "GIVEN a new Service Agreement, WHEN the user enters external reference fields (agreement_number, line_number, etc.), THEN the system must save these values without validation errors."
+  - "GIVEN a Service Agreement, WHEN the user leaves modifiers blank, THEN the system must allow the save (modifiers are optional)."
+  - "GIVEN a Service Agreement, WHEN the user enters case manager information, THEN the system must save these values for reference."
+  
+  # Multiple Lines Scenario
+  - "GIVEN two Service Agreements for the same patient with the same agreement_number but different procedure codes, WHEN both are created, THEN the system must allow both records (represents multiple service lines from one external agreement)."
 
 # --- Implementation Plan ---
 artifacts:

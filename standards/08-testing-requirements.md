@@ -652,14 +652,13 @@ def test_complete_task_raises_error_if_task_is_none(self):
 
 ### Example 1: Service Method Test
 
-See: `hub/addons/traction_eos_odoo/tests/test_meeting_service.py`
+See: `tests/test_my_service.py` (in your module)
 
 **Highlights:**
 - ✅ Complete setup with fixtures
 - ✅ Tests for create, start, complete methods
-- ✅ Tests for `copy_previous` logic
-- ✅ Edge case: no previous meeting
-- ✅ Edge case: future meetings excluded
+- ✅ Tests for "copy previous" or equivalent logic
+- ✅ Edge cases covered
 
 **Use this as a template for service layer tests!**
 

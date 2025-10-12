@@ -1,0 +1,88 @@
+story_id: TRACTION-ITEMS-CORE
+status: approved
+module: hub-traction
+labels:
+  - module:hub-traction
+  - type:feature
+  - priority:high
+owners:
+  - aos-architect
+actors:
+  - facilitator
+summary: |
+  Introduce canonical items for Traction/EOS (issues, rocks, to-dos, scorecard KPIs)
+  as single-source records with ownership and visibility controls. Items link to
+  meetings via a junction model to preserve per-meeting context. Escalations and
+  cascades move accountability between groups without duplicating data.
+assumptions:
+  - Two groups in MVP (executive_leadership, management); more groups later
+  - Single company tenant in MVP; multi-tenancy guardrails required
+non_goals:
+  - PHI
+  - Clinical workflows
+  - Cross-company sharing
+models:
+  - name: traction.group
+    purpose: Logical meeting group/team used for ownership and visibility
+    fields:
+      - name (char)
+      - code (char)
+      - member_ids (many2many res.users)
+  - name: traction.issue
+    fields:
+      - name (char)
+      - description (text)
+      - owner_group_id (many2one traction.group)
+      - visible_group_ids (many2many traction.group)
+      - origin_group_id (many2one traction.group)
+      - lifecycle_state (selection: new|active|blocked|resolved|closed)
+      - responsible_id (many2one res.users)
+      - uuid (char)
+  - name: traction.rock
+    fields:
+      - name (char)
+      - scope (selection: company|team|personal)
+      - owner_group_id (many2one traction.group)
+      - visible_group_ids (many2many traction.group)
+      - origin_group_id (many2one traction.group)
+      - lifecycle_state (selection: planned|on_track|at_risk|off_track|done)
+      - responsible_id (many2one res.users)
+      - due_quarter (char)
+      - uuid (char)
+  - name: traction.todo
+    fields:
+      - name (char)
+      - owner_group_id (many2one traction.group)
+      - visible_group_ids (many2many traction.group)
+      - origin_group_id (many2one traction.group)
+      - assignee_id (many2one res.users)
+      - due_date (date)
+      - state (selection: open|done|cancelled)
+      - uuid (char)
+  - name: traction.scorecard.kpi
+    fields:
+      - name (char)
+      - unit (char)
+      - target (float)
+      - owner_group_id (many2one traction.group)
+      - visible_group_ids (many2many traction.group)
+      - uuid (char)
+behaviors:
+  - escalate(item, to_group):
+      effect: |
+        Update owner_group_id to to_group; ensure to_group in visible_group_ids;
+        append activity note; preserve history via message/thread.
+  - cascade(item, to_group):
+      effect: |
+        Add to_group to visible_group_ids; keep owner_group_id unchanged; create
+        meeting link in destination group's meeting when applicable.
+  - link_to_meeting(item, meeting, section):
+      effect: Create traction.meeting_item_link with snapshot fields.
+permissions:
+  read: visible_group_ids contains user's group OR user is admin
+  write: user is facilitator of owner_group OR admin
+acceptance_criteria:
+  - Items can move between groups (escalate/cascade) with history preserved
+  - Visibility and ownership guard writes appropriately
+  - Items link to meetings without duplication; per-meeting context is stored on junction
+  - Tests cover happy path, edge cases, and error conditions

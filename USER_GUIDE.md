@@ -49,3 +49,6 @@ Contains our standardized templates for creating artifacts, such as the `work_or
 ### `/process_improvement`
 Contains the `process-improvement.md` log file, which is our official, append-only record of feedback from our AI agents on how to improve our workflow.
 
+### `/docs/reference`
+Contains our structured reference documentation library for external materials (government regulations, API specs, validation rules) that inform AOS development. See `docs/REFERENCE_LIBRARY_GUIDE.md` for complete usage guide.
+

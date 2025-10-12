@@ -1,0 +1,82 @@
+story_id: TRACTION-MEETINGS-MVP
+status: approved
+module: hub-traction
+labels:
+  - module:hub-traction
+  - type:feature
+  - priority:high
+owners:
+  - aos-architect
+stakeholders:
+  - executive_leadership_group
+  - management_group
+actors:
+  - facilitator
+summary: |
+  Deliver Level 10 meeting capability following the EOS agenda order, without timers in MVP.
+  Meetings are weekly for two groups: Executive Leadership and Management (Designated Coordinators).
+  MVP includes linking to canonical items (issues, rocks, to-dos, scorecards) via a meeting-item junction model.
+assumptions:
+  - One company tenant for MVP; future multi-team scale planned
+  - No timers required for sections in MVP
+  - EOS agenda order is required and enforced as sequence (not timeboxed)
+  - Only Facilitator role is required for MVP (others can be added later)
+non_goals:
+  - Clinical/EVV workflows
+  - PHI storage/processing
+  - Cross-company meetings
+requirements:
+  functional:
+    - Create, schedule, and run a weekly Level 10 meeting for each group
+    - Enforce EOS section order; allow navigation forward/backward
+    - Add/view notes per section; capture completion of meeting
+    - Attach/link existing canonical items (issue/rock/todo/scorecard metric) to a meeting
+    - Create action items (to-dos) during a meeting
+    - Escalate/cascade linked items between groups with history preserved
+    - Emit internal events on meeting completion for downstream notifications (future)
+  nonfunctional:
+    - Follow ADR-003 (API-first), ADR-006 (multi-tenancy ready), ADR-007 (modular independence)
+    - Tests per "standards/08-testing-requirements.md" with zero failures
+    - Role and record rules to ensure only intended groups can read/write meeting data
+agenda:
+  order:
+    - segue
+    - scorecard
+    - rocks_review
+    - customer_employee_headlines
+    - to_do_list
+    - IDS
+    - conclude
+  notes: EOS names can be adjusted to Odoo-safe identifiers; UX uses EOS labels
+organizational_scope:
+  groups:
+    - executive_leadership
+    - management
+  recurrence: weekly
+linking_model:
+  name: traction.meeting_item_link
+  purpose: Per-meeting context for linked items without duplicating canonical records
+  fields:
+    - meeting_id (many2one traction.meeting)
+    - item_model (selection: issue|rock|todo|scorecard_kpi)
+    - item_id (many2one dynamic)
+    - section (selection matching agenda order)
+    - status_at_meeting (char/selection)
+    - assignee_at_meeting (many2one res.users)
+    - notes_snapshot (text)
+    - escalated_from (many2one traction.group)
+    - escalated_to (many2one traction.group)
+    - carried_over_from (many2one traction.meeting)
+acceptance_criteria:
+  - Can create and complete a Level 10 meeting for each group
+  - EOS agenda order enforced; navigation persists section notes
+  - Items can be linked to agenda sections; links maintain per-meeting context
+  - Escalation creates a link in the destination group while preserving history
+  - Tests cover happy path, edge cases (no items, missing context), and error conditions
+test_plan:
+  - Unit tests for meeting create/run/complete
+  - Unit tests for linking model and escalation behavior
+  - Record rule tests for facilitator access
+deliverables:
+  - Approved data model and service contracts
+  - Work orders to implement models, linking, ACLs, and tests
