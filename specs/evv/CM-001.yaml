@@ -1,0 +1,71 @@
+id: CM-001
+title: "Create Dedicated Case Manager Record"
+summary: "Enables an admin to create and manage a case manager's record in a dedicated, secure model, separate from the core contact list."
+
+# --- User Story (for human context) ---
+user_story: "As an Administrator, I want to create and maintain a central record for each Case Manager, so that I have a single source of truth for their identity and can associate them with patients and Service Agreements."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "Administrator"
+  - "DC (Designated Coordinator)"
+compliance:
+  hipaa_implicated: true
+  phi_fields:
+    - "evv.case_manager.partner_id" # The link to a contact record is sensitive
+    - "evv.case_manager.case_manager_external_id"
+  access_control:
+    - role: "Administrator"
+      permissions: ["create", "read", "write", "delete"]
+    - role: "DC (Designated Coordinator)"
+      permissions: ["create", "read", "write"]
+  immutable_core_impact: false
+
+# --- Technical Specification ---
+module: "evv_case_managers"
+depends_on:
+  - "evv_core"
+out_of_scope:
+  - "Workflows for assigning case managers to patients (will be handled in PT-001)"
+
+models:
+  - name: "evv.case_manager"
+    description: "A dedicated, secure model to store all core case manager information, including their link to a non-sensitive contact record and their external identifiers."
+    fields:
+      - { name: "partner_id", type: "Many2one", relation: "res.partner", required: true, help: "Link to the core, non-sensitive contact record for this case manager." }
+      - { name: "case_manager_external_id", type: "Char", required: false, help: "External case manager ID from county system (e.g., A641415300). Used for integration and to prevent duplicates." }
+      - { name: "name", type: "Char", related: "partner_id.name", readonly: true, store: true, help: "Computed field for the case manager's name." }
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "What is the relationship between evv.case_manager and res.partner?"
+    a: "The evv.case_manager model holds all sensitive, identifying data. It has a mandatory link (partner_id) to a standard res.partner record, which holds non-sensitive contact information. This segregates sensitive data."
+  - q: "How do we prevent duplicate case managers?"
+    a: "Uniqueness is based on the case_manager_external_id. The system must prevent the creation of a record if its external ID is identical to an existing record. This should be enforced with a UNIQUE database constraint."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN a user with the 'Administrator' role, WHEN they create a new case manager record, THEN they must select a core contact (res.partner) to link it to."
+  - "GIVEN a case manager already exists with a specific 'external_id', WHEN an admin tries to save a *different* record with the same ID, THEN the system must raise a validation error and prevent the save."
+  - "GIVEN a user with the 'DC' role, WHEN they view a patient or agreement form, THEN they can see the name of the assigned case manager."
+  - "GIVEN a user with the 'DC' role, WHEN they attempt to create or edit a case manager record, THEN the system must allow the action."
+  - "GIVEN a user without 'Administrator' or 'DC' roles, WHEN they attempt to access case manager records, THEN the system must raise an AccessError."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "models/evv_case_manager.py"
+    - "views/evv_case_manager_views.xml"
+    - "security/ir.model.access.csv"
+  tests:
+    - "tests/test_case_manager_record.py"
+  docs:
+    - "docs/models/evv_case_manager.md"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "Unified diff only. Create a new evv.case_manager model. Do not extend res.partner. Implement a UNIQUE SQL constraint on the `case_manager_external_id` field."
+  qa_output: "Generate tests that cover creation, editing, access rights, and the duplicate ID constraint."
+  security_focus: "Ensure access controls are strictly limited to the roles specified in the compliance section."

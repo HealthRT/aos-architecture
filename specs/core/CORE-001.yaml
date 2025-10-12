@@ -1,0 +1,64 @@
+id: CORE-001
+title: "Adopt Foundational Module for Discrete Person Names"
+summary: "Integrates a standard module to add discrete `firstname`, `lastname`, and `middlename` fields to the core `res.partner` model, ensuring precise name management for all individuals in the system."
+
+# --- User Story (for human context) ---
+user_story: "As a System Architect, I want to ensure that all individual contacts have separate fields for their first, middle, and last names, so that we can guarantee data precision and avoid the ambiguity of a single concatenated name field."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "System Architect"
+  - "All Users"
+compliance:
+  hipaa_implicated: false
+  phi_fields: [] # While names are part of PHI, this change itself is a structural one to a non-clinical model.
+  access_control: [] # No changes to access control; this applies system-wide.
+  immutable_core_impact: true # This modifies a core Odoo model and is a foundational change.
+
+# --- Technical Specification ---
+module: "evv_core"
+depends_on:
+  - "partner_firstname" # This is the name of the standard community module we will adopt.
+out_of_scope:
+  - "Changing how Company names are handled."
+
+models:
+  - name: "res.partner"
+    description: "System-wide modification of the core contact model to support discrete names for individuals."
+    note: "This is not a new model, but a formal documentation of the fields that will be added to the existing res.partner model by the `partner_firstname` module."
+    fields:
+      - { name: "firstname", type: "Char", help: "The individual's first name." }
+      - { name: "lastname", type: "Char", help: "The individual's last name." }
+      - { name: "middlename", type: "Char", help: "The individual's middle name." }
+      - { name: "name", type: "Char", help: "The original Odoo name field, which will now be automatically computed from the discrete name fields for all individuals." }
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "How will this affect existing Odoo features that use the 'name' field?"
+    a: "It will not. The `partner_firstname` module ensures the original `name` field is always kept in sync by concatenating the discrete fields. This provides full backward compatibility."
+  - q: "When will the new name fields be visible?"
+    a: "The `firstname`, `lastname`, and `middlename` fields will only be visible on the user interface when the contact type is set to 'Individual'."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN the `partner_firstname` module is installed, WHEN a user creates a new contact and sets the type to 'Individual', THEN the `firstname`, `lastname`, and `middlename` fields must be visible."
+  - "GIVEN a user creates a new Individual contact with `firstname`='John', `lastname`='Doe', and `middlename`='Michael', WHEN the record is saved, THEN the computed `name` field must be 'John Michael Doe'."
+  - "GIVEN a user creates a new contact and leaves the type as 'Company', THEN the `firstname`, `lastname`, and `middlename` fields must not be visible."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "The `partner_firstname` module must be added to our external source dependencies."
+    - "Our core `evv_core` module's manifest must be updated to depend on `partner_firstname`."
+  tests:
+    - "tests/test_core_name_computation.py" # A new test to verify the computation logic.
+  docs:
+    - "docs/architecture/core_modifications.md"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "The primary task is not to write code, but to ensure the `partner_firstname` module is correctly integrated as a dependency into the `evv_core` module's manifest."
+  qa_output: "Generate tests that confirm the name computation and field visibility rules are working as expected after the module is installed."
+  security_focus: "No direct security focus, as this is a structural change. However, confirm that field visibility on the UI is correctly handled."

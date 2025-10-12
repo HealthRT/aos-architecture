@@ -1,0 +1,100 @@
+ id: PT-001
+title: "Create Dedicated Patient Record"
+summary: "Enables a DC to create and manage a patient's core clinical record in a dedicated, HIPAA-compliant model, separate from the core contact list."
+
+# --- User Story (for human context) ---
+user_story: "As a Designated Coordinator, I want to create and maintain a central record for each patient, so that I have a single source of truth for their identity and can associate clinical documents like Service Agreements with them."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "DC (Designated Coordinator)"
+  - "Clinical Supervisor"
+compliance:
+  hipaa_implicated: true
+  phi_fields:
+    - "res.partner.name"
+    - "res.partner.recipient_id_external"
+  access_control:
+    - role: "DC (Designated Coordinator)"
+      permissions: ["create", "read", "write"]
+    - role: "Clinical Supervisor"
+      permissions: ["read"]
+  immutable_core_impact: false
+
+# --- Technical Specification ---
+module: "evv_patients"
+depends_on:
+  - "evv_core"
+  - "evv_case_managers"
+out_of_scope:
+  - "Patient intake workflows"
+  - "Association with billing or insurance information"
+
+models:
+  - name: "evv.patient"
+    description: "A dedicated, HIPAA-compliant model to store all core patient information, including their link to a non-sensitive contact record and their external identifiers."
+    fields:
+      - { name: "partner_id", type: "Many2one", relation: "res.partner", required: true, help: "Link to the core, non-sensitive contact record for this patient." }
+      - { name: "recipient_id_external", type: "Char", required: false, help: "External recipient/patient ID from county system (e.g., 02002516). Used for integration and traceability." }
+      - { name: "case_manager_id", type: "Many2one", relation: "evv.case_manager", required: false, help: "The dedicated case manager record assigned to this patient." }
+      - { name: "name", type: "Char", related: "partner_id.name", readonly: true, store: true, help: "Computed field for the patient's name." }
+
+# --- User Experience ---
+ui_mockup: |
+  ┌───────────────────────────────────────────────────────────────┐
+  │ Patient Record                                                │
+  ├───────────────────────────────────────────────────────────────┤
+  │ Name:              [Search: partner_id] (Required)            │
+  │ External ID:       [Text: recipient_id_external]            │
+  │                                                                │
+  │ (Patient's name, address, etc. are managed on the linked       │
+  │  res.partner form view)                                        │
+  │                                                                │
+  │ ┌─ Clinical Documents ────────────────────────────────┐       │
+  │ │ Service Agreements: [One2many List View]               │       │
+  │ │ Case Notes:         [One2many List View] (Future)      │       │
+  │ └─────────────────────────────────────────────────────┘       │
+  │                                                                │
+  │ [Save] [Discard]                                              │
+  └───────────────────────────────────────────────────────────────┘
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "What is the relationship between evv.patient and res.partner?"
+    a: "The evv.patient model holds all sensitive, clinical data. It has a mandatory link (partner_id) to a standard res.partner record, which holds non-sensitive contact information like name and address. This segregates PHI."
+  
+  - q: "Is the external recipient ID required?"
+    a: "No, not for MVP. A patient record can be created internally before an external ID is assigned."
+    
+  - q: "How do we prevent duplicate patients?"
+    a: "Uniqueness is based on the external recipient ID. The system must prevent the creation or saving of a patient record if its recipient_id_external is identical to another patient record. This should be enforced with a UNIQUE database constraint."
+  - q: "How do we handle multiple contacts with the same name?"
+    a: "To prevent a user from linking a patient record to the wrong contact, the search results for the partner_id field must display additional, non-sensitive information (e.g., email address, city) to help the user distinguish between them. This is a critical data integrity feature."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN a user with the 'Designated Coordinator' role, WHEN they create a new patient record, THEN they must select a core contact (res.partner) to link it to."
+  - "GIVEN a patient record, WHEN the user assigns a Case Manager, THEN the system must save the link to the case manager record."
+  - "GIVEN a patient record, WHEN the user saves it with an 'External Recipient ID', THEN the ID is saved correctly."
+  - "GIVEN two contacts exist with the name 'Jane Doe' but different email addresses, WHEN a user searches for 'Jane Doe' in the patient form's 'Name' field, THEN the search results must display information for both contacts that allows the user to tell them apart (e.g., 'Jane Doe (jane.d@example.com)')."
+  - "GIVEN a patient already exists with a specific 'External Recipient ID', WHEN a user tries to save a *different* patient record with the same ID, THEN the system must raise a validation error and prevent the save."
+  - "GIVEN a user without the 'DC' role, WHEN they try to edit a patient record, THEN the system must raise an AccessError."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "models/evv_patient.py"
+    - "views/evv_patient_views.xml"
+    - "security/ir.model.access.csv"
+  tests:
+    - "tests/test_patient_record.py"
+  docs:
+    - "docs/models/evv_patient.md"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "Unified diff only. Create a new evv.patient model. Do not extend res.partner for patient fields. Implement a UNIQUE SQL constraint on the `recipient_id_external` field. The `name_get` method on `res.partner` should be extended to provide disambiguating information in search results, as required by the acceptance criteria."
+  qa_output: "Generate tests that cover creation, editing, access rights, and the duplicate ID constraint."
+  security_focus: "Ensure access controls are strictly limited to the roles specified in the compliance section."

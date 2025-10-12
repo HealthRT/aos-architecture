@@ -1272,3 +1272,39 @@ Successfully implemented the foundational `traction.group` model for the Tractio
 
 ---
 
+### Entry #011: [WO-CORE-001-01] - Integrate partner_firstname with evv_core
+
+**Date:** 2025-10-12  
+**Agent:** Gemini 2.5 Pro
+**Work Order:** WO-CORE-001-01
+
+#### What Was Built
+- Integrated the `partner_firstname` OCA module as a git submodule.
+- Created a new `evv_core` module.
+- Added a dependency on `partner_firstname` in the `evv_core` manifest.
+- Implemented `SavepointCase` tests to verify that `name` is computed correctly for individuals and that discrete name fields are not used for companies.
+- Created documentation for this core modification.
+
+#### What Worked Well
+- The work order was clear and the acceptance criteria were specific.
+- The onboarding documentation provided a good framework for completing the work.
+- The isolated test environment script, once working, was very helpful.
+
+#### Challenges Encountered
+- The `evv_core` module did not exist, which was not specified in the work order. I had to create it.
+- The process for running tests in the isolated environment was not straightforward. The commands in the work order and the onboarding guide did not work out of the box. I had to debug the container setup to find the correct database name and addons path. The test execution commands failed multiple times before I was able to get them to run.
+- The proof of execution logs are in `.gitignore`, which required force-adding them. This was not immediately obvious.
+
+#### Work Order Quality Assessment
+- Clarity: [4/5] - The core requirements were clear, but the non-existence of `evv_core` was a surprise.
+- Completeness: [3/5] - The testing commands were not accurate for the provided agent environment.
+- Accuracy: [3/5] - The testing commands were not accurate.
+
+#### Suggestions for Process Improvement
+- Work orders should explicitly state if a module needs to be created.
+- The testing commands in the work order and onboarding documents should be verified to work with the provided agent environments. The correct database name and addons paths should be used as examples.
+- The documentation should mention that proof of execution logs are gitignored and require force-adding.
+- The test execution is very fragile. It failed silently multiple times redirecting to a file, with no file being created. This made debugging difficult. A more robust test execution script or process would be beneficial.
+
+---
+

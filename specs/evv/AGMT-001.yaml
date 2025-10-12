@@ -1,6 +1,6 @@
 id: AGMT-001
-title: "Create Simple Bucket Service Agreement"
-summary: "Enables a Designated Coordinator to manually create a basic, single-budget service agreement for a patient."
+title: "Create Single Service Agreement per Individual (MVP)"
+summary: "Enables a DC to manually create a single, active service agreement for a patient, enforcing a one-agreement-per-individual limit for the MVP."
 
 # --- User Story (for human context) ---
 user_story: "As a Designated Coordinator, I want to manually create a 'Simple Bucket' Service Agreement, so that I can establish the total authorized service units for a patient's care period."
@@ -17,7 +17,7 @@ compliance:
     - "service.agreement.recipient_id_external"
     - "service.agreement.diagnosis_code"
     - "service.agreement.service_description"
-    - "service.agreement.case_manager_id" # OPEN ITEM: Confirm with compliance if case manager assignment is PHI
+    - "service.agreement.case_manager_id"
   access_control:
     - role: "DC (Designated Coordinator)"
       permissions: ["create", "read", "write", "delete"]
@@ -27,25 +27,15 @@ compliance:
 module: "evv_agreements"
 depends_on:
   - "evv_core" # Assuming a base module for patients
+  - "evv_patients"
+  - "evv_case_managers"
 out_of_scope:
   - "Automated ingestion of agreements (SFTP, OCR, etc.)"
-  - "Support for complex rules (e.g., weekly/daily cadences)"
   - "The Service Validation Engine's consumption of this data (will be defined in other stories)"
   - "The override process for validation warnings"
+  - "Support for multiple service lines or multiple active agreements for a single individual. Per stakeholder decision on 2025-10-12, the MVP will be strictly limited to one active service agreement per individual. The immediate post-MVP goal is to support a multi-line form that matches the state document."
 
 models:
-  - name: "res.partner"
-    description: "Extension to Odoo's core contact model to support patient and case manager classification."
-    note: "This model is inherited/extended from Odoo core. We add custom fields to support the waiver service domain."
-    fields:
-      # --- Contact Classification (Boolean Flags) ---
-      - { name: "is_patient", type: "Boolean", required: false, default: "False", help: "If true, this contact is a patient/individual receiving services. Enables patient-specific features and filtering." }
-      - { name: "is_case_manager", type: "Boolean", required: false, default: "False", help: "If true, this contact is a county case manager. Enables case manager assignment and prevents duplicate entries." }
-      
-      # --- External System IDs ---
-      - { name: "recipient_id_external", type: "Char", required: false, help: "External recipient/patient ID from county system (e.g., 02002516). Used for integration and traceability." }
-      - { name: "case_manager_external_id", type: "Char", required: false, help: "External case manager ID from county system (e.g., A641415300). Used to prevent duplicate case manager records." }
-
   - name: "service.agreement"
     description: "Represents a single service authorization line from a county waiver agreement. Multiple service lines may share the same agreement_number but have different procedure codes, modifiers, or date ranges."
     fields:
@@ -56,8 +46,8 @@ models:
       - { name: "line_status", type: "Selection", selection: "[('approved', 'Approved'), ('denied', 'Denied'), ('pending', 'Pending')]", required: false, help: "County approval status for this service line" }
       
       # --- Recipient/Patient Information ---
-      - { name: "patient_id", type: "Many2one", relation: "res.partner", required: true, domain: "[('is_patient', '=', True)]", help: "Internal patient/recipient record" }
-      - { name: "recipient_id_external", type: "Char", required: false, help: "External recipient ID from county system (e.g., 02002516)" }
+      - { name: "patient_id", type: "Many2one", relation: "evv.patient", required: true, help: "Link to the dedicated, HIPAA-compliant patient record." }
+      - { name: "recipient_id_external", type: "Char", related: "patient_id.recipient_id_external", readonly: true, store: true, help: "External recipient ID, sourced from the patient record for data integrity." }
       
       # --- Service Specification ---
       - { name: "procedure_code", type: "Char", required: true, size: 10, help: "Service procedure code (e.g., H2014)" }
@@ -83,7 +73,7 @@ models:
       
       # --- Compliance & Regulatory ---
       - { name: "diagnosis_code", type: "Char", required: false, size: 10, help: "ICD-10 diagnosis code at time of assessment (e.g., F70)" }
-      - { name: "case_manager_id", type: "Many2one", relation: "res.partner", required: false, domain: "[('is_case_manager', '=', True)]", help: "County case manager assigned to this service authorization. Links to a contact record with is_case_manager=True." }
+      - { name: "case_manager_id", type: "Many2one", relation: "evv.case_manager", required: false, help: "County case manager assigned to this service authorization. Links to the dedicated case manager record." }
       
       # --- State Management ---
       - { name: "state", type: "Selection", selection: "[('draft', 'Draft'), ('active', 'Active'), ('expired', 'Expired'), ('cancelled', 'Cancelled')]", required: true, default: "'draft'", help: "Internal workflow state - independent of county approval status (line_status)" }
@@ -111,61 +101,38 @@ models:
 
 # --- User Experience ---
 ui_mockup: |
-  ┌───────────────────────────────────────────────────────────────┐
-  │ Create Service Agreement Line                                 │
-  ├───────────────────────────────────────────────────────────────┤
-  │ ┌─ External Reference ────────────────────────────────┐       │
-  │ │ Agreement Number:  [Text: agreement_number]          │       │
-  │ │ Line Number:       [Text: line_number]              │       │
-  │ │ Provider ID:       [Text: provider_id_external]     │       │
-  │ │ Recipient ID:      [Text: recipient_id_external]    │       │
-  │ └─────────────────────────────────────────────────────┘       │
-  │                                                                │
-  │ ┌─ Patient & Service ─────────────────────────────────┐       │
-  │ │ Patient:           [Search: patient_id] (Required)   │       │
-  │ │ Procedure Code:    [Text: procedure_code] (Required) │       │
-  │ │ Modifier 1:        [Text: modifier_1]               │       │
-  │ │ Modifier 2:        [Text: modifier_2]               │       │
-  │ │ Modifier 3:        [Text: modifier_3]               │       │
-  │ │ Modifier 4:        [Text: modifier_4]               │       │
-  │ │ Service Desc:      [Text Area: service_description]  │       │
-  │ └─────────────────────────────────────────────────────┘       │
-  │                                                                │
-  │ ┌─ Authorization Period & Quantity ───────────────────┐       │
-  │ │ Effective Date:    [Date: effective_date] (Required) │       │
-  │ │ Through Date:      [Date: through_date] (Required)   │       │
-  │ │ Total Units:       [Number: total_units] (Required)  │       │
-  │ └─────────────────────────────────────────────────────┘       │
-  │                                                                │
-  │ ┌─ Financial ─────────────────────────────────────────┐       │
-  │ │ Rate Per Unit:     [Monetary: rate_per_unit]        │       │
-  │ │ Total Amount:      [Monetary: total_amount] (Computed) │     │
-  │ └─────────────────────────────────────────────────────┘       │
-  │                                                                │
-  │ ┌─ Compliance ────────────────────────────────────────┐       │
-  │ │ Diagnosis Code:    [Text: diagnosis_code]           │       │
-  │ │ Case Manager:      [Search: case_manager_id]        │       │
-  │ │                    (Links to contact with           │       │
-  │ │                     is_case_manager=True)           │       │
-  │ └─────────────────────────────────────────────────────┘       │
-  │                                                                │
-  │ ┌─ Status ────────────────────────────────────────────┐       │
-  │ │ County Status:     [Selection: line_status]          │       │
-  │ │ Internal State:    [Status Badge: state]            │       │
-  │ └─────────────────────────────────────────────────────┘       │
-  │                                                                │
-  │ [Save] [Save & Activate] [Cancel Action]                      │
-  └───────────────────────────────────────────────────────────────┘
-  
-  Note: Form should use collapsible groups/notebook tabs in actual 
-  implementation to avoid overwhelming users. External Reference and
-  Compliance sections can be collapsed by default.
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Create Service Agreement Line                                    │
+  │                                                                  │
+  │  [ Service Details ] [ Authorization ] [ Compliance & Refs ]     │
+  │ ┌──────────────────────────────────────────────────────────────┐ │
+  │ │ Patient:           [Search: patient_id] (Required)          │ │
+  │ │ Procedure Code:    [Text: procedure_code] (Required)        │ │
+  │ │ Modifier 1:        [Text: modifier_1]                      │ │
+  │ │ Modifier 2:        [Text: modifier_2]                      │ │
+  │ │ Modifier 3:        [Text: modifier_3]                      │ │
+  │ │ Modifier 4:        [Text: modifier_4]                      │ │
+  │ │ Service Desc:      [Text Area: service_description]         │ │
+  │ │                                                              │ │
+  │ └──────────────────────────────────────────────────────────────┘ │
+  │                                                                  │
+  │ [Save] [Save & Activate] [Cancel Action]                         │
+  └──────────────────────────────────────────────────────────────────┘
+
+  Note: The form must be implemented using a tabbed interface (Odoo 'notebook')
+  to organize the large number of fields. The proposed tabs are:
+  1. Service Details (Patient, Procedure Codes, Modifiers, Description)
+  2. Authorization (Dates, Units, Financial Rate/Total)
+  3. Compliance & Refs (Diagnosis, Case Manager, External Agreement IDs)
 
 # --- Business Logic & Validation ---
 rules:
   - q: "Can an agreement be created without a patient?"
     a: "No, the patient_id field is mandatory (required=true)."
     
+  - q: "Can a patient have more than one active service agreement?"
+    a: "No. For the MVP, a validation rule must prevent the activation of a new agreement if the same patient already has another agreement in the 'active' state."
+
   - q: "Can an agreement be created without a procedure code?"
     a: "No, the procedure_code field is mandatory (required=true). This identifies what service is being authorized."
     
@@ -204,13 +171,19 @@ acceptance_criteria:
   # Access Control
   - "GIVEN a user with the 'Designated Coordinator' role, WHEN they navigate to the Service Agreements area, THEN they can create a new record."
   - "GIVEN a user without the 'Designated Coordinator' role, WHEN they attempt to create a Service Agreement, THEN the system must raise an AccessError."
-  
+
+  # UI/UX
+  - "GIVEN the Service Agreement form, WHEN it is opened, THEN the fields must be organized into at least three distinct tabs (e.g., Service Details, Authorization, Compliance)."
+
   # Required Field Validation
   - "GIVEN a new Service Agreement form, WHEN the user tries to save without selecting a patient, THEN the system must raise a validation error."
   - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering a procedure_code, THEN the system must raise a validation error."
   - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering effective_date, THEN the system must raise a validation error."
   - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering through_date, THEN the system must raise a validation error."
   - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering total_units, THEN the system must raise a validation error."
+  
+  # Single Active Agreement Validation (MVP)
+  - "GIVEN a patient already has an 'active' service agreement, WHEN a user tries to activate a second 'draft' agreement for the same patient, THEN the system must raise a validation error and prevent the activation."
   
   # Date Range Validation
   - "GIVEN a new Service Agreement form, WHEN the user sets effective_date after through_date and tries to save, THEN the system must raise a validation error."
