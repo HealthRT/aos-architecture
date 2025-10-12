@@ -1,75 +1,87 @@
 # Complete AOS Development Workflow - End to End
 
-**Last Updated:** 2025-10-09  
-**Purpose:** The single source of truth for the entire development process, roles, and order of operations. This document is governed by the principles in `prompts/core/00_NON_NEGOTIABLES.md`.
+**Version:** 2.0  
+**Last Updated:** 2025-10-12  
+**Purpose:** Single source of truth for the entire development process, roles, and order of operations
+
+**Governed By:** `/prompts/core/00_NON_NEGOTIABLES.md`
 
 ---
 
-## 🎯 **VISUAL SUMMARY: THE MASTER WORKFLOW**
-
-The following diagram illustrates our complete, end-to-end process, from initial idea to production deployment.
+## 🎯 **VISUAL SUMMARY: THE CURRENT WORKFLOW**
 
 ```mermaid
 graph TD
-    subgraph "Phase 1: Design (You & AI BA)"
-        A[1. You: Define Requirement] --> B[2. AI BA: Generate User Story];
-        B --> C[3. AI BA: Submit Story PR to platform-architecture];
-        C --> D{4. You: Review Story PR};
-        D -- Approved --> E[5. You: Merge Story PR];
+    subgraph "Phase 1: Ideation (Human + BA)"
+        A[1. Human: Define Requirement] --> B[2. BA: Create Feature Brief]
+        B --> C[3. BA: Commits to /features/]
     end
 
-    subgraph "Phase 2: UI/UX Mockup (You, AI UI/UX, & SME)"
-        E --> F{6. Does story need a UI?};
-        F -- Yes --> G[7. You: Brief AI UI/UX Designer];
-        G --> H[8. AI UI/UX: Generate Mockups];
-        H --> I[9. You: Add mockup to Story PR];
-        I --> J{10. SME: Review Mockup PR};
-        J -- Approved --> K[11. You: Merge Mockup PR];
-        F -- No --> K;
+    subgraph "Phase 2: Specification (BA + Architect)"
+        C --> D[4. BA: Create YAML Spec]
+        D --> E[5. Architect: Review Spec]
+        E -->|Approved| F[6. Spec Committed to /specs/]
+        E -->|Rejected| D
     end
 
-    subgraph "Phase 3: Decomposition (Automated)"
-        K --> L[12. You: Trigger 'Decompose Story' Action];
-        L --> M[13. GitHub Action: Reads story, briefs AI];
-        M --> N[14. AI Decomposer: Returns JSON of nuclear tasks];
-        N --> O[15. GitHub Action: Creates GitHub Issues];
-        O --> P[16. GitHub Action: Adds Issues to Project Board];
+    subgraph "Phase 3: Decomposition (Scrum Master)"
+        F --> G[7. Scrum Master: Read Spec]
+        G --> H[8. Scrum Master: Create Work Orders]
+        H --> I[9. WOs Committed to /work_orders/]
     end
 
-    subgraph "Phase 4: Development & Deployment"
-        P --> Q[17. AI Coder is assigned an Issue];
-        Q --> R[18. AI Coder: Writes Code & submits PR];
-        R --> S[19. CI Pipeline: Runs tests];
-        S -- Fails --> R;
-        S -- Passes --> T{20. You: Review Code PR};
-        T -- Revisions Needed --> R;
-        T -- Approved --> U[21. You: Merge PR to 'staging'];
-        U --> V[22. Automated Deploy to Staging];
-        V --> W{23. You & SMEs: Perform UAT};
-        W -- Fails --> X[Create new Bug Issue];
-        X --> P;
-        W -- Approved --> Y[24. You: Trigger Prod Deploy];
-        Y --> Z((Done));
+    subgraph "Phase 4: Implementation (Coder + Tests)"
+        I --> J[10. Human: Dispatch WO to Coder]
+        J --> K[11. Coder: Implements in Isolated Env]
+        K --> L[12. Coder: Runs Unit + Workflow Tests]
+        L --> M{13. Tests Pass?}
+        M -->|No| K
+        M -->|Yes| N[14. Coder: Commits Code]
     end
+
+    subgraph "Phase 5: Validation (CI/CD + Human)"
+        N --> O[15. CI/CD: Spec Compliance Check]
+        O -->|Fail| K
+        O -->|Pass| P[16. CI/CD: Run All Tests]
+        P -->|Fail| K
+        P -->|Pass| Q{17. Human: Review PR}
+        Q -->|Revisions| K
+        Q -->|Approved| R[18. Human: Merge to main]
+    end
+
+    subgraph "Phase 6: UAT (Human + SMEs)"
+        R --> S[19. Deploy to Staging]
+        S --> T{20. Pre-UAT Smoke Test}
+        T -->|Fail| U[Create Bug Ticket]
+        U --> J
+        T -->|Pass| V{21. SME UAT}
+        V -->|Fail| U
+        V -->|Pass| W[22. Deploy to Production]
+    end
+
+    W --> X((Done))
 ```
 
 ---
 
 ## 🏛️ **GOVERNANCE: THE IMMUTABLE CORE**
 
-Our entire process is governed by the **Immutable Core Framework (ADR-009)**. This separates our project artifacts into three rings of authority:
+Our entire process is governed by **ADR-009: Immutable Core Framework**. This separates artifacts into three rings:
 
-1.  **Ring 0: The Immutable Core (`/prompts/core/`)**
-    -   **What:** The "constitution" of the project (`00_NON_NEGOTIABLES.md`). Contains the absolute, unchangeable laws.
-    -   **Who Can Change:** Only the human overseer. Changes are technically blocked for all other users and AIs via pre-commit hooks.
+### **Ring 0: The Immutable Core**
+**Location:** `/prompts/core/00_NON_NEGOTIABLES.md`  
+**What:** The "constitution" - absolute, unchangeable laws  
+**Who Can Change:** Human overseer only (technically enforced by pre-commit hooks)
 
-2.  **Ring 1: The Protected Layer (`/standards`, `/prompts`, `/templates`)**
-    -   **What:** Our operational standards, agent primers, and templates. These are the "laws" that define our workflow.
-    -   **Who Can Change:** The Executive Architect AI can propose changes based on trends, but they **must** be approved by the human overseer before being merged.
+### **Ring 1: The Protected Layer**
+**Location:** `/standards/`, `/prompts/`, `/templates/`, `/decisions/`  
+**What:** Operational standards, agent primers, ADRs  
+**Who Can Change:** Executive Architect proposes → Human overseer approves
 
-3.  **Ring 2: The Adaptive Layer (`/process_improvement`, GitHub Issues)**
-    -   **What:** The "suggestion box." Contains the raw feedback, logs, and discussions generated by our agents.
-    -   **Who Can Change:** All agents contribute to this layer as part of their workflow.
+### **Ring 2: The Adaptive Layer**
+**Location:** `/process_improvement/`, `/bugs/`, GitHub Issues  
+**What:** Feedback, logs, discussions  
+**Who Can Change:** All agents contribute
 
 ---
 
@@ -77,385 +89,410 @@ Our entire process is governed by the **Immutable Core Framework (ADR-009)**. Th
 
 ### **Human Roles:**
 
-| Role | Responsibilities | Activities |
-|------|------------------|------------|
-| **Product Owner** | Business requirements | Describes features, approves stories |
-| **Executive Architect** | Technical direction, ADRs | Approves architecture, reviews process |
-| **Developer (James)** | Oversight, orchestration | Dispatches agents, reviews work, merges |
-| **GitHub Coach AI** | GitHub operations guide | Manages issues, branches, PRs; educates on git workflows |
+| Role | Responsibilities |
+|------|------------------|
+| **Product Owner (James)** | Business requirements, feature priorities |
+| **Oversight (James)** | Dispatches agents, reviews work, approves merges |
+| **SMEs** | Domain expertise, UAT validation |
 
 ### **AI Agent Roles:**
 
-| Agent | Purpose | Creates | Consumes |
-|-------|---------|---------|----------|
-| **Business Analyst (BA)** | Decomposes work | Work Orders (GitHub Issues) | User Stories |
-| **Coder Agent** | Implements code | Code, Tests, PRs | Work Orders |
-| **Tester Agent** | Validates code | Test reports, bug reports | PRs, code |
-| **Reviewer Agent** | Code review | Review comments, approvals | PRs, diffs |
-| **Documentation Agent** | Writes docs | Guides, READMEs, API docs | Code, ADRs |
-
-### **Automated Agents:**
-
-| Agent | Purpose | When |
-|-------|---------|------|
-| **Cursor Bugbot** | Code analysis | On PR creation (manual trigger) |
-| **Pre-commit Hooks** | Lint/format | On git commit (when activated) |
-| **GitHub Actions** | CI/CD | On push/PR (future) |
+| Agent | Purpose | Token Budget | Creates | Consumes |
+|-------|---------|--------------|---------|----------|
+| **Executive Architect** | Validates specs, governs architecture | ~4500/week | ADRs, standards updates | Specs, process improvement |
+| **Business Analyst** | Requirements to specs | ~3000/feature | Feature briefs, YAML specs | Stakeholder input |
+| **Scrum Master** | Work order decomposition | ~2000/feature | Work orders | Specs |
+| **Coder Agent** | Implementation | ~5000/WO | Code, tests, PRs | Work orders |
+| **UI/UX Agent** | Design | Variable | Mockups, XML views | Specs |
+| **GitHub Coach** | Git/GitHub guide | Variable | PRs, branches | Human requests |
+| **Doc Retrieval** | Reference docs | One-time | Organized docs | Document requests |
 
 ---
 
-## 🛡️ **QUALITY SAFEGUARDS**
+## 📋 **PHASE 1: IDEATION**
 
-Our workflow includes multiple quality gates to prevent issues from reaching production:
+### **Participants:** Human + Business Analyst
 
-### **Work Order Quality Validation**
+### **Process:**
+1. **Human defines requirement** (business need, user problem)
+2. **BA interviews** stakeholders and researches domain
+3. **BA creates feature brief** in `/features/[domain]/[feature-name]/01-feature-brief.md`
+4. **BA commits** feature brief to repository
 
-**Automated Script:** `scripts/validate-work-order.sh`
-
-Validates every work order before dispatch:
-- ✅ No prohibited phrases ("tests optional", etc.)
-- ✅ Testing Requirements section present
-- ✅ Testing standards reference included
-- ✅ Proof of Execution section complete
-- ✅ All required structural sections present
-
-**Usage:**
-```bash
-./scripts/validate-work-order.sh path/to/WO-XXX.md
-```
-
-**Integration Points:**
-- Scrum Master self-check (mandatory before submission)
-- Architect pre-dispatch review
-- Can be added to pre-commit hooks or GitHub Actions
-
-**Rationale:** Process Improvement Entry #005 documented that "tests optional" language led to incomplete implementations. Automated validation prevents recurrence.
-
----
-
-## 🔄 **COMPLETE WORKFLOW - STEP BY STEP**
-
----
-
-### **PHASE 1: DEFINITION (The "Upstream" / Agentic Planning)**
-
-#### **Step 1.1: Ideation & Feature Brief**
-- **Who:** Human Overseer & Executive Architect
-- **What:** A high-level strategic idea is discussed. If deemed viable, the Architect creates a **Feature Brief** in the `/features` directory.
-
-#### **Step 1.2: Specification Creation**
-- **Who:** Business Analyst (BA) AI Agent
-- **Trigger:** A directive from the Architect to create a spec for a Feature Brief.
-- **Action:** The BA reads the Feature Brief and all relevant ADRs, then creates a detailed **`Story.yaml`** specification file in the `/specs` directory, following the official `STORY.yaml.tpl` template.
-
-#### **Step 1.3: The "Upstream" Feedback Loop (Technical Review)**
-- **Who:** Coder Agent
-- **Trigger:** The BA agent finishes a `Story.yaml` and a `status:needs-technical-review` label is applied.
-- **Action (ADR-008):** A Coder Agent is assigned to review the YAML spec for technical feasibility, clarity, and completeness.
-
-#### **Step 1.4: Final Architect & Human Approval**
-- **Who:** Executive Architect & Human Overseer
-- **Action:** The architect performs a final review of the technically-vetted `Story.yaml`. Upon approval, an "Epic" issue is created in the `aos-architecture` repository to track its overall progress. The human overseer gives the final go-ahead.
-
----
-
-### **PHASE 2: DECOMPOSITION & DISPATCH**
-
-#### **Step 2.1: Work Order Creation**
-- **Who:** Scrum Master Agent (or Executive Architect)
-- **Action:** The Scrum Master agent reads the approved `Story.yaml` and decomposes it into one or more "nuclear" Work Orders.
-- **Deliverable:** The agent creates a separate `.md` file for each Work Order and places it in the `aos-architecture/work_orders/pending/` directory.
-
-#### **Step 2.2: Review and Dispatch**
-- **Who:** Human Overseer (guided by the Coach AI)
-- **Action:**
-    1.  The human overseer reviews the pending Work Order files in the `/work_orders/pending/` directory.
-    2.  Once a Work Order is approved for dispatch, the overseer executes the `dispatch.sh` script from the command line, providing the path to the Work Order file.
-    3.  The script automatically creates the corresponding GitHub Issue in the correct repository and moves the source file to `/work_orders/dispatched/`.
-
----
-
-### **PHASE 3: IMPLEMENTATION (The "Downstream")**
-
-#### **Step 3.1: Execution**
-- **Who:** Coder Agent
-- **Action:** The agent executes the Work Order in a separate feature branch, following all standards, including the **2-iteration limit** for bug fixing. If it gets stuck, it escalates by applying the `status:needs-help` label.
-
-#### **Step 3.2: The "Downstream" Feedback Loop & Handoff**
-- **Who:** Coder Agent
-- **Action:**
-    1.  Upon successful completion, the agent provides the mandatory **"Proof of Execution"** (including test results) as a comment on the GitHub issue.
-    2.  The agent also provides structured **Process Improvement Feedback** as a separate comment, answering the three standard questions (Context, Clarity, Tooling).
-
-#### **Step 3.3: Architectural Review & Merge**
-- **Who:** Executive Architect & Human Overseer
-- **Action:**
-    1.  The Architect reviews the PR and the Proof of Execution.
-    2.  Upon approval, the Architect posts an "Approved for Merge" comment.
-    3.  The **Human Overseer performs the final, authoritative merge** of the Pull Request into the `main` branch. This is a non-negotiable step.
-
----
-
-### **PHASE 4: PROCESS IMPROVEMENT**
-
-#### **Step 4.1: Logging and Trend Analysis**
-- **Who:** Executive Architect
-- **Action (ADR-008):** The Architect logs all agent feedback in `process_improvement/process-improvement.md`, analyzes it for trends, and proposes changes to the "Protected Layer" only when a clear pattern of inefficiency or error emerges. All changes require human approval.
-
----
-
-## 🔍 **KEY QUESTIONS ANSWERED**
-
-### **Who Creates Work Orders?**
-
-**Answer:** Business Analyst (BA) AI Agent OR Human BA
-
-**Process:**
-1. BA reads user story
-2. BA decomposes into atomic work orders
-3. BA creates GitHub Issues in target repo (hub/evv)
-4. BA uses Work Order Template (mandatory structure)
-5. BA assigns labels for routing
-
-**Context Management Note:**
-- BA MUST size work orders to fit agent context budget
-- Target: < 500 lines of changes
-- If larger: Break into multiple work orders
-- Document dependencies
-
----
-
-### **Where is Context Management Considered?**
-
-**Answer:** At MULTIPLE levels:
-
-1. **Work Order Creation (BA Agent):**
-   - Size work appropriately (< 500 lines)
-   - Clear scope definition
-   - Single responsibility
-
-2. **Work Order Template:**
-   - Section 6: Context Management guidelines
-   - 2-iteration limit documented
-   - Escalation process provided
-
-3. **Coder Agent Workflow:**
-   - Git checkpoints (external memory)
-   - Phase-based context budget (30% per phase)
-   - Iteration limit enforcement
-   - Escalation triggers
-
-4. **Testing Standards:**
-   - Workflow documented
-   - Escalation path clear
-   - Signs of context exhaustion
-
-**Key Point:** Context management is ARCHITECTURAL, not just tactical!
-
----
-
-### **When Does Same Agent vs Separate Agent Apply?**
-
-**Answer:** Default is SAME agent, separate only for complex cases
-
-**Same Agent (90% of tasks):**
-- Task < 500 lines
-- Standard refactoring
-- Feature implementation
-- Bug fixes
-- Documentation
-
-**Separate Test Agent (10% of tasks):**
-- Task > 500 lines
-- High bug risk (security, critical logic)
-- Complex refactoring
-- Coder already used 50%+ context
-
-**Decision Made By:** BA during work order creation OR Developer during dispatch
-
----
-
-### **What Happens When Agent Gets Stuck?**
-
-**Answer:** 2-iteration limit → Escalation
-
-**Process:**
-1. Agent tries fix (Iteration 1)
-2. If fails, agent tries DIFFERENT fix (Iteration 2)
-3. If still fails, agent STOPS and escalates
-4. Agent documents attempts on GitHub Issue
-5. Agent adds `status:needs-help` label
-6. Agent tags reviewer
-7. Human/specialist reviews and assists
-
-**Why This Works:**
-- Prevents context exhaustion
-- Documents what was tried (no duplication)
-- Gets expert help early
-- Preserves agent context for useful work
-
----
-
-## 📊 **WORKFLOW METRICS**
-
-### **Typical Timeline:**
-
-| Phase | Duration | Who |
-|-------|----------|-----|
-| User Story Creation | 15-30 min | Product Owner/Architect |
-| Architectural Review | 30-60 min | Executive Architect |
-| Decomposition | 30-60 min | BA Agent |
-| Work Order Dispatch | 5 min | Developer |
-| Implementation | 2-4 hours | Coder Agent |
-| Testing | 1-2 hours | Coder Agent |
-| Bug Fixing | 30 min - 2 hours | Coder Agent |
-| Proof of Execution | 15-30 min | Coder Agent |
-| Review | 30 min - 1 hour | Reviewer/Human |
-| Merge | 5 min | Developer |
-| **Total:** | **5-11 hours** | **Team** |
-
-**Factors Affecting Duration:**
-- Task complexity
-- Agent type/performance
-- Testing requirements
-- Bug complexity
-- Review thoroughness
-
----
+### **Output:**
+- Feature brief document (high-level, business-focused)
+- Reference materials in `/features/[domain]/[feature-name]/reference/`
 
 ### **Success Criteria:**
-
-| Metric | Target | Actual (Today) |
-|--------|--------|----------------|
-| **First-Pass Quality** | > 80% | 33% (1/3 agents) |
-| **Test Coverage** | > 80% | 100% (where tests exist) |
-| **Proof of Execution** | 100% | 67% (2/3 agents) |
-| **ADR Compliance** | 100% | 100% |
-| **Process Improvement** | Active | ✅ 2 entries |
-| **Documentation Quality** | High | ✅ A+ grade |
-
-**Note:** First-pass quality low due to first agent failure. Monitoring for pattern.
+- [ ] Clear business problem statement
+- [ ] User personas identified
+- [ ] Success metrics defined
+- [ ] Constraints documented
 
 ---
 
-## 🎯 **CRITICAL SUCCESS FACTORS**
+## 📄 **PHASE 2: SPECIFICATION**
 
-### **1. Work Order Quality** 🔴 CRITICAL
+### **Participants:** Business Analyst + Executive Architect
 
-**Why It Matters:**
-- Clear work order = successful implementation
-- Vague work order = agent confusion/failure
-- Context management starts here
+### **Process:**
+1. **BA reads feature brief** and related ADRs
+2. **BA creates YAML spec** using `/specs/templates/STORY.yaml.tpl`
+3. **BA defines:**
+   - All data models and fields (exact names and types)
+   - All business rules (testable, implementable)
+   - All acceptance criteria (specific, measurable)
+4. **BA submits spec** to Executive Architect for review
+5. **Architect reviews** using 5-minute checklist:
+   - [ ] No architectural violations (federated model, repo boundaries)
+   - [ ] Field names follow conventions
+   - [ ] Business rules are implementable
+   - [ ] Acceptance criteria are testable
+6. **Architect approves or rejects** with specific feedback
+7. **If rejected:** BA fixes and resubmits
+8. **If approved:** Spec committed to `/specs/[domain]/FEATURE-ID.yaml`
 
-**Requirements:**
-- Use Work Order Template (all 8 sections)
-- Specific file paths, line numbers, code snippets
-- Clear acceptance criteria
-- Appropriate sizing (< 500 lines)
-- Required context documents listed
+### **Output:**
+- Approved YAML specification
+- Spec becomes **immutable contract** for implementation
 
----
+### **Token Budget:**
+- BA: ~3000 tokens
+- Architect: ~500 tokens (focused review)
 
-### **2. Testing Standards** 🔴 CRITICAL
+### **Success Criteria:**
+- [ ] Passes architectural review on first try
+- [ ] All sections complete (no TBD)
+- [ ] Field names match conventions
+- [ ] Business rules testable
 
-**Why It Matters:**
-- Boot testing caught 0/6 bugs
-- Functional testing would catch 67-100%
-- Quality gate to prevent production bugs
-
-**Requirements:**
-- Unit tests MANDATORY for code changes
-- Tests must cover edge cases, errors, security
-- Proof of execution includes test output
-- 0 failures required before merge
-
----
-
-### **3. Context Management** 🟡 HIGH IMPORTANCE
-
-**Why It Matters:**
-- Prevents agent context exhaustion
-- Avoids infinite debug loops
-- Maintains work quality
-
-**Requirements:**
-- 2-iteration limit enforced
-- Git checkpoints after each phase
-- Escalation path clear
-- Context budget guidelines followed
+**See:** `/specs/README.md` for complete spec creation guide
 
 ---
 
-### **4. Process Improvement** 🟡 HIGH IMPORTANCE
+## 🔨 **PHASE 3: DECOMPOSITION**
 
-**Why It Matters:**
-- Continuous learning
-- Pattern identification
-- Standards evolution
+### **Participants:** Scrum Master (AI)
 
-**Requirements:**
-- Log after each failure
-- Log when patterns emerge
-- Review weekly
-- Update standards based on findings
+### **Process:**
+1. **Scrum Master reads approved spec** from `/specs/`
+2. **Scrum Master analyzes** data models, business rules, dependencies
+3. **Scrum Master creates work orders** using `/templates/work_order_template.md`
+4. **Each work order must be:**
+   - **Bootable:** Odoo won't crash after applying this code
+   - **Testable:** Can verify it works
+   - **Independent:** Doesn't block other work orders
+5. **Scrum Master defines:**
+   - Exact files to create/modify
+   - Specific code to write (with field names from spec)
+   - Test requirements (unit + workflow)
+   - Acceptance criteria
+6. **Scrum Master commits** to `/work_orders/[domain]/[FEATURE]/WO-XXX-NN.md`
 
----
+### **Output:**
+- Series of hyper-detailed work orders
+- TRACKING.md file showing WO status
 
-## 🚀 **IMPROVEMENTS MADE TODAY**
+### **Token Budget:**
+- ~2000 tokens per feature decomposition
 
-**Based on this workflow analysis, we made:**
+### **Success Criteria:**
+- [ ] Each WO is bootable (includes manifest requirements)
+- [ ] Each WO has unit test requirements
+- [ ] Each WO has workflow test requirements
+- [ ] WOs are properly sequenced (dependencies respected)
 
-1. ✅ **Testing Standards** - Comprehensive guidelines for agents
-2. ✅ **Context Management** - Built into Work Order Template
-3. ✅ **Enhanced Proof of Execution** - Now includes functional tests
-4. ✅ **Process Improvement Log** - 2 entries demonstrating continuous learning
-5. ✅ **Pre-commit Hooks** - Automated quality checks
-
-**Impact:** More mature, sustainable development process
-
----
-
-## 📝 **REFERENCE DOCUMENTS**
-
-**Core Workflow:**
-- `aos-architecture/00_project_workflow.md` - Master blueprint
-- `aos-architecture/standards/03-ai-agent-workflow.md` - Agent processes
-
-**Standards:**
-- `aos-architecture/standards/08-testing-requirements.md` - Testing guidelines
-- `aos-architecture/standards/05-automation-and-labeling-standards.md` - Labels, handles
-
-**Templates:**
-- `aos-architecture/templates/work_order_template.md` - Work order structure
-- `.github/ISSUE_TEMPLATE/work-order-coder.yml` - GitHub issue template
-
-**Agent Onboarding:**
-- `aos-architecture/prompts/onboarding_coder_agent.md` - Coder agent briefing
-
-**Process Improvement:**
-- `aos-architecture/process_improvement/process-improvement.md` - Learning log
+**See:** `/prompts/onboarding_scrum_master.md` Section 3.1 for Odoo-aware decomposition patterns
 
 ---
 
-## ✅ **NEXT STEPS**
+## 💻 **PHASE 4: IMPLEMENTATION**
 
-1. **Immediate:**
-   - [ ] Architect reviews and approves workflow
-   - [ ] Apply to Issue #4
-   - [ ] Monitor agent performance
+### **Participants:** Coder Agent
 
-2. **This Week:**
-   - [ ] Activate pre-commit hooks
-   - [ ] Update GitHub Issue Templates
-   - [ ] Create BA agent dispatch instructions
+### **Process:**
+1. **Human dispatches WO** to Coder Agent using consolidated dispatch brief
+2. **Coder reads:**
+   - Work order
+   - Spec (for field names, business rules)
+   - Onboarding primer (`/prompts/onboarding_coder_agent.md`)
+3. **Coder sets up isolated environment:**
+   ```bash
+   cd [hub or evv]
+   ./scripts/start-agent-env.sh WO-XXX-NN
+   ```
+4. **Coder implements:**
+   - Creates/modifies files per work order
+   - Uses EXACT field names from spec
+   - Implements business rules as specified
+5. **Coder writes tests:**
+   - **Unit tests:** Individual functions/methods
+   - **Workflow tests:** Complete user journeys (backend)
+6. **Coder runs tests locally:**
+   ```bash
+   python -m pytest addons/[module]/tests/ -v
+   ```
+7. **Coder provides proof of execution:**
+   - Test output (all passing)
+   - Boot test confirmation (Odoo starts without errors)
+8. **Coder commits** code with conventional commit message
+9. **Coder creates PR** linking to work order
 
-3. **Next Sprint:**
-   - [ ] Automate work order creation
-   - [ ] Implement automated proof-of-execution validation
-   - [ ] Create agent type selection guidance
+### **Output:**
+- Implemented code matching spec exactly
+- Unit tests (all passing)
+- Workflow tests (all passing)
+- Pull request
+
+### **Token Budget:**
+- ~5000 tokens per work order
+
+### **Success Criteria:**
+- [ ] All tests pass locally
+- [ ] Spec compliance (field names match)
+- [ ] Odoo boots successfully
+- [ ] Code follows Odoo standards
+
+**See:** `/prompts/onboarding_coder_agent.md` for complete implementation guide
 
 ---
 
-**This is now our definitive workflow reference! 🚀**
+## ✅ **PHASE 5: VALIDATION (CI/CD + Human)**
 
+### **Automated Validation (CI/CD):**
 
+#### **Step 1: Spec Compliance Check**
+```bash
+python scripts/compare-spec-to-implementation.py [FEATURE-ID]
+```
+- Validates field names match spec exactly
+- Validates field types match spec
+- **If fails:** PR blocked, Coder must fix
+
+#### **Step 2: Pre-Commit Hooks**
+- Repository boundary validation (no cross-contamination)
+- Prevents Ring 0 changes
+- **If fails:** Commit blocked
+
+#### **Step 3: Automated Tests**
+```bash
+# Run all tests in CI
+pytest [repo]/addons/[module]/tests/ -v
+```
+- Unit tests must pass
+- Workflow tests must pass
+- **If fails:** PR blocked
+
+### **Human Review:**
+1. **Human reviews PR** using checklist:
+   - [ ] Code matches work order requirements
+   - [ ] Tests are comprehensive
+   - [ ] No architectural violations
+   - [ ] Commit message follows conventions
+2. **If revisions needed:** Comment on PR, Coder fixes
+3. **If approved:** Human merges to `main`
+
+### **Success Criteria:**
+- [ ] Spec compliance validation passes
+- [ ] All tests pass in CI
+- [ ] Human approves PR
+- [ ] No merge conflicts
+
+---
+
+## 🧪 **PHASE 6: PRE-UAT & DEPLOYMENT**
+
+### **Pre-UAT Smoke Test (Human):**
+
+1. **Deploy to staging** (automated or manual)
+2. **Human runs Pre-UAT checklist** from `/testing/pre-uat-checks/FEATURE-ID-pre-uat.md`
+3. **Smoke test:**
+   - Can Odoo start?
+   - Can user access the feature?
+   - Do basic operations work?
+4. **If fails:** Create bug ticket, assign to Coder, repeat Phase 4-5
+5. **If passes:** Proceed to UAT
+
+### **User Acceptance Testing (SMEs):**
+
+1. **Human or SME performs full UAT** using acceptance criteria from spec
+2. **Test in realistic scenarios** with real-world data (sanitized)
+3. **If fails:** Document issues, create bug tickets, repeat Phase 4-5
+4. **If passes:** Feature approved for production
+
+### **Production Deployment:**
+
+1. **Human triggers production deploy** (manual gate)
+2. **Monitor for errors** in production logs
+3. **Rollback if critical issues** discovered
+4. **Feature goes live**
+
+### **Success Criteria:**
+- [ ] Pre-UAT smoke test passes
+- [ ] All UAT acceptance criteria met
+- [ ] SMEs approve feature
+- [ ] No critical bugs in production first 24 hours
+
+---
+
+## 🔄 **PROCESS IMPROVEMENT LOOP**
+
+### **Continuous:**
+
+After every feature or when issues arise:
+
+1. **Agents log feedback** in `/process_improvement/process-improvement.md`
+2. **Executive Architect reviews weekly** for systemic patterns
+3. **Architect proposes standard/ADR updates** to address issues
+4. **Human approves changes**
+5. **Architect updates standards/primers**
+6. **All agents notified** of changes
+
+### **Success Metrics:**
+- Decreasing process improvement entries over time
+- Increasing first-time spec approvals
+- Decreasing spec compliance failures
+- Decreasing UAT failures
+
+---
+
+## 📚 **KEY REFERENCE DOCUMENTS**
+
+### **Core Governance:**
+- `/prompts/core/00_NON_NEGOTIABLES.md` - Ring 0 principles
+- `/decisions/009-immutable-core-framework.md` - 3-ring model
+- `/standards/00-repository-structure-governance.md` - Where files go
+
+### **Architecture:**
+- `/decisions/001-hub-evv-authentication.md` - Federated model
+- `/decisions/013-repository-boundaries-and-module-placement.md` - Repo rules
+- `/decisions/015-test-environment-isolation-for-parallel-agents.md` - Isolated envs
+
+### **Standards:**
+- `/standards/01-odoo-coding-standards.md` - Code quality
+- `/standards/03-ai-agent-workflow.md` - Agent processes
+- `/standards/SPEC_COMPLIANCE.md` - Spec validation
+- `/standards/TESTING_STRATEGY.md` - 5-level test pyramid
+
+### **Onboarding:**
+- `/prompts/onboarding_executive_architect.md` - Architect role
+- `/prompts/onboarding_business_analyst.md` - BA role
+- `/prompts/onboarding_scrum_master.md` - Scrum Master role
+- `/prompts/onboarding_coder_agent.md` - Coder role
+
+### **Navigation:**
+- `/README.md` - Quick navigation
+- `/USER_GUIDE.md` - Comprehensive orientation
+- `/prompts/README.md` - Agent primer index
+- `/specs/README.md` - Spec creation guide
+- `/work_orders/README.md` - Work order lifecycle
+
+---
+
+## 🎯 **SUCCESS CRITERIA FOR ENTIRE WORKFLOW**
+
+**The workflow is successful when:**
+
+1. ✅ **Specs pass architectural review on first try** (clear requirements)
+2. ✅ **Work orders are bootable and testable** (quality decomposition)
+3. ✅ **Code passes spec compliance validation** (exact field names)
+4. ✅ **All tests pass in CI/CD** (comprehensive testing)
+5. ✅ **Pre-UAT passes without bugs** (quality implementation)
+6. ✅ **UAT passes on first attempt** (requirements met)
+7. ✅ **No post-deployment hotfixes** (thorough validation)
+8. ✅ **Process improvement entries decrease** (systemic issues resolved)
+
+---
+
+## ⚠️ **COMMON FAILURE POINTS & SOLUTIONS**
+
+### **Failure Point 1: Spec Ambiguity**
+**Symptom:** Coder asks many clarification questions  
+**Root Cause:** BA didn't specify exact field names or business rules  
+**Solution:** BA uses spec quality checklist before submitting
+
+### **Failure Point 2: Spec Compliance Failures**
+**Symptom:** CI/CD blocks PR for field name mismatches  
+**Root Cause:** Coder didn't use exact names from spec  
+**Solution:** Coder reads spec carefully, uses validation script locally
+
+### **Failure Point 3: Non-Bootable Work Orders**
+**Symptom:** Odoo crashes after applying code  
+**Root Cause:** Scrum Master didn't include manifest requirements  
+**Solution:** Scrum Master uses Odoo-aware decomposition patterns (Section 3.1)
+
+### **Failure Point 4: UAT Failures**
+**Symptom:** Feature works but doesn't meet business needs  
+**Root Cause:** Spec didn't capture actual requirements  
+**Solution:** BA conducts thorough stakeholder interviews before spec creation
+
+### **Failure Point 5: Cross-Repo Contamination**
+**Symptom:** EVV module in Hub repo (or vice versa)  
+**Root Cause:** Coder worked in wrong repository  
+**Solution:** Pre-commit hooks block this automatically
+
+---
+
+## 🔧 **AUTOMATION & TOOLS**
+
+### **Pre-Commit Hooks:**
+- Repository boundary validation (`scripts/validate-module-placement.sh`)
+- Ring 0 protection (blocks changes to `00_NON_NEGOTIABLES.md`)
+- Spec compliance validation (`scripts/pre-commit-spec-validation.sh`)
+
+### **CI/CD (GitHub Actions):**
+- Spec compliance check (`scripts/compare-spec-to-implementation.py`)
+- Automated test execution
+- Code quality gates
+
+### **Development Tools:**
+- Isolated test environments (`scripts/start-agent-env.sh`)
+- Database initialization (`scripts/init-database.sh`)
+- Odoo health checks
+
+---
+
+## 📈 **METRICS & MONITORING**
+
+### **Weekly Metrics:**
+- Features completed vs. planned
+- Average spec review cycles (target: 1)
+- Spec compliance pass rate (target: 100%)
+- CI/CD test pass rate (target: 100%)
+- Pre-UAT pass rate (target: 100%)
+- UAT pass rate (target: 100%)
+
+### **Monthly Metrics:**
+- Process improvement entries (trending down = good)
+- Agent token consumption (within budget?)
+- Time from spec approval to production (trending down = good)
+
+---
+
+## 🚀 **GETTING STARTED**
+
+### **For New Features:**
+1. Start with feature brief (`/features/[domain]/[feature-name]/`)
+2. Follow Phase 1-6 in order
+3. Don't skip phases (leads to rework)
+4. Use checklists at each phase
+
+### **For New Agents:**
+1. Read `/prompts/core/00_NON_NEGOTIABLES.md` first
+2. Read your role-specific primer
+3. Complete calibration exercise
+4. Start with your first assignment
+
+### **For Reviewing This Workflow:**
+1. Propose changes via `/process_improvement/`
+2. Executive Architect reviews and proposes standard update
+3. Human overseer approves
+4. This document updated
+
+---
+
+**Version History:**
+- **v2.0 (2025-10-12):** Complete rewrite - YAML specs, token-efficient architect, isolated envs, spec compliance
+- **v1.0 (2025-10-09):** Initial creation
+
+**Next Review:** After first 3 features complete using this workflow
