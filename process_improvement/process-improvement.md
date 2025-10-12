@@ -1016,3 +1016,158 @@ First work order execution for Claude Sonnet 4.5 - documentation task for servic
 
 ---
 
+
+## Entry #009 - Critical Architectural Divergence (Multi-Repo Docker Confusion)
+
+**Date:** 2025-10-12  
+**Issue:** Hub repo contaminated with EVV module; agents booting wrong Docker environment  
+**Agent Type:** GPT-5  
+**Feedback Source:** Human review during Pre-UAT setup for AGMT-001  
+**Loop Type:** Systemic (Documentation Gap)
+
+### Summary
+Critical architectural divergence discovered during Pre-UAT setup: EVV module (`evv_agreements`) was committed to Hub repository, and agents were booting Hub Docker environment when testing EVV modules. This violated the fundamental Hub-EVV separation defined in ADR-001.
+
+### Timeline of Discovery
+
+**Oct 11, 18:13** - GPT-5 correctly commits AGMT-001 code to `evv/` repo  
+**Oct 11, 18:50** - GPT-5 provides "proof of execution" showing boot success  
+**Oct 12, 20:30** - Human attempts Pre-UAT on `http://localhost:8069` - not accessible  
+**Oct 12, 20:35** - Investigation reveals `docker-compose.yml` at workspace root mounts `hub/addons` on port 8090  
+**Oct 12, 20:40** - Further investigation reveals `evv_agreements` module exists in BOTH repos:
+  - ✅ `evv/addons/evv_agreements` (correct location, has docs/)
+  - ❌ `hub/addons/evv_agreements` (contamination, tracked in feature branch)
+
+### Root Cause Analysis
+
+**Documentation Gaps Identified:**
+1. ❌ No workspace-level `README.md` explaining the multi-repo structure
+2. ❌ No `README.md` in `hub/` repo explaining how to develop Hub modules
+3. ❌ No `README.md` in `evv/` repo explaining how to develop EVV modules  
+4. ❌ No `docker-compose.yml` in `evv/` repo - agents had no way to boot EVV
+5. ❌ Coder Agent primer mentioned Hub/EVV exist but not WHERE or HOW to work in each
+6. ❌ Work orders said "boot Odoo" but didn't specify WHICH Odoo or WHERE
+7. ❌ Work Order template lacked instructions for repo-specific setup
+
+**What Happened:**
+1. GPT-5 correctly identified EVV as target and committed code to `evv/` repo ✅
+2. Work order required "proof of execution" (boot log) 
+3. GPT-5 looked for `docker-compose.yml` in `evv/` → **NOT FOUND** ❌
+4. GPT-5 found workspace-level `docker-compose.yml` → assumed this was the dev environment
+5. `docker-compose.yml` mounted `./hub/addons` → GPT-5 likely copied `evv_agreements` to Hub
+6. Odoo booted successfully (wrong instance, but it booted) → agent considered work "complete"
+7. Human discovered issue only when attempting Pre-UAT testing
+
+**Why It Wasn't Caught:**
+- Odoo booted successfully (Hub instance, not EVV instance)
+- Tests ran (against Hub DB, not EVV DB)
+- No documentation to violate (none existed)
+- Proof of execution showed "success"
+
+### Systemic Pattern
+
+This is a **Tier 1 Critical Issue** per ADR-008 classification: architectural misunderstanding leading to incorrect implementation. Similar to Entry #001, but more severe as it violated core project architecture (separate instances per ADR-001).
+
+**Classification:**
+- **Upstream:** Work orders lacked Docker environment specificity
+- **Downstream:** Agent made incorrect assumption about environment
+- **Systemic:** Complete absence of multi-repo documentation
+
+### Remediation Implemented
+
+**Immediate Fixes (Completed):**
+
+1. ✅ **Removed contamination from Hub repo:**
+   - Deleted `evv_agreements` from Hub feature branch
+   - Committed with explanation: `fix: Remove evv_agreements module - belongs in EVV repo only`
+
+2. ✅ **Created EVV Docker environment:**
+   - Added `evv/docker-compose.yml` (port 8091, mounts `evv/addons`)
+   - Added `evv/etc/odoo.conf` 
+   - Committed to EVV repo
+
+3. ✅ **Moved workspace docker-compose.yml:**
+   - Relocated to `hub/docker-compose.yml` (where it belongs)
+   - Committed to Hub repo
+
+4. ✅ **Created comprehensive READMEs:**
+   - `/README.md` (workspace) - Explains multi-repo structure, quick start for each
+   - `hub/README.md` - Hub development guide, Docker setup, modules list
+   - `evv/README.md` - EVV development guide, HIPAA notes, Docker setup
+   - All committed to respective repos
+
+5. ✅ **Updated Coder Agent Primer:**
+   - Added Section 2.1: Repository & Docker Environments
+   - Explicit paths, ports, and verification steps
+   - Updated Section 5: Proof of Execution with repo navigation
+   - Committed to aos-architecture
+
+**Work Order Template Updates (Recommended):**
+
+```markdown
+## X. Development Environment
+
+**Target Repository:** [hub | evv]  
+**Target Module:** [module_name]  
+**Docker Command:** `cd [repo]/ && docker compose up -d`  
+**Access URL:** http://localhost:[8090|8091]  
+
+**Before Starting:**
+1. Read `[repo]/README.md`
+2. Verify correct repo: `git remote -v`
+3. Boot correct environment: `cd [repo]/ && docker compose up -d`
+```
+
+### Recommendations
+
+**For Future Work Orders:**
+1. Include explicit "Target Repository" field (hub or evv)
+2. Include Docker commands specific to that repo
+3. Require agents to verify `git remote -v` output
+
+**For Agent Primers:**
+1. ✅ Done: Added multi-repo section to Coder Agent primer
+2. TODO: Update Scrum Master primer with repo selection guidelines
+3. TODO: Create "Quick Reference Card" with repo/port mappings
+
+**For Architecture:**
+1. Consider adding `.gitignore` entries to prevent cross-contamination
+2. Consider pre-commit hook that fails if EVV module found in Hub
+3. Document this pattern in ADR-013 "Repository Boundaries"
+
+### Impact
+
+**Severity:** 🔴 CRITICAL  
+**Scope:** All future development (prevents similar issues)  
+**Effort:** 2 hours for full remediation  
+**Risk Mitigated:** Architectural violations, testing against wrong DB, deployment confusion
+
+### Lessons Learned
+
+1. **Assumption of Prior Knowledge:** We assumed agents would "know" about the multi-repo structure without explicit documentation
+2. **Implicit > Explicit:** Architecture must be explicitly documented, not just mentioned in ADRs
+3. **Test What Matters:** "Odoo boots" is insufficient - must verify CORRECT instance boots
+4. **README First:** Every repo needs a README before any agent touches it
+5. **Docker Clarity:** Every repo with an Odoo instance needs its own docker-compose.yml
+
+### Success Metrics
+
+**Before Fix:**
+- 0/3 repos had READMEs
+- 1/2 Odoo instances had docker-compose.yml
+- 0% of work orders specified Docker environment
+- 1 module misplaced (100% of EVV modules in wrong repo)
+
+**After Fix:**
+- 3/3 repos have comprehensive READMEs
+- 2/2 Odoo instances have docker-compose.yml in correct locations
+- Agent primer explicitly documents repo boundaries
+- 0 modules misplaced
+
+**Ongoing Monitoring:**
+- Track future "wrong repo" incidents
+- Verify all proof of execution logs show correct module in stats
+- Review work order template adherence
+
+---
+
