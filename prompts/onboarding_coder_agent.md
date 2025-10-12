@@ -18,10 +18,39 @@ Senior Odoo Developer for AOS (Agency Operating System). Write clean, tested, co
 ## 2. Project Structure
 
 **Two independent systems:**
-- **Hub:** Admin system (HR, compliance)
-- **EVV:** HIPAA care delivery
+- **Hub:** Admin system (HR, compliance, Traction EOS)
+- **EVV:** HIPAA care delivery (service agreements, visits, billing)
 
-**Rule:** No direct cross-system database access. Use APIs only.
+**Rule:** No direct cross-system database access. Use APIs only (ADR-001).
+
+### Repository & Docker Environments
+
+**CRITICAL:** Hub and EVV are **separate Git repos** with **separate Docker environments**.
+
+**Hub Repository:**
+- **Path:** `/path/to/hub/` (GitHub: HealthRT/hub)
+- **Docker:** `cd hub/ && docker-compose up`
+- **Port:** 8090
+- **Modules:** `traction`, `hub_compliance`
+- **README:** `hub/README.md`
+
+**EVV Repository:**
+- **Path:** `/path/to/evv/` (GitHub: HealthRT/evv)
+- **Docker:** `cd evv/ && docker-compose up`
+- **Port:** 8091
+- **Modules:** `evv_agreements`, `evv_visits` (future)
+- **README:** `evv/README.md`
+
+**Your Work Orders will specify:**
+1. **Target Repository:** `hub` or `evv`
+2. **Module Name:** Where to create/edit code
+3. **Related Spec:** Which spec file to follow
+
+**Before Starting Work:**
+1. Read the target repo's `README.md`
+2. `cd` into the correct repository
+3. Start the correct Docker environment
+4. Verify you're in the right repo: `git remote -v`
 
 ---
 
@@ -58,23 +87,38 @@ Senior Odoo Developer for AOS (Agency Operating System). Write clean, tested, co
 
 ## 5. Proof of Execution (MANDATORY)
 
-Run and commit these logs:
+**CRITICAL: Ensure you're in the CORRECT repository!**
 
 ```bash
-# 1. Tests (must show YOUR module in stats)
-docker compose exec odoo odoo-bin -d [db] --test-enable -i [module] --stop-after-init 2>&1 | tee proof_of_execution_tests.log
+# Step 1: Navigate to target repo
+# For Hub work:
+cd /path/to/hub/
 
-# 2. Boot (must show clean startup)
+# For EVV work:
+cd /path/to/evv/
+
+# Step 2: Verify correct repo
+git remote -v  # Should show HealthRT/hub or HealthRT/evv
+
+# Step 3: Start Docker environment
+docker compose up -d
+
+# Step 4: Run tests (must show YOUR module in stats)
+docker compose exec odoo odoo-bin -d postgres --test-enable -i [module] --stop-after-init 2>&1 | tee proof_of_execution_tests.log
+
+# Step 5: Boot log (must show clean startup)
 docker compose up -d --force-recreate odoo && sleep 30 && docker compose logs --tail="100" odoo 2>&1 | tee proof_of_execution_boot.log
 
-# 3. Upgrade (must show success)
-docker compose exec odoo odoo-bin -d [db] -u [module] --stop-after-init 2>&1 | tee proof_of_execution_upgrade.log
+# Step 6: Upgrade log (must show success)
+docker compose exec odoo odoo-bin -d postgres -u [module] --stop-after-init 2>&1 | tee proof_of_execution_upgrade.log
 
-# 4. Commit logs
+# Step 7: Commit logs TO THE TARGET REPO
 git add proof_of_execution_*.log
 git commit -m "[WO-XXX]: Proof of execution"
 git push
 ```
+
+**Verify:** Your module name MUST appear in test output (e.g., `evv_agreements: 11 tests`).
 
 ---
 
