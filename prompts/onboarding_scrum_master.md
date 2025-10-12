@@ -241,11 +241,56 @@ When filling out the Work Order Template, Section 5 (Acceptance Criteria) MUST i
 
 ```markdown
 ### Testing Requirements (MANDATORY)
+
+**Unit Tests:**
 - [ ] Unit tests written for all new/modified methods
 - [ ] Edge cases tested (empty recordsets, null values, validation failures)
+- [ ] Constraints and validations tested
+- [ ] All unit tests pass (0 failed, 0 errors)
+
+**Workflow Tests (Backend User Journey Tests):**
+- [ ] Happy path workflow test (complete user journey)
+- [ ] Error path workflow test (invalid inputs, validation failures)
+- [ ] State transition tests (if applicable)
+- [ ] Multi-record scenarios tested (if applicable)
+- [ ] All workflow tests pass (0 failed, 0 errors)
+
+**Coverage:**
+- [ ] Code coverage ≥ 80%
 - [ ] Security considerations tested (if applicable)
-- [ ] All tests pass (0 failed, 0 errors)
 ```
+
+### What Are Workflow Tests?
+
+**Workflow tests simulate complete user activities in backend code, WITHOUT touching the UI.**
+
+**Example:** Testing "Create Agreement → Activate" workflow:
+```python
+def test_workflow_create_and_activate_agreement(self):
+    """User creates agreement and clicks Activate button"""
+    # User fills form and clicks Save
+    agreement = self.Agreement.create({
+        'partner_id': self.patient.id,
+        'procedure_code': 'H2014',
+        'effective_date': date(2025, 1, 1),
+        'through_date': date(2025, 12, 31),
+        'total_units': 100.0,
+    })
+    
+    # User clicks "Activate" button
+    agreement.action_activate()
+    
+    # Verify state changed
+    self.assertEqual(agreement.state, 'active')
+```
+
+**Benefits:**
+- ✅ Catches workflow bugs BEFORE human testing
+- ✅ Runs in < 1 second (vs. 15 min manual testing)
+- ✅ Tests real user scenarios, not just individual methods
+- ✅ Automated and repeatable
+
+**See:** `@aos-architecture/standards/TESTING_STRATEGY.md` for detailed guidance.
 
 ### Required Context Document
 
@@ -283,7 +328,9 @@ If validation fails, regenerate the work order.
 
 - [ ] **Search for "optional"** → If found in testing context, DELETE the entire phrase
 - [ ] **Section 5 has subsection:** "### Testing Requirements (MANDATORY)"
+- [ ] **Section 5 includes:** Both "Unit Tests" AND "Workflow Tests" subsections
 - [ ] **Section 7 includes:** `@aos-architecture/standards/08-testing-requirements.md`
+- [ ] **Section 7 includes:** `@aos-architecture/standards/TESTING_STRATEGY.md`
 - [ ] **Section 9 (or last section) is:** "MANDATORY Proof of Execution" 
 - [ ] **Section 9 includes all 3 commands:** Test execution, boot verification, upgrade test
 - [ ] **No prohibited phrases present:** "tests can be added later", "bootstrap doesn't need tests", "testing not required"

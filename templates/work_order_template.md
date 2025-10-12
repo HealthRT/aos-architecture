@@ -147,10 +147,53 @@ If you are creating a work order and considering making tests optional, **STOP**
 - [ ] Requirement 2 is met.
 
 ### Testing Requirements (MANDATORY)
-- [ ] Unit tests are written for all new/modified methods.
-- [ ] All tests pass (`0 failed, 0 error(s)`).
-- [ ] Code is committed with a descriptive message.
-- [ ] Proof of execution (including test output) is provided.
+
+**Unit Tests:**
+- [ ] Unit tests written for all new/modified methods
+- [ ] Edge cases tested (empty recordsets, null values, validation failures)
+- [ ] Constraints and validations tested
+- [ ] All unit tests pass (`0 failed, 0 error(s)`)
+
+**Workflow Tests (Backend User Journey Tests):**
+- [ ] Happy path workflow test (complete user journey end-to-end)
+- [ ] Error path workflow test (invalid inputs rejected properly)
+- [ ] State transition tests (if model has state field)
+- [ ] Multi-record scenarios tested (if applicable)
+- [ ] All workflow tests pass (`0 failed, 0 error(s)`)
+
+**Example Workflow Test Structure:**
+```python
+# File: tests/test_<model_name>_workflows.py
+
+@tagged("post_install", "-at_install", "<module_name>", "workflow")
+class Test<ModelName>Workflows(TransactionCase):
+    """End-to-end workflow tests simulating user activities"""
+    
+    def test_workflow_happy_path(self):
+        """Test: User creates record → performs action → verifies result"""
+        # 1. User creates record (simulates filling form)
+        record = self.Model.create({...})
+        
+        # 2. User clicks action button
+        record.action_method()
+        
+        # 3. Verify expected state
+        self.assertEqual(record.state, 'expected')
+    
+    def test_workflow_error_path(self):
+        """Test: User tries invalid action → system rejects properly"""
+        with self.assertRaises(ValidationError):
+            self.Model.create({...})  # Missing required field
+```
+
+**Coverage:**
+- [ ] Code coverage ≥ 80%
+- [ ] Security considerations tested (if applicable)
+
+**Proof of Execution:**
+- [ ] Test output committed showing all tests pass
+- [ ] Code committed with descriptive message
+- [ ] Proof of execution provided (see Section 9)
 
 ---
 
@@ -192,6 +235,7 @@ If you are creating a work order and considering making tests optional, **STOP**
 (A list of files the agent must read before starting.)
 - `@aos-architecture/decisions/[ADR_FILE].md`
 - `@aos-architecture/standards/08-testing-requirements.md` (MANDATORY)
+- `@aos-architecture/standards/TESTING_STRATEGY.md` (MANDATORY - for workflow tests)
 - `@[ANALYSIS_REPORT].md` (lines [e.g., 374-389])
 
 ---
