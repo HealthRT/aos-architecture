@@ -40,8 +40,8 @@ Per ADR-003 (API-First Design), Hub and EVV communicate ONLY through formal, ver
 
 ### **Repository Structure:**
 - **Your domain:** `hub/` repository
-- **Your specs:** `aos-architecture/specs/hub/`
-- **Your features:** `aos-architecture/features/hub/`
+- **Your specs:** `/specs/hub/`
+- **Your features:** `/features/hub/`
 - **Parallel domain:** `evv/` repository (managed by EVV Architect)
 
 ### **Coordination:**

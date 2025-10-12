@@ -20,6 +20,11 @@
 ## 3. Architecture
 
 -   **Federated Model is Absolute:** The strict separation between the `hub` (administrative) and `evv` (clinical) systems is non-negotiable. There will be no direct database access between them. All communication must go through the formal, version-controlled APIs.
+-   **Repository Boundaries are Immutable:** Per ADR-013, module placement is strictly enforced:
+    -   **Hub Repository** (`github.com/HealthRT/hub`): ONLY `hub_*` and `traction*` modules
+    -   **EVV Repository** (`github.com/HealthRT/evv`): ONLY `evv_*` modules
+    -   **Cross-contamination is PROHIBITED:** EVV modules in Hub or Hub modules in EVV is an architectural violation that will be rejected by automated pre-commit hooks
+    -   **Agents MUST verify repository** before starting work: `git remote -v` must show correct repository
 -   **Hard Multi-Tenancy for Commercial Use:** The decision to use a Hard Isolation model for external customers is a core architectural invariant (ADR-006).
 
 ## 4. Ethics & Accountability
