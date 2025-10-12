@@ -12,8 +12,8 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type       | Description                                                              | Status      |
 |---------------|------------|--------------------------------------------------------------------------|-------------|
-| `WO-CORE-001` | `CODE`     | Integrate `partner_firstname` module into `evv_core` manifest.           | `TO DO`     |
-| `WO-CORE-002` | `QA`       | Test name computation and field visibility for Individual/Company types. | `TO DO`     |
+| `WO-CORE-001` | `CODE`     | Integrate `partner_firstname` module into `evv_core` manifest.           | `DONE`      |
+| `WO-CORE-002` | `QA`       | Test name computation and field visibility for Individual/Company types. | `READY`     |
 
 ---
 

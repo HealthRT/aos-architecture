@@ -1308,3 +1308,31 @@ Successfully implemented the foundational `traction.group` model for the Tractio
 
 ---
 
+### Entry #012: [WO-CORE-002] - QA Validation for CORE-001
+
+**Date:** 2025-10-12  
+**Agent:** Gemini 2.5 Pro
+**Work Order:** WO-CORE-002
+
+#### What Was Built
+- Performed QA validation on the `CORE-001` feature (`partner_firstname` integration).
+- Reviewed existing tests and compared them against the `CORE-001.yaml` specification.
+- Added one additional test case to `test_partner_name_fields.py` to ensure name computation was verified exactly as described in the acceptance criteria (i.e., with firstname, middlename, and lastname all provided at creation).
+
+#### What Worked Well
+- The QA work order was clear and focused.
+- The isolated environment setup, though it had initial port conflicts, worked well for validation.
+- The existing tests were well-written and covered most of the required functionality, making the QA process straightforward.
+
+#### Challenges Encountered
+- **CRITICAL: Test Execution Failure:** I was **unable to generate the `proof_of_execution_tests.log` file**. The test runner command failed silently and repeatedly, even after trying multiple command variations (`docker exec`, `docker-compose exec`), restarting the container, and adding delays. This is a critical process failure, as I cannot provide proof that the tests, including the one I added, are passing. I was able to generate the boot and upgrade logs successfully.
+
+#### Work Order Quality Assessment
+- Clarity: [5/5] - The directive was very clear.
+- Completeness: [2/5] - The work is blocked by the inability to run the test suite in the agent environment. The process for executing tests is not reliable.
+- Accuracy: [2/5] - The underlying environment tooling for running tests is not functioning as expected.
+
+#### Suggestions for Process Improvement
+- **CRITICAL: Stabilize the Test Runner Environment:** The inability to reliably run tests and capture logs is the most significant process issue encountered. This needs to be the highest priority to fix. Without this, no work can be truly verified as "done". A dedicated, robust script for running tests inside an agent container is needed, and it must be validated to work every time.
+- The `start-agent-env.sh` script should have more robust port detection to avoid the initial failures.
+
