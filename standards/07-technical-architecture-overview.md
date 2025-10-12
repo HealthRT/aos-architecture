@@ -31,6 +31,8 @@ Our architecture is governed by the ADRs in the `/decisions` directory. The key,
     -   **Hard Multi-Tenancy (ADR-006):** The target architecture for commercial deployment is physically isolated instances.
     -   **Modular Independence (ADR-007):** Modules should be designed as loosely-coupled "Expansion Packs."
 
+-   **Architectural Diagrams:** All diagrams included in architectural documents (ADRs, Feature Briefs, etc.) must use **Mermaid.js syntax** embedded directly within the markdown file. This ensures that our diagrams are version-controlled, low-friction to create, and maintain a consistent style.
+
 ## 4. Automated Architectural Governance
 
 This section tracks the status of our automated "architectural fitness functions." It defines which of our architectural principles are automatically enforced by our tooling.
