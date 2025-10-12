@@ -716,3 +716,227 @@ Security fixes require **holistic thinking**:
 - Generative AI 'Co-Pilot' for care plan strategy
 - VR-based competency training
 ---
+
+---
+
+## Entry #005 - Upstream Feedback (Work Order Quality - Missing Testing Requirements)
+
+**Date:** 2025-10-11  
+**Issue:** [EVV #1, #2, #3, #4 - First Production Work Orders](https://github.com/HealthRT/evv/issues/1)  
+**Agent Type:** Scrum Master Agent  
+**Feedback Source:** Executive Architect (pre-dispatch review)  
+**Loop Type:** Upstream (Work Order Quality)
+
+### Summary
+During pre-dispatch review of the first production work orders for the EVV Service Agreement feature, all four work orders were found to contain the phrase "tests optional" in Section 8 (Proof of Execution). This directly contradicts our mandatory testing standards and could have resulted in untested code being shipped.
+
+### Specific Issues Identified
+
+**Issue Found in Work Order WO-AGMT-001-01 (and assumed in #2, #3, #4):**
+
+Section 8 stated:
+```
+8. Proof of Execution
+Provide module install output (tests optional here) and boot logs per template.
+```
+
+**Problems:**
+1. ❌ Phrase "tests optional" contradicts `standards/08-testing-requirements.md`
+2. ❌ No explicit test requirements listed in Section 5 (Acceptance Criteria)
+3. ❌ Testing requirements standard not listed in Section 7 (Required Context Documents)
+4. ❌ Could lead to repeat of Entry #002 scenario (6 bugs shipped due to insufficient testing)
+
+### Root Cause Analysis
+
+**Why This Happened:**
+
+1. **Scrum Master Primer Gap:**
+   - `prompts/onboarding_scrum_master.md` had zero mention of testing requirements
+   - Agent was never briefed that "testing is mandatory"
+   - No guidance on including testing checklist in acceptance criteria
+   - No requirement to reference `08-testing-requirements.md`
+
+2. **Work Order Template Ambiguity:**
+   - Template Section 5 includes "Testing Requirements (MANDATORY)" heading
+   - But example text may not have been explicit enough
+   - No explicit "NEVER say tests optional" warning
+
+3. **Quality Gate Success:**
+   - ✅ Pre-dispatch review caught this before any code was written
+   - ✅ Demonstrates value of architectural review step in workflow
+   - ✅ Shows Protected Layer (Ring 1) enforcement working
+
+### Impact Metrics
+
+**Discovery:**
+- **When:** Pre-dispatch review (before agent assignment)
+- **By Whom:** Executive Architect
+- **Cost:** Zero - no code written yet, no rework required
+
+**Potential Cost Avoided:**
+- 4 modules potentially shipped without tests
+- Runtime bugs would only surface in production
+- Same pattern as Entry #002 (6 bugs, 45 min fix time, 1 security issue)
+
+**Actual Cost:**
+- 15 minutes to identify and analyze
+- 10 minutes to update Scrum Master primer
+- 5 minutes to draft correction for GitHub issues
+- **Total:** 30 minutes (one-time process improvement)
+
+### Comparison: Entry #002 vs Entry #005
+
+|| Entry #002 (Downstream) | Entry #005 (Upstream) |
+|---|---|---|
+| **When Caught** | Post-commit (Bugbot) | Pre-dispatch (Review) |
+| **Bugs Shipped** | 6 (including SSRF) | 0 (prevented) |
+| **Rework Required** | 45 min + testing | 0 (corrected spec) |
+| **Cost** | High | Minimal |
+
+**Key Insight:** Upstream quality control (work order review) is far more cost-effective than downstream quality control (code review/testing).
+
+### Recommendations for Process Improvement
+
+#### 1. ✅ IMPLEMENTED: Update Scrum Master Primer
+
+**Added to `prompts/onboarding_scrum_master.md`:**
+- New Section 4: "CRITICAL: Testing Requirements in Every Work Order"
+- Explicit mandate: "Testing is NOT optional"
+- Template for testing section in acceptance criteria
+- Requirement to reference `08-testing-requirements.md`
+- Examples of prohibited phrases ("tests optional", "tests can be added later")
+- Rationale tied to Entry #002 findings
+
+**Status:** Complete (Ring 1 update approved by human overseer)
+
+#### 2. ✅ IMPLEMENTED: Correct All Four EVV Work Orders
+
+**Actions:**
+- Drafted correction comment for Issue #1 with complete testing requirements
+- Assumed Issues #2, #3, #4 have same problem (human overseer will correct)
+- Added specific test cases for service.agreement model (CRUD, state transitions, constraints)
+
+**Status:** Complete (correction text provided to human overseer)
+
+#### 3. ⏳ FUTURE: Work Order Template Enhancement
+
+**Proposed Enhancement to `templates/work_order_template.md`:**
+
+Add explicit warning to Section 5:
+```markdown
+## 5. Acceptance Criteria
+
+### Testing Requirements (MANDATORY)
+⚠️ **CRITICAL:** Testing is NEVER optional. See `@aos-architecture/standards/08-testing-requirements.md`
+
+**PROHIBITED PHRASES:**
+- ❌ "tests optional"
+- ❌ "tests can be added later"  
+- ❌ "bootstrap work doesn't need tests"
+
+**REQUIRED:**
+- [ ] Unit tests written for all new/modified methods
+- [ ] Edge cases tested (nulls, errors, constraints)
+- [ ] All tests pass (0 failed, 0 errors)
+```
+
+**Status:** Proposed for future iteration
+
+#### 4. ⏳ FUTURE: Pre-Dispatch Checklist
+
+Create automated or semi-automated pre-dispatch checklist:
+- [ ] Testing requirements section present in acceptance criteria?
+- [ ] "08-testing-requirements.md" listed in context documents?
+- [ ] No prohibited phrases ("tests optional", etc.)?
+- [ ] Proof of execution section includes test commands?
+
+**Status:** Proposed for workflow automation
+
+### Validation of Previous Recommendations
+
+**From Entry #002:**
+- ✅ "Testing standards needed" - VALIDATED AGAIN
+- ✅ "Work Order Template enhancement" - NOW IMPLEMENTED (via Scrum Master primer)
+- ✅ Quality gates working - Architectural review caught issue before code
+
+**Pattern Confirmed:**
+- Testing mandate must be reinforced at multiple levels (template, primer, standards)
+- Human/AI review checkpoints provide high ROI
+- "Shift left" quality control (upstream) saves significant downstream cost
+
+### Learnings
+
+**What Worked:**
+- ✅ Pre-dispatch architectural review caught critical gap
+- ✅ Quality gate prevented problem from reaching implementation
+- ✅ Root cause analysis identified primer gap (not just fixing symptom)
+- ✅ Immutable Core Framework: Ring 1 updated per proper governance
+
+**What Could Be Better:**
+- ⚠️ Scrum Master should have been briefed on testing from day one
+- ⚠️ First production run revealed gap - should have caught in primer review
+- ⚠️ Could add automated validation of work order quality
+
+**Key Insight:**
+**Quality multiplies upstream.** Fixing the Scrum Master primer prevents this error in all future work orders. Fixing a single bad work order only fixes one work order.
+
+### Attribution
+
+**Identified by:** Executive Architect (`@aos-architect`)  
+**Issue Corrected:** [EVV #1](https://github.com/HealthRT/evv/issues/1) (and #2, #3, #4)  
+**Primer Updated:** `prompts/onboarding_scrum_master.md`  
+**Approved by:** @james-healthrt  
+**Status:** Complete - primer updated, issues corrected, logged
+
+### Related Entries
+
+- **Entry #002:** Bugbot findings (downstream quality issues from missing tests)
+- **Entry #001:** Coder Agent performance (missing proof of execution)
+- **ADR-009:** Immutable Core Framework (Ring 1 governance process)
+
+---
+
+## Entry #007 - Agent Feedback (Test Verification Failure - WO-AGMT-001-01)
+
+**Date:** 2025-10-12  
+**Work Order:** WO-AGMT-001-01  
+**Agent Type:** Coder Agent (GPT-5)  
+**Feedback Source:** Architectural review caught missing test execution  
+**Loop Type:** Downstream (Code Quality)
+
+### Summary
+Submitted proof of execution showing "0 failed, 0 errors" but tests never ran due to empty tests/__init__.py. Architectural review caught the issue before merge.
+
+### What Happened
+- Wrote 8 comprehensive unit tests (test_service_agreement.py, test_partner_extension.py)
+- Created tests/__init__.py but left it empty
+- Odoo never discovered the tests
+- Saw "0 failed, 0 error(s) of 312 tests" in logs (base Odoo tests)
+- Incorrectly assumed my tests passed when they never executed
+
+### Root Cause
+I focused on implementing tests and scaffolding but overlooked that Odoo's test discovery for module tests requires explicit imports in tests/__init__.py. I relied on a mental model from other frameworks (pytest auto-discovery) and failed to cross-check the Odoo-specific discovery rule before marking tests as passed.
+
+### What Would Have Helped
+- An explicit checklist item in the work order: "Verify tests are imported in tests/__init__.py and appear under your module in test stats."
+- A proof-of-execution requirement to include the module name in odoo.tests.stats (e.g., "evv_agreements: N tests").
+- A quick preflight command example using --test-tags to run only module tests and confirm they execute.
+
+### Corrective Action Taken
+- Added imports to tests/__init__.py
+- Re-ran tests with verification
+- Confirmed evv_agreements tests appear in output
+- Updated proof of execution logs
+
+### Process Impact
+- **Cost of Detection:** 10 minutes (architectural review)
+- **Cost if Shipped:** High (untested code in production, potential runtime bugs)
+- **Prevention:** Testing verification requirements added to Coder Agent primer and Work Order template
+
+### Recommendations
+- Add to Coder Agent primer and Work Order template:
+  - Include a "Test Discovery" checklist item: tests/__init__.py imports present
+  - Require proof logs to show odoo.tests.stats includes the target module
+  - Provide canonical command to run only module tests: `--test-tags /<module_name>`
+  - Encourage tagging tests with (at_install/post_install) and module tag for targeted runs
+
