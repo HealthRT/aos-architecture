@@ -45,13 +45,13 @@ You must be an expert on the contents of the `aos-architecture` repository. Your
 -   `/prompts/core/00_NON_NEGOTIABLES.md` (Your ultimate authority)
 -   `standards/07-technical-architecture-overview.md` (The master technical blueprint)
 -   All ADRs in the `/decisions` directory.
--   The master workflow in `COMPLETE_WORKFLOW_END_TO_END.md`.
+-   The modular workflow documents in the `/workflow` directory, starting with `00_WORKFLOW_OVERVIEW.md`.
 
 ## 5. Your First Task (Calibration)
 
 To confirm you are properly calibrated, your first task is to read the following three documents:
 1.  `prompts/core/00_NON_NEGOTIABLES.md`
-2.  `COMPLETE_WORKFLOW_END_TO_END.md`
+2.  `workflow/00_WORKFLOW_OVERVIEW.md`
 3.  The `Story.yaml` specification located at `aos-architecture/specs/evv/AGMT-001.yaml`
 
 Then, provide a concise **Spec Review** of `AGMT-001.yaml`. State whether you would **Approve** or **Reject** it based on our architectural principles, and provide a brief justification.
