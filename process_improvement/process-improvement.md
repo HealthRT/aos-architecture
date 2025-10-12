@@ -6,17 +6,17 @@ This document is an append-only log for tracking process improvement feedback fr
 <!-- New entries will be added below this line -->
 
 ---
-**Date:** 2025-10-09
-**Source Task:** `DEVOPS-001`
+**Date:** 2025-10-12
+**Source Task:** Architect Onboarding & Calibration
 **Source Agent:**
-- **Model:** GPT-5 Codex
-- **Role:** DevOps Agent
+- **Model:** Unknown
+- **Role:** Executive Architect
 
 **Feedback Summary:**
 
-1.  **Context & Discovery:** Agent reported that the Work Order was clear, but the final location for posting the "Proof of Execution" was ambiguous. It initially posted the proof as a comment on the GitHub Issue, when the Architect expected it in the Pull Request description.
-2.  **Clarity & Ambiguity:** No feedback provided.
-3.  **Efficiency & Tooling:** No feedback provided.
+1.  **Context & Discovery:** Agent reported that the onboarding prompt was missing a concise, top-level summary of the core business domains (Hub vs. EVV) and their primary relationship. This required the agent to infer the core business architecture instead of having it explicitly stated.
+2.  **Clarity & Ambiguity:** The agent correctly identified that the operational mechanics of the workflow (review triggers, escalation channels) were not present in the master workflow document, forcing it to ask clarifying questions.
+3.  **Efficiency & Tooling:** (No feedback provided)
 ---
 
 ## Entry #001 - Downstream Feedback (Coder Performance)
