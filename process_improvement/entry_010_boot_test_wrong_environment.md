@@ -86,11 +86,27 @@ odoo_hub  | 2025-10-11 23:48:57,906 1 INFO ? odoo: Using configuration file at /
 - **Issue:** Line 18-19 had `false` and `true` (JavaScript) instead of `False` and `True` (Python)
 - **Impact:** Odoo fails to parse manifest → Can't load module → 500 errors
 - **Detection:** Would have been caught if boot test ran on correct environment
+- **Status:** Fixed 2025-10-12
 
 **Bug #2: Uninitialized Database**
 - **Issue:** EVV Odoo had no base tables, no admin user
 - **Impact:** Shows database creation wizard instead of working Odoo
 - **Detection:** Would have been caught if anyone accessed EVV Odoo
+- **Status:** Fixed 2025-10-12
+
+**Bug #3: XML Syntax Error (BUG-001)**
+- **File:** `evv/addons/evv_agreements/views/service_agreement_views.xml`
+- **Issue:** Line 16 had unescaped ampersand: `Patient & Service` instead of `Patient &amp; Service`
+- **Error:** `lxml.etree.XMLSyntaxError: xmlParseEntityRef: no name, line 16, column 45`
+- **Impact:** Module cannot be installed → All Pre-UAT tests blocked
+- **Detection:** Would have been caught if boot test **installed the module** (not just started Odoo)
+- **Status:** Open - See `BUG-001-REPAIR-INSTRUCTIONS.md`
+
+**User Question:** "This should have been caught in unit testing?"
+
+**Answer:** **No - Unit tests don't catch XML view errors.**
+
+Unit tests ran successfully (7/7 passed) because they test Python code (models, business logic, constraints). XML view files are only parsed during **module installation** via UI or `-i` flag. The boot test only started Odoo but never installed the module, so XML was never parsed.
 
 ---
 
@@ -200,6 +216,37 @@ docker exec odoo_evv odoo -c /etc/odoo/odoo.conf \
 - Emphasize: "Container name MUST match your work order repository"
 - Example: `docker logs odoo_evv` for EVV work, `docker logs odoo_hub` for Hub work
 
+### **Gap #4: Boot Test Doesn't Actually Test Module (NEW - CRITICAL)**
+
+**Current State:**
+- Boot test runs `docker-compose up -d` and checks `docker logs`
+- **This only proves Odoo starts, NOT that the module works**
+- Module is never installed → XML views never parsed → Bugs slip through
+
+**What Happened:**
+- Unit tests: ✅ Passed (test Python code)
+- Boot test: ✅ Passed (Odoo started)
+- XML error: ❌ Not detected (XML never parsed)
+- Pre-UAT: ❌ Module won't install (XML error found)
+
+**Proposed Fix - Enhance Boot Test:**
+```bash
+# OLD (Insufficient):
+docker-compose up -d
+docker logs odoo_evv | grep "Modules loaded"  # Just checks startup
+
+# NEW (Actually tests module):
+docker exec odoo_evv odoo \
+  -c /etc/odoo/odoo.conf \
+  -d postgres \
+  -i <module_name> \
+  --stop-after-init
+
+# This installs the module, parsing ALL files including XML
+```
+
+**Benefit:** Would have caught ALL three bugs (manifest, uninitialized DB, XML syntax)
+
 ---
 
 ## 🎯 **Action Items**
@@ -209,16 +256,21 @@ docker exec odoo_evv odoo -c /etc/odoo/odoo.conf \
 - [x] Fix manifest syntax (False/True)
 - [x] Initialize EVV database
 - [x] Verify Odoo accessible at http://localhost:8091
-- [ ] Create EVV `scripts/init-database.sh`
-- [ ] Update Hub and EVV READMEs with "First Time Setup"
-- [ ] Update Coder primer Section 6 with environment-specific commands
+- [x] Create EVV `scripts/init-database.sh`
+- [x] Create Hub `scripts/init-database.sh`
+- [x] Update Hub and EVV READMEs with "First Time Setup"
+- [x] Enhance `start-agent-env.sh` to auto-detect uninitialized database
+- [x] Create BUG-001 repair instructions for agent
+- [x] Update Entry #010 with XML bug and testing gap
+- [ ] Fix BUG-001 (assign to agent)
+- [ ] Update Coder primer Section 6 with MODULE INSTALLATION boot test
 - [ ] Commit Entry #010 to process improvement log
 
 ### **Next Session:**
 
-- [ ] Enhance `start-agent-env.sh` to auto-detect uninitialized database
 - [ ] Create work order review checklist with "Log Validation" section
 - [ ] Add lint check for manifest syntax (catch `false`/`true` vs `False`/`True`)
+- [ ] Add lint check for XML escaping (catch unescaped `&` in XML attributes)
 
 ---
 
