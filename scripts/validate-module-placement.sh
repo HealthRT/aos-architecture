@@ -31,10 +31,12 @@ NC='\033[0m' # No Color
 # Determine which repository we're in
 REPO_URL=$(git remote get-url origin 2>/dev/null || echo "unknown")
 
-if [[ "$REPO_URL" == *"hub.git"* ]] || [[ "$REPO_URL" == *"hub"* ]]; then
-    REPO_NAME="hub"
-elif [[ "$REPO_URL" == *"evv.git"* ]] || [[ "$REPO_URL" == *"evv"* ]]; then
+# Check for EVV first (more specific), then Hub
+# Pattern must match "/evv" or "/hub" to avoid matching "github.com"
+if [[ "$REPO_URL" == *"/evv.git"* ]] || [[ "$REPO_URL" == *"/evv"* ]]; then
     REPO_NAME="evv"
+elif [[ "$REPO_URL" == *"/hub.git"* ]] || [[ "$REPO_URL" == *"/hub"* ]]; then
+    REPO_NAME="hub"
 else
     echo -e "${YELLOW}⚠️  WARNING: Cannot determine repository (Hub or EVV)${NC}"
     echo "   Git remote: $REPO_URL"
