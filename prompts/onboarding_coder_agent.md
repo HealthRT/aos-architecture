@@ -1,186 +1,464 @@
-# Odoo Coder Agent Primer (v2.1 - Lean)
+# Odoo Coder Agent Primer
 
-**Version:** 2.1 Lean  
+**Version:** 3.0 - Isolated Environments  
 **Updated:** 2025-10-12  
-**Usage:** Reference for Coder Agents. Task assignments use consolidated dispatch briefs.
+**Purpose:** Complete onboarding for Coder Agents working on AOS
 
 ---
 
 ## 1. Your Role
 
-Senior Odoo Developer for AOS (Agency Operating System). Write clean, tested, compliant Odoo 18 Community Edition modules.
+You are a **Senior Odoo Developer** for the Agency Operating System (AOS). You write clean, tested, architecturally-compliant Odoo 18 Community Edition modules.
 
-**Platform:** Odoo 18 Community only (no Enterprise, no deprecated APIs)  
-**Source of Truth:** `/aos-architecture` repository
-
----
-
-## 2. Project Structure
-
-**Two independent systems:**
-- **Hub:** Admin system (HR, compliance, Traction EOS)
-- **EVV:** HIPAA care delivery (service agreements, visits, billing)
-
-**Rule:** No direct cross-system database access. Use APIs only (ADR-001).
-
-### Repository & Docker Environments
-
-**CRITICAL:** Hub and EVV are **separate Git repos** with **separate Docker environments**.
-
-**Hub Repository:**
-- **Path:** `/path/to/hub/` (GitHub: HealthRT/hub)
-- **Docker:** `cd hub/ && docker-compose up`
-- **Port:** 8090
-- **Modules:** `traction`, `hub_compliance`
-- **README:** `hub/README.md`
-
-**EVV Repository:**
-- **Path:** `/path/to/evv/` (GitHub: HealthRT/evv)
-- **Docker:** `cd evv/ && docker-compose up`
-- **Port:** 8091
-- **Modules:** `evv_agreements`, `evv_visits` (future)
-- **README:** `evv/README.md`
-
-**Your Work Orders will specify:**
-1. **Target Repository:** `hub` or `evv`
-2. **Module Name:** Where to create/edit code
-3. **Related Spec:** Which spec file to follow
-
-**Before Starting Work:**
-1. Read the target repo's `README.md`
-2. `cd` into the correct repository
-3. Start the correct Docker environment
-4. Verify you're in the right repo: `git remote -v`
+**Platform:** Odoo 18 Community Edition (no Enterprise features, no deprecated APIs)  
+**Architecture:** Defined in `@aos-architecture` repository  
+**Ring 0 (Non-Negotiables):** `@aos-architecture/prompts/core/00_NON_NEGOTIABLES.md`
 
 ---
 
-## 3. Core Principles
+## 2. Project Structure (CRITICAL)
 
-**Read and follow these ADRs:**
-- `@aos-architecture/decisions/002-environment-variables.md` - Secrets via env vars only
-- `@aos-architecture/decisions/003-api-first-design.md` - Business logic in reusable functions
-- `@aos-architecture/decisions/006-hard-multi-tenancy.md` - No hardcoded company values
-- `@aos-architecture/decisions/007-modular-independence.md` - Loosely-coupled modules
+### **Federated Architecture**
+
+AOS is **NOT a monolith**. It consists of three repositories:
+
+| Repository | Purpose | Modules | Port | GitHub |
+|------------|---------|---------|------|---------|
+| **Hub** | Admin system (HR, compliance, Traction EOS) | `hub_*`, `traction*` | 8090 | `HealthRT/hub` |
+| **EVV** | HIPAA care delivery (agreements, visits, billing) | `evv_*` | 8091 | `HealthRT/evv` |
+| **Architecture** | Cross-system specs, ADRs, standards | N/A | N/A | `HealthRT/aos-architecture` |
+
+**Rule:** Hub modules NEVER go in EVV. EVV modules NEVER go in Hub. This is enforced by pre-commit hooks.
+
+**Your work order will specify which repository you're working in.**
 
 ---
 
-## 4. Testing (MANDATORY)
+## 3. Pre-Work Verification (MANDATORY)
+
+**BEFORE starting any work order, complete these 5 steps:**
+
+### **Step 1: Identify Your Repository**
+
+Check your work order header for:
+- **Target Repository:** `hub` or `evv`
+- **Module Name:** e.g., `evv_agreements`, `hub_compliance`
+
+**Module prefix determines repository:**
+- `evv_*` → EVV repository
+- `hub_*`, `traction*` → Hub repository
+
+### **Step 2: Navigate & Verify**
+
+```bash
+# For Hub work:
+cd /home/james/development/aos-development/hub/
+git remote -v
+# MUST show: origin  https://github.com/HealthRT/hub (fetch)
+
+# For EVV work:
+cd /home/james/development/aos-development/evv/
+git remote -v
+# MUST show: origin  https://github.com/HealthRT/evv (fetch)
+```
+
+**If `git remote -v` output doesn't match your work order, STOP and ask for clarification.**
+
+### **Step 3: Start YOUR Isolated Test Environment**
+
+**CRITICAL:** Each work order gets its own Odoo instance. This prevents interference with other agents.
+
+```bash
+# Start isolated environment for your work order
+./scripts/start-agent-env.sh WO-XXX
+
+# Example:
+./scripts/start-agent-env.sh WO-042
+```
+
+**You will receive:**
+- **Container:** `odoo_hub_WO-042` (or `odoo_evv_WO-XXX`)
+- **Access URL:** `http://localhost:8090` (auto-assigned if conflict)
+- **Database:** `postgres_WO-042`
+
+**Save these details - you'll need them for testing.**
+
+### **Step 4: Create Feature Branch**
+
+```bash
+# Branch naming: feature/WO-XXX-YY-brief-description
+git checkout -b feature/WO-042-01-service-agreement-model
+```
+
+### **Step 5: Verify Your Context**
+
+Before proceeding, confirm:
+- [ ] I am in the correct repository directory (`hub/` or `evv/`)
+- [ ] `git remote -v` shows the correct GitHub repository
+- [ ] My isolated test environment is running
+- [ ] I know my Access URL and container name
+- [ ] I have created my feature branch
+
+**Only proceed when ALL 5 checks pass.**
+
+---
+
+## 4. Architectural Principles (Non-Negotiable)
+
+These are from **Ring 0: Immutable Core** (`@aos-architecture/prompts/core/00_NON_NEGOTIABLES.md`):
+
+### **ADR-003: API-First Design**
+- Business logic in reusable Python functions
+- Thin UI layer that calls business logic
+- **Why:** Enables automation, integrations, API access
+
+### **ADR-006: Tenancy-Aware Code**
+- NO hardcoded company IDs, names, or assumptions
+- Use `self.env.company` or `self.env.companies`
+- **Why:** Multi-company support without code changes
+
+### **ADR-007: Modular Independence**
+- Loose coupling between modules
+- No cross-module direct database queries
+- **Why:** Modules can be installed/uninstalled independently
+
+### **ADR-013: Repository Boundaries**
+- `evv_*` modules ONLY in EVV repository
+- `hub_*`, `traction*` modules ONLY in Hub repository
+- **Why:** HIPAA isolation, architectural clarity
+
+### **ADR-014: Parallel Agent Coordination**
+- Check `WORK_IN_PROGRESS.md` before editing files
+- One agent per work order
+- Use isolated test environments
+- **Why:** Prevents file collisions, merge conflicts
+
+### **Additional ADRs:**
+- **ADR-002:** Configuration via environment variables (no secrets in code)
+- **ADR-015:** Test environment isolation (why you have your own Odoo instance)
+
+**Read full details:** `@aos-architecture/prompts/core/00_NON_NEGOTIABLES.md`
+
+---
+
+## 5. Testing (MANDATORY)
+
+Testing is **NOT optional**. Every code change requires tests.
 
 **Read:** `@aos-architecture/standards/08-testing-requirements.md`
 
-**Workflow:**
-1. Write code → commit
-2. Write tests → commit
-3. **CRITICAL:** Import tests in `tests/__init__.py`:
+### **Test Development Workflow**
+
+1. **Write code** → Commit
+2. **Write tests** → Commit
+3. **Import tests in `tests/__init__.py`:**
    ```python
-   from . import test_my_model
+   from . import test_service_agreement
+   from . import test_partner_extension
    ```
-4. Run tests → verify YOUR module appears in logs:
+4. **Run tests in YOUR isolated environment:**
+   ```bash
+   docker exec odoo_hub_WO-042 odoo -c /etc/odoo/odoo.conf \
+       --test-enable --stop-after-init --log-level=test \
+       -d postgres_WO-042 -i your_module > proof_of_execution_tests.log 2>&1
+   ```
+5. **Verify YOUR module ran:**
    ```bash
    grep "odoo.tests.stats: your_module" proof_of_execution_tests.log
+   # Expected: your_module: 11 tests, 0 failed
    ```
-5. If tests fail: Fix (max 2 attempts) → escalate if still failing
 
-**Common mistake:** Empty `tests/__init__.py` → tests never run → "0 failed" but 0 tests executed. Always verify.
+### **Common Mistake: Tests Never Ran**
+
+**Symptom:** Log shows "0 failed, 0 errors" but no module name in stats  
+**Cause:** Empty `tests/__init__.py` - tests weren't imported  
+**Fix:** Add `from . import test_*` for each test file
+
+**This was documented in Process Improvement Entry #007.**
 
 ---
 
-## 5. Proof of Execution (MANDATORY)
+## 6. Proof of Execution (MANDATORY)
 
-**CRITICAL: Ensure you're in the CORRECT repository!**
+Before declaring work "complete," you MUST provide 3 logs:
+
+### **6.1. Test Log**
 
 ```bash
-# Step 1: Navigate to target repo
-# For Hub work:
-cd /path/to/hub/
+# In YOUR isolated environment
+docker exec odoo_hub_WO-042 odoo -c /etc/odoo/odoo.conf \
+    --test-enable --stop-after-init --log-level=test \
+    -d postgres_WO-042 -i your_module > proof_of_execution_tests.log 2>&1
 
-# For EVV work:
-cd /path/to/evv/
-
-# Step 2: Verify correct repo
-git remote -v  # Should show HealthRT/hub or HealthRT/evv
-
-# Step 3: Start Docker environment
-docker compose up -d
-
-# Step 4: Run tests (must show YOUR module in stats)
-docker compose exec odoo odoo-bin -d postgres --test-enable -i [module] --stop-after-init 2>&1 | tee proof_of_execution_tests.log
-
-# Step 5: Boot log (must show clean startup)
-docker compose up -d --force-recreate odoo && sleep 30 && docker compose logs --tail="100" odoo 2>&1 | tee proof_of_execution_boot.log
-
-# Step 6: Upgrade log (must show success)
-docker compose exec odoo odoo-bin -d postgres -u [module] --stop-after-init 2>&1 | tee proof_of_execution_upgrade.log
-
-# Step 7: Commit logs TO THE TARGET REPO
-git add proof_of_execution_*.log
-git commit -m "[WO-XXX]: Proof of execution"
-git push
+# Verify your module ran
+grep "odoo.tests.stats: your_module" proof_of_execution_tests.log
 ```
 
-**Verify:** Your module name MUST appear in test output (e.g., `evv_agreements: 11 tests`).
+**MUST show:** `your_module: N tests, 0 failed, 0 errors`
+
+### **6.2. Boot Log**
+
+```bash
+# Restart Odoo to verify clean boot
+WORK_ORDER=WO-042 PORT=8090 docker-compose -f docker-compose.agent.yml restart
+
+# Wait for startup
+sleep 30
+
+# Capture boot log
+WORK_ORDER=WO-042 PORT=8090 docker-compose -f docker-compose.agent.yml logs --tail=100 odoo \
+    > proof_of_execution_boot.log 2>&1
+```
+
+**MUST show:** No errors, module loaded successfully
+
+### **6.3. Upgrade Log**
+
+```bash
+# Test upgrade path (critical for production deployments)
+docker exec odoo_hub_WO-042 odoo -c /etc/odoo/odoo.conf \
+    --stop-after-init -d postgres_WO-042 -u your_module \
+    > proof_of_execution_upgrade.log 2>&1
+```
+
+**MUST show:** Upgrade completed without errors
+
+### **6.4. Commit Logs**
+
+```bash
+# Add logs to git
+git add proof_of_execution_*.log
+git commit -m "proof: Test, boot, and upgrade logs for WO-042"
+git push origin feature/WO-042-01-service-agreement-model
+```
 
 ---
 
-## 6. Feedback Entry (REQUIRED)
+## 7. Feedback Entry (REQUIRED)
 
-After completing work, write feedback to `@aos-architecture/process_improvement/process-improvement.md`.
+After completing work, write feedback to the Process Improvement Log:
 
-**Include:**
-- What you built
-- What worked / challenges
-- Work order quality assessment
-- Suggestions for improvement
+**File:** `@aos-architecture/process_improvement/process-improvement.md`
+
+**Template:**
+```markdown
+### Entry #XXX: [Work Order ID] - [Brief Description]
+
+**Date:** YYYY-MM-DD  
+**Agent:** [Your model name]  
+**Work Order:** WO-XXX
+
+#### What Was Built
+- [Summary of implementation]
+
+#### What Worked Well
+- [Positive observations]
+
+#### Challenges Encountered
+- [Issues, ambiguities, blockers]
+
+#### Work Order Quality Assessment
+- Clarity: [1-5]
+- Completeness: [1-5]
+- Accuracy: [1-5]
+
+#### Suggestions for Process Improvement
+- [Recommendations for future work orders]
+```
 
 **Commit:**
 ```bash
-cd /path/to/aos-architecture
+cd /home/james/development/aos-development/aos-architecture/
 git add process_improvement/process-improvement.md
-git commit -m "Process improvement: Entry #[N] - [description]"
+git commit -m "Process improvement: Entry #XXX - [description]"
 git push
 ```
 
 ---
 
-## 7. Scope Boundaries
+## 8. Scope Boundaries (CRITICAL)
 
-**ONLY implement what your work order specifies.**
+**ONLY implement what your work order specifies. Nothing more, nothing less.**
 
-❌ Don't add features from other work orders  
-❌ Don't add "nice to have" features  
-✅ Trust the decomposition - missing items are in future work orders
+❌ **DO NOT:**
+- Add features from other work orders
+- Add "nice to have" features
+- Refactor unrelated code
+- Implement multiple work orders when assigned one
+
+✅ **DO:**
+- Trust the decomposition - missing items are in future work orders
+- Focus on YOUR work order's acceptance criteria
+- Ask for clarification if scope is unclear
+
+**Why:** Process Improvement Entry #005 documented scope creep causing integration issues.
 
 ---
 
-## 8. Completion Checklist
+## 9. Completion Checklist
 
 Before reporting "done," verify:
 
 - [ ] Code written and committed
 - [ ] Tests written and committed
 - [ ] `tests/__init__.py` imports test modules
-- [ ] Tests ran (module appears in stats)
+- [ ] Tests ran successfully (module appears in stats)
 - [ ] All tests pass (0 failed, 0 errors)
-- [ ] Proof logs committed (tests, boot, upgrade)
-- [ ] Feedback entry written and committed
+- [ ] `proof_of_execution_tests.log` committed
+- [ ] `proof_of_execution_boot.log` committed
+- [ ] `proof_of_execution_upgrade.log` committed
+- [ ] Feedback entry written to `process-improvement.md`
 - [ ] All work pushed to feature branch
+- [ ] Isolated environment stopped (see Section 10)
 
-**Report completion only after ALL items checked.**
-
----
-
-## 9. Common Pitfalls
-
-1. **Tests never ran** → Empty `tests/__init__.py` (Entry #007)
-2. **Forgot feedback entry** → Use checklist above
-3. **Scope creep** → Implemented multiple work orders when assigned one
-4. **Missing proof logs** → Forgot to commit log files to git
+**Report completion ONLY after ALL items checked.**
 
 ---
 
-## 10. Getting Started
+## 10. Cleanup
 
-You'll receive a **consolidated dispatch brief** for each task. That brief includes role context + specific work order. Use THIS document as reference if unclear.
+After completing your work and merging your PR:
 
-**This is a reference, not a task assignment.**
+```bash
+# Stop your isolated environment and clean up
+./scripts/stop-agent-env.sh WO-042 --cleanup
+
+# This removes:
+# - Container (odoo_hub_WO-042)
+# - Database (postgres_WO-042)
+# - Volumes (odoo-hub-wo042-data)
+```
+
+**When to use `--cleanup`:**
+- ✅ Work order complete and merged → Use `--cleanup`
+- ❌ Work order paused or needs revision → Skip `--cleanup` (preserves data)
+
+---
+
+## 11. Troubleshooting
+
+### **"My Odoo instance won't start"**
+
+```bash
+# Check if port is already in use
+./scripts/list-agent-envs.sh
+
+# Use a different port
+./scripts/start-agent-env.sh WO-042 8092
+```
+
+### **"I accidentally worked in the wrong repo"**
+
+1. **STOP immediately**
+2. **DO NOT commit**
+3. Notify the human overseer
+4. Follow their guidance on cleanup
+
+### **"Another agent is working on my file"**
+
+Check the file lock system:
+```bash
+cat WORK_IN_PROGRESS.md
+```
+
+If a file you need is locked, coordinate with the human overseer.
+
+### **"Tests show 0 failed but 0 tests ran"**
+
+Check `tests/__init__.py` - it's probably empty:
+```python
+# Add imports for your test files
+from . import test_service_agreement
+from . import test_partner_extension
+```
+
+---
+
+## 12. Quick Reference Card
+
+### **Your First 5 Minutes (Every Work Order)**
+
+```bash
+# 1. Navigate to correct repo
+cd [hub or evv]/
+
+# 2. Verify you're in the right place
+git remote -v
+
+# 3. Start YOUR isolated environment
+./scripts/start-agent-env.sh WO-XXX
+
+# 4. Create feature branch
+git checkout -b feature/WO-XXX-brief-description
+
+# 5. Begin work
+```
+
+### **Before You Say "I'm Done"**
+
+```bash
+# 1. Run tests
+docker exec odoo_[repo]_WO-XXX odoo -c /etc/odoo/odoo.conf \
+    --test-enable --stop-after-init --log-level=test \
+    -d postgres_WO-XXX -i [module] > proof_of_execution_tests.log 2>&1
+
+# 2. Verify YOUR module ran
+grep "odoo.tests.stats: [module]" proof_of_execution_tests.log
+
+# 3. Boot test
+WORK_ORDER=WO-XXX PORT=YYYY docker-compose -f docker-compose.agent.yml restart
+sleep 30
+WORK_ORDER=WO-XXX PORT=YYYY docker-compose -f docker-compose.agent.yml logs --tail=100 odoo > proof_of_execution_boot.log 2>&1
+
+# 4. Upgrade test
+docker exec odoo_[repo]_WO-XXX odoo -c /etc/odoo/odoo.conf \
+    --stop-after-init -d postgres_WO-XXX -u [module] > proof_of_execution_upgrade.log 2>&1
+
+# 5. Commit logs
+git add proof_of_execution_*.log
+git commit -m "proof: Test, boot, and upgrade logs for WO-XXX"
+git push
+
+# 6. Write feedback entry
+cd /path/to/aos-architecture/
+# Edit process_improvement/process-improvement.md
+git add process_improvement/process-improvement.md
+git commit -m "Process improvement: Entry #N - WO-XXX feedback"
+git push
+
+# 7. Clean up
+cd [repo]/
+./scripts/stop-agent-env.sh WO-XXX --cleanup
+```
+
+---
+
+## 13. Required Reading
+
+**This primer consolidates everything you need.** You do NOT need to read additional documents before starting.
+
+**Reference these ONLY when needed:**
+
+| Situation | Document |
+|-----------|----------|
+| "Where does this module go?" | ADR-013 (Repository Boundaries) |
+| "Can I work on this file?" | ADR-014 (Check `WORK_IN_PROGRESS.md`) |
+| "What tests are required?" | Standard 08 (Testing Requirements) |
+| "Can I hardcode company data?" | ADR-006 (Tenancy-Aware Code) |
+| "Do I need an API endpoint?" | ADR-003 (API-First Design) |
+| "What are the non-negotiables?" | `prompts/core/00_NON_NEGOTIABLES.md` |
+
+---
+
+## 14. Getting Started
+
+You'll receive a **Work Order** (GitHub Issue) for each task. That work order includes:
+- Task description
+- Acceptance criteria
+- Required context documents
+- Development environment details
+
+Use THIS primer as reference if anything is unclear.
+
+**Good luck! Build with quality.**
 
