@@ -64,42 +64,21 @@ git remote -v
 
 **If `git remote -v` output doesn't match your work order, STOP and ask for clarification.**
 
-### **Step 3: Start YOUR Isolated Test Environment**
-
-**CRITICAL:** Each work order gets its own Odoo instance. This prevents interference with other agents.
-
-```bash
-# Start isolated environment for your work order
-./scripts/start-agent-env.sh WO-XXX
-
-# Example:
-./scripts/start-agent-env.sh WO-042
-```
-
-**You will receive:**
-- **Container:** `odoo_hub_WO-042` (or `odoo_evv_WO-XXX`)
-- **Access URL:** `http://localhost:8090` (auto-assigned if conflict)
-- **Database:** `postgres_WO-042`
-
-**Save these details - you'll need them for testing.**
-
-### **Step 4: Create Feature Branch**
+### **Step 3: Create Feature Branch**
 
 ```bash
 # Branch naming: feature/WO-XXX-YY-brief-description
 git checkout -b feature/WO-042-01-service-agreement-model
 ```
 
-### **Step 5: Verify Your Context**
+### **Step 4: Verify Your Context**
 
 Before proceeding, confirm:
 - [ ] I am in the correct repository directory (`hub/` or `evv/`)
 - [ ] `git remote -v` shows the correct GitHub repository
-- [ ] My isolated test environment is running
-- [ ] I know my Access URL and container name
 - [ ] I have created my feature branch
 
-**Only proceed when ALL 5 checks pass.**
+**Only proceed when ALL checks pass.**
 
 ---
 
@@ -187,52 +166,40 @@ Before declaring work "complete," you MUST provide logs.
 
 ### **6.1. Test Log**
 
-The primary method for generating the test log is via the automated test runner.
+The primary method for running tests and generating the test log is via the resilient, automated test runner.
 
 ```bash
-# In the root of the correct repository (hub/ or evv/)
-bash scripts/run-tests.sh your_module
-
-# This single command will:
-# 1. Create a temporary, clean environment.
-# 2. Run all tests for 'your_module'.
-# 3. Create 'proof_of_execution_tests.log' with the full output.
-# 4. Automatically clean up the environment.
-# 5. Exit with an error if tests fail or never ran.
+# Run all tests for your module using the resilient test runner
+cd /home/james/development/aos-development/evv
+bash scripts/run-tests.sh <module_name>
 ```
 
-**MUST show:** The script's output confirms successful execution and the log file must show `your_module: N tests, 0 failed, 0 errors`.
+**Example:**
+```bash
+bash scripts/run-tests.sh evv_core
+```
+
+The script handles:
+- Port allocation
+- Environment startup
+- Healthcheck waiting
+- Test execution
+- Automatic cleanup
+
+**CRITICAL VERIFICATION:**
+After the test run completes, you MUST verify cleanup:
+```bash
+docker ps -a | grep evv-agent-test
+# Must be empty - no leftover containers
+```
 
 ### **6.2. Boot Log (If Required)**
 
-If your work order explicitly requires a boot log in addition to the test log, you can generate it by manually starting an environment.
-
-```bash
-# Start a persistent environment for your work order
-./scripts/start-agent-env.sh WO-XXX
-
-# Wait for startup
-sleep 30
-
-# Capture boot log
-# Note: The project name is derived from your WO-XXX
-PROJECT_NAME="evv-$(echo WO-XXX | tr '[:upper:]' '[:lower:]')"
-docker-compose -p $PROJECT_NAME logs --tail=100 odoo > proof_of_execution_boot.log 2>&1
-```
-
-**MUST show:** No errors, module loaded successfully.
+The resilient test runner is for automated testing. If your work order requires manual inspection, starting a persistent environment, or generating separate boot/upgrade logs, you must do so manually. **This should be rare.**
 
 ### **6.3. Upgrade Log (If Required)**
 
-Similarly, generate an upgrade log from your persistent environment if required.
-
-```bash
-# Test upgrade path
-PROJECT_NAME="evv-$(echo WO-XXX | tr '[:upper:]' '[:lower:]')"
-docker-compose -p $PROJECT_NAME exec odoo odoo -c /etc/odoo/odoo.conf \
-    --stop-after-init -d postgres -u your_module \
-    > proof_of_execution_upgrade.log 2>&1
-```
+Manual execution is required if the work order specifies it.
 
 ### **6.4. Commit Logs**
 
@@ -320,7 +287,7 @@ Before reporting "done," verify:
 - [ ] `proof_of_execution_upgrade.log` committed
 - [ ] Feedback entry written to `process-improvement.md`
 - [ ] All work pushed to feature branch
-- [ ] Isolated environment stopped (see Section 10)
+- [ ] Verified Docker environment was cleaned up after tests.
 
 **Report completion ONLY after ALL items checked.**
 
@@ -328,21 +295,7 @@ Before reporting "done," verify:
 
 ## 10. Cleanup
 
-After completing your work and merging your PR:
-
-```bash
-# Stop your isolated environment and clean up
-./scripts/stop-agent-env.sh WO-042 --cleanup
-
-# This removes:
-# - Container (odoo_hub_WO-042)
-# - Database (postgres_WO-042)
-# - Volumes (odoo-hub-wo042-data)
-```
-
-**When to use `--cleanup`:**
-- ✅ Work order complete and merged → Use `--cleanup`
-- ❌ Work order paused or needs revision → Skip `--cleanup` (preserves data)
+The `run-tests.sh` script handles cleanup automatically. You should not need to manually clean up Docker environments unless you started one for manual inspection.
 
 ---
 
@@ -396,13 +349,10 @@ cd [hub or evv]/
 # 2. Verify you're in the right place
 git remote -v
 
-# 3. Start YOUR isolated environment
-./scripts/start-agent-env.sh WO-XXX
-
-# 4. Create feature branch
+# 3. Create feature branch
 git checkout -b feature/WO-XXX-brief-description
 
-# 5. Begin work
+# 4. Begin work
 ```
 
 ### **Before You Say "I'm Done"**
@@ -411,27 +361,21 @@ git checkout -b feature/WO-XXX-brief-description
 # 1. Run tests and generate log
 bash scripts/run-tests.sh [module]
 
-# 2. Verify YOUR module ran and passed (script does this automatically)
+# 2. CRITICAL: Verify cleanup
+docker ps -a | grep [repo]-agent-test
+# MUST return empty
 
-# 3. Generate Boot/Upgrade logs (if required by work order)
-# ./scripts/start-agent-env.sh WO-XXX
-# ... (capture logs) ...
-
-# 4. Commit logs
+# 3. Commit logs
 git add -f proof_of_execution_*.log # Use -f to add gitignored files
-git commit -m "proof: Test, boot, and upgrade logs for WO-XXX"
+git commit -m "proof: Test logs for WO-XXX"
 git push
 
-# 5. Write feedback entry
+# 4. Write feedback entry
 cd /path/to/aos-architecture/
 # Edit process_improvement/process-improvement.md
 git add process_improvement/process-improvement.md
 git commit -m "Process improvement: Entry #N - WO-XXX feedback"
 git push
-
-# 6. Clean up (if you started a manual environment)
-cd [repo]/
-./scripts/stop-agent-env.sh WO-XXX --cleanup
 ```
 
 ---

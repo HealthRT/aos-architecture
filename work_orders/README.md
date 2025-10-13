@@ -143,11 +143,16 @@ WO remains in /dispatched/ as historical record
 
 | Initiative | Spec | Work Orders | Status |
 |------------|------|-------------|--------|
-| Agent Test Runner Stabilization | SYSTEM-001 | WO-SYSTEM-001-01, WO-SYSTEM-001-02 | 📝 Pending Dispatch |
+| Agent Test Runner Stabilization | SYSTEM-001 | WO-SYSTEM-001-01, WO-SYSTEM-001-02 | ❌ Replaced |
+| Resilient Test Environment with Guaranteed Cleanup | SYSTEM-002 | WO-SYSTEM-002-01, WO-SYSTEM-002-02 | 📝 Pending Dispatch |
 
-**Locations:**  
-- EVV: `/work_orders/pending/WO-SYSTEM-001-01.md`  
-- Hub: `/work_orders/pending/WO-SYSTEM-001-02.md`
+**SYSTEM-001 Status:** Replaced by SYSTEM-002 after critical failures (Process Improvement #012, #014).
+
+**SYSTEM-002 Locations:**  
+- EVV: `/work_orders/pending/WO-SYSTEM-002-01.md`  
+- Hub: `/work_orders/pending/WO-SYSTEM-002-02.md`
+
+**Key Improvements:** Single resilient script with `trap` for guaranteed cleanup, healthcheck waiting, unique project names.
 
 ---
 

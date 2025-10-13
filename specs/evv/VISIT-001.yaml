@@ -1,9 +1,9 @@
 id: VISIT-001
-title: "Create Core Visit Record & Capture Service Selection"
-summary: "Enables a DSP to clock-in for a visit, capturing the specific service being performed, and creates the foundational visit record."
+title: "Create Core Visit Record with Service Selection & Notes"
+summary: "Enables a DSP to clock-in for a visit, capture the specific service and notes, and creates the foundational visit record."
 
 # --- User Story (for human context) ---
-user_story: "As a Direct Support Professional (DSP), I want to select the specific service I am providing at clock-in, so that the system can accurately track the delivery of authorized services."
+user_story: "As a Direct Support Professional (DSP), I want to select the specific service I am providing and add a brief note at clock-out, so that the system can accurately track the delivery of services and any important context for my supervisor."
 
 # --- Strategic & Compliance Constraints ---
 component_type: Core
@@ -47,7 +47,18 @@ models:
       - { name: "clock_in_location", type: "Char", required: false, help: "GPS coordinates captured at the moment of clock-in (e.g., '44.9778,-93.2650')." }
       - { name: "clock_out_timestamp", type: "Datetime", required: false, help: "The precise date and time the DSP clocked out." }
       - { name: "clock_out_location", type: "Char", required: false, help: "GPS coordinates captured at the moment of clock-out (e.g., '44.9778,-93.2650')." }
-      - { name: "state", type: "Selection", selection: "[('in_progress', 'In Progress'), ('pending_verification', 'Pending Verification'), ('verified', 'Verified'), ('rejected', 'Rejected')]", required: true, default: "'in_progress'", help: "The workflow state of the visit." }
+      - { name: "state", type: "Selection", selection: "[('in_progress', 'In Progress'), ('pending_verification', 'Pending Verification'), ('pending_correction_approval', 'Pending Correction Approval'), ('verified', 'Verified'), ('rejected', 'Rejected')]", required: true, default: "'in_progress'", help: "The workflow state of the visit." }
+      - { name: "visit_notes", type: "Text", required: false, help: "A simple text field for the DSP to add any relevant notes about the visit at clock-out." }
+
+      # --- MN DHS Compliance Fields ---
+      - { name: "is_shared_service", type: "Boolean", required: false, default: "False", help: "True if this was a group service. Required by MN DHS." }
+      - { name: "procedure_code", type: "Char", related: "service_agreement_id.procedure_code", readonly: true, store: true, help: "A read-only copy of the procedure code from the authorizing service agreement line, captured at the time of visit for historical integrity. Required by MN DHS." }
+      - { name: "calculated_units", type: "Float", required: false, help: "The number of billable units, calculated based on the visit duration and the service's defined unit increment. Required by MN DHS." }
+
+      # --- Correction & Audit Fields ---
+      - { name: "is_corrected", type: "Boolean", required: false, default: "False", help: "True if the clock-out time was manually corrected by the DSP." }
+      - { name: "correction_reason", type: "Text", required: false, help: "The reason provided by the DSP for the manual correction." }
+      - { name: "original_clock_out_timestamp", type: "Datetime", required: false, help: "A read-only copy of the original, incorrect clock-out time for auditing purposes." }
 
 # --- Business Logic & Validation ---
 rules:
@@ -55,6 +66,10 @@ rules:
     a: "For MVP, the backend validation is simple: it checks if the patient has AT LEAST ONE active service agreement. Per stakeholder direction, it does NOT yet validate against the specific service selected by the DSP. The service_agreement_id is captured for future use but is not used in the back-end validation logic for MVP."
   - q: "What happens if the DSP's device is offline?"
     a: "For MVP, the PWA requires a live internet connection to perform clock-in and clock-out. The action must fail with a clear error message if the device is offline. Offline support is a post-MVP requirement."
+  - q: "What is the workflow for a missed clock-out?"
+    a: "For MVP, only the DSP who owns the visit can manually enter a corrected clock-out time. When they do so, they must provide a reason. The visit's state must automatically change to 'pending_correction_approval' and it must be submitted to their Designated Coordinator for review."
+  - q: "Can a corrected visit be billed?"
+    a: "No. A visit with the state 'pending_correction_approval' cannot be verified or billed until a Designated Coordinator explicitly approves the correction, at which point it moves to the 'pending_verification' state for the final check."
 
 # --- Testing & Verification ---
 acceptance_criteria:
@@ -64,6 +79,22 @@ acceptance_criteria:
   - "GIVEN the DSP's device has location services enabled, WHEN the DSP clocks out, THEN the system must capture and store their GPS coordinates in the `clock_out_location` field."
   - "GIVEN a patient has no active service agreements, WHEN a DSP initiates clock-in for that patient, THEN the system must block the clock-in and display an error message stating that no authorized services are available."
   - "GIVEN a DSP's device has no internet connectivity, WHEN they attempt to clock-in, THEN the PWA must display an error message (e.g., 'A network connection is required') and must not create a visit record."
+
+  # --- MN DHS Compliance Criteria ---
+  - "GIVEN a DSP is clocking in, WHEN they are on the clock-in screen, THEN there must be a toggle or checkbox for them to indicate if this is a 'Shared Service'."
+  - "GIVEN a visit is created, WHEN the `service_agreement_id` is set, THEN the `procedure_code` field on the visit must be automatically populated with the procedure code from that agreement."
+  - "GIVEN a visit has a clock-in and clock-out time, WHEN the visit is moved to the 'pending_verification' state, THEN the system must automatically calculate the total duration and populate the `calculated_units` field based on the service's rules (e.g., 1 unit = 15 minutes)."
+
+  # --- Notes Workflow ---
+  - "GIVEN a DSP is clocking out of a visit, WHEN they are on the clock-out screen, THEN there must be a text field for them to enter visit notes."
+  - "GIVEN a visit with notes, WHEN a Designated Coordinator views that visit on their verification screen, THEN the notes entered by the DSP must be clearly visible."
+
+  # --- Manual Correction Workflow ---
+  - "GIVEN a DSP has an 'in_progress' visit, WHEN they open the visit to manually correct a missed clock-out, THEN the PWA must allow them to enter a past date and time."
+  - "GIVEN a DSP manually enters a corrected clock-out time, WHEN they save the change, THEN the system must set the `is_corrected` flag to True and change the visit's state to 'pending_correction_approval'."
+  - "GIVEN a visit is in the 'pending_correction_approval' state, WHEN a Designated Coordinator reviews it, THEN they must see an 'Approve Correction' button."
+  - "GIVEN a DC approves a correction, WHEN they click the 'Approve Correction' button, THEN the visit's state must change to 'pending_verification'."
+  - "GIVEN a user who is not the original DSP, WHEN they attempt to manually correct a clock-out time, THEN the system must prevent the change and show an access error."
 
 # --- Implementation Plan ---
 artifacts:

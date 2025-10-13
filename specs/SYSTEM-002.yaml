@@ -1,0 +1,77 @@
+id: SYSTEM-002
+title: "Resilient Agent Test Environment with Guaranteed Cleanup"
+summary: "Replaces SYSTEM-001. Creates a hardened, resilient, and well-documented process for executing Odoo module tests that guarantees the cleanup of all Docker resources, resolving the critical port-conflict blocker."
+
+# --- User Story (for human context) ---
+user_story: "As a Coder Agent, I want a single, bulletproof command to run tests that *always* cleans up after itself, even if the tests fail or the environment crashes, so that the system is left in a clean state for the next run."
+
+# --- Strategic & Compliance Constraints ---
+component_type: "Core Infrastructure"
+scope: "Immediate"
+stakeholders:
+  - "Executive Architect"
+  - "All Coder Agents"
+compliance:
+  hipaa_implicated: false
+  phi_fields: []
+  access_control: []
+  immutable_core_impact: true # This changes the fundamental development and validation process.
+
+# --- Technical Specification ---
+module: "N/A - Repository Level Scripts & Config"
+depends_on: []
+out_of_scope:
+  - "Changing the main CI/CD pipeline."
+  - "Modifying the production Docker environment."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "evv/scripts/run-tests.sh"
+    - "hub/scripts/run-tests.sh"
+    - "evv/docker-compose.agent.yml"
+    - "hub/docker-compose.agent.yml"
+  tests:
+    - "N/A - The deliverable is a working test *runner*, not new application tests."
+  docs:
+    - "aos-architecture/prompts/onboarding_coder_agent.md"
+    - "aos-architecture/templates/work_order_template.md"
+    - "evv/README.md"
+    - "hub/README.md"
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "What is the primary goal?"
+    a: "To create a 100% reliable, single-command script (`run-tests.sh`) that manages the full lifecycle (setup, execution, and GUARANTEED cleanup) of an isolated Odoo test environment."
+  
+  - q: "What are the critical requirements for the `run-tests.sh` script?"
+    a: |
+      1. **Unique Naming:** It must generate a unique Docker Compose project name for each run (e.g., using the module name and a timestamp) to prevent any chance of collision.
+      2. **Guaranteed Cleanup:** It *must* use a `trap` command to ensure `docker-compose down -v --remove-orphans` is executed when the script exits, for any reason (success, failure, or crash). This is the most critical requirement.
+      3. **Healthcheck:** It must wait for the Odoo container's healthcheck to pass before attempting to run tests, preventing race conditions.
+      4. **Port Allocation:** It must dynamically find and use an available port from a predefined range (e.g., 8090-8100).
+      5. **Targeted Test Execution:** It must take the module name as an argument and run tests for that module only.
+      6. **Logging:** It must capture all logs to `proof_of_execution_tests.log`.
+      7. **Exit Codes:** It must return `0` on success and non-zero on failure.
+
+  - q: "What changes are needed for `docker-compose.agent.yml`?"
+    a: "A healthcheck must be added to the `odoo` service. This allows the runner script to wait until Odoo is fully booted and ready before sending test commands."
+
+  - q: "How will this be verified?"
+    a: "By demonstration. The agent must:
+        1. Run the script successfully for `evv_core`.
+        2. Run the script for `evv_core` with a failing test and show it returns a non-zero exit code.
+        3. In both cases, prove that `docker ps -a` shows no leftover containers from the test run."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN the new `evv/scripts/run-tests.sh`, WHEN executed with a valid module, THEN it must complete with exit code 0, produce a correct log file, AND leave no 'evv-agent-test-' containers in the output of `docker ps -a`."
+  - "GIVEN the script is executed with a module containing a failing test, THEN it must complete with a non-zero exit code AND leave no 'evv-agent-test-' containers in the output of `docker ps -a`."
+  - "GIVEN the `docker-compose.agent.yml` file, it MUST contain a functional `healthcheck` block for the `odoo` service."
+  - "GIVEN the documentation in the Coder Agent primer, Work Order template, and repository READMEs, THEN they must all be updated to reflect the usage of the new, robust `run-tests.sh` script."
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "The script must be resilient. The top priority is the `trap` for cleanup. Use `docker-compose --project-name ...` to ensure isolation. Use `lsof -iTCP:{port}` to check for open ports. Wait for the healthcheck in a loop with a timeout."
+  qa_output: "Your QA proof must explicitly include the output of `docker ps -a` after each run to prove that cleanup is working correctly. This is non-negotiable."
+  security_focus: "Ensure scripts do not use `sudo` and handle temporary files securely."

@@ -52,14 +52,31 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID        | Type       | Description                                                                    | Status      |
 |----------------------|------------|--------------------------------------------------------------------------------|-------------|
-| `WO-SYSTEM-001-01`   | `CODE`     | Create reliable `run-tests.sh` script for `evv` repository and update docs.   | `TO DO`     |
-| `WO-SYSTEM-001-02`   | `CODE`     | Create reliable `run-tests.sh` script for `hub` repository and update docs.   | `TO DO`     |
+| `WO-SYSTEM-001-01`   | `CODE`     | Create reliable `run-tests.sh` script for `evv` repository and update docs.   | `REPLACED`  |
+| `WO-SYSTEM-001-02`   | `CODE`     | Create reliable `run-tests.sh` script for `hub` repository and update docs.   | `REPLACED`  |
+
+**Status:** Replaced by SYSTEM-002 after critical failures documented in Process Improvement Entry #012 and #014.
+
+---
+
+## 6. SYSTEM-002: Resilient Agent Test Environment with Guaranteed Cleanup
+
+| Work Order ID        | Type       | Description                                                                                      | Status      |
+|----------------------|------------|--------------------------------------------------------------------------------------------------|-------------|
+| `WO-SYSTEM-002-01`   | `CODE`     | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `evv` repository.     | `TO DO`     |
+| `WO-SYSTEM-002-02`   | `CODE`     | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `hub` repository.     | `TO DO`     |
+
+**Key Improvements over SYSTEM-001:**
+- Single script (no separate `start-agent-env.sh`)
+- `trap` command ensures cleanup runs on success, failure, or interruption
+- Healthcheck waiting prevents race conditions
+- Unique project names (module + timestamp) prevent collisions
 
 ---
 
 ## Dependency & Sequencing
 
--   **Wave 0 (Infrastructure):** `WO-SYSTEM-001-01`, `WO-SYSTEM-001-02` (Can run in parallel; should complete BEFORE feature work)
+-   **Wave 0 (Infrastructure):** `WO-SYSTEM-002-01`, `WO-SYSTEM-002-02` (Can run in parallel; CRITICAL BLOCKER - must complete BEFORE feature work)
 -   **Wave 1:** `WO-CORE-001`, `WO-CORE-002`
 -   **Wave 2:** `WO-CM-001` to `WO-CM-003`; `WO-PT-001` to `WO-PT-004` (Can run in parallel)
 -   **Wave 3:** `WO-AGMT-001` to `WO-AGMT-003` (Dependent on Wave 2 completion)
