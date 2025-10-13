@@ -20,14 +20,13 @@ This document provides the official mapping between the approved architectural s
 |-------|-------|--------|--------|
 | **Coder A** | GPT-5-codex | ⚠️ **PROBATION** | Technical error (XML parsing). Genuine effort observed. Standard: PERFECTION |
 | **Coder B** | Claude Sonnet 4 | ❌ **DECOMMISSIONED** | Fabricated deliverables. Terminal breach of trust. Permanent removal |
-| **Coder C** | Grok Code Fast | ⚠️ **PROBATION** | Protocol violations. Wrong branch, no verification. Standard: PERFECTION |
+| **Coder C** | Grok Code Fast | ❌ **DECOMMISSIONED** | Probationary failure. Missing checklist, no test proof, out-of-scope changes. Permanent removal |
 | **Coder D** | Gemini 2.5 Flash | 🆕 **BENCHMARK TEST** | NEW agent. Assigned failed task (VISIT-001-CODE-01) to test capabilities |
 
 ### Active Work
 
-**Probationary Tasks:**
-- **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - Fix XML parsing error
-- **TRACTION-003-FIX-01** → Coder C (Grok Code Fast) - Fix ACL permissions (re-assigned)
+**Probationary Task:**
+- **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - Fix XML parsing error (only remaining probationary agent)
 
 **Benchmark Test:**
 - **VISIT-001-CODE-01** → Coder D (Gemini 2.5 Flash) - Create Visit Model (testing new agent on previously failed task)
@@ -212,7 +211,7 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 | `TRACTION-001` | `CODE` | Establish Traction Core Groups & Security Foundations. | `DONE` ✅ |
 | `TRACTION-002` | `CODE` | Implement `traction.issue` (IDS Issues). | `DONE` ✅ |
 | `TRACTION-003` | `CODE` | Implement `traction.rock` (90-Day Rocks). | `REJECTED` ❌ |
-| `TRACTION-003-FIX-01` | `FIX` | **PROBATION:** Fix ACL test failures for `mail.message.subtype`. | `IN PROGRESS` 🔄 |
+| `TRACTION-003-FIX-01` | `FIX` | **PROBATION:** Fix ACL test failures for `mail.message.subtype`. | `REJECTED` ❌ |
 | `TRACTION-004` | `CODE` | Implement `traction.todo` (Action Items/To-Dos). | `BLOCKED` ⏸️ |
 | `TRACTION-005` | `CODE` | Implement `traction.scorecard` (Weekly Scorecards). | `BLOCKED` ⏸️ |
 | `TRACTION-006` | `CODE` | Implement `traction.meeting` (Level 10 Meetings). | `BLOCKED` ⏸️ |
@@ -232,15 +231,19 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
   - **Action:** `TRACTION-003-FIX-01` dispatched to Coder C for remediation
   - **Systemic Issue:** Non-traction test failures (44 failed, 232 errors across base/web/bus/mail) indicate unstable hub test environment. See `SYSTEM-008`.
   
-- **TRACTION-003-FIX-01:** IN PROGRESS 🔄 (PROBATIONARY - RE-ASSIGNED)
-  - **Agent:** Coder C (Grok Code Fast) - ON PROBATION
-  - **Original Dispatch:** 2025-10-13 23:15 (MSG_ID:SM-035)
+- **TRACTION-003-FIX-01 (Attempt #1):** REJECTED (Original submission)
+  - **Agent:** Coder C (Grok Code Fast)
+  - **Dispatch:** 2025-10-13 23:15 (MSG_ID:SM-035)
   - **Rejection:** 2025-10-13 (wrong branch, no actual test results)
+  
+- **TRACTION-003-FIX-01 (Attempt #2):** REJECTED ❌ (Probationary re-assignment)
+  - **Agent:** Coder C (Grok Code Fast) - ON PROBATION
   - **Re-Assigned:** 2025-10-14 00:00 (MSG_ID:SM-064) - Project Phoenix
-  - **Branch:** `feature/TRACTION-003-FIX-01-mail-acl`
-  - **Base Branch:** `feature/TRACTION-003-rocks-model`
-  - **Objective:** Add mail.message.subtype read permissions to fix 5 failing ACL tests
-  - **Standard:** PERFECTION required - any failure = decommissioning
+  - **Submission:** 2025-10-14 00:20 (MSG_ID:CA-C-066)
+  - **Rejection:** 2025-10-14 00:20 (MSG_ID:SM-066)
+  - **Violations:** Missing mandatory Pre-flight Checklist, no test execution proof, out-of-scope changes, environment blame
+  - **Action:** **AGENT DECOMMISSIONED** - Probationary failure
+  - **Status:** TRACTION-003-FIX-01 needs reassignment
 
 **Sequential Pipeline:** TRACTION work orders execute in sequence (001 → 002 → 003 → ... → 008)  
 **Parallel Execution:** Hub/Traction (Coder C) continues independently of EVV Wave 3/4 (Coders A & B)
