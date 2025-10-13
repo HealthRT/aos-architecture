@@ -1,10 +1,10 @@
 ---
-title: "[FEATURE] WO-CM-001-01: Implement evv.case_manager Model"
+title: "[FEATURE] CM-001-CODE-01: Implement evv.case_manager Model"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-CM-001-01 – Implement evv.case_manager Model
+# Work Order: CM-001-CODE-01 – Implement evv.case_manager Model
 
 ## 1. Context & Objective
 
@@ -16,14 +16,14 @@ Create the dedicated `evv.case_manager` model, supporting views, access controls
 
 **Repository:** evv  
 **Base Branch:** main  
-**New Branch:** feature/WO-CM-001-01-case-manager-model
+**New Branch:** feature/CM-001-CODE-01-case-manager-model
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-CM-001-01-case-manager-model
+git checkout -b feature/CM-001-CODE-01-case-manager-model
 ```
 
 Ensure pre-commit hooks are installed (`standards/00-contributor-guide.md`).

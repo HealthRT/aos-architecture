@@ -1,10 +1,10 @@
 ---
-title: "[FEATURE] WO-AGMT-001-01: Implement service.agreement Data Model"
+title: "[FEATURE] AGMT-001-CODE-01: Implement service.agreement Data Model"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-AGMT-001-01 – Implement service.agreement Data Model
+# Work Order: AGMT-001-CODE-01 – Implement service.agreement Data Model
 
 ## 1. Context & Objective
 
@@ -16,14 +16,14 @@ Create the `service.agreement` model with core fields, constraints, and document
 
 **Repository:** evv  
 **Base Branch:** main  
-**New Branch:** feature/WO-AGMT-001-01-service-agreement-model
+**New Branch:** feature/AGMT-001-CODE-01-service-agreement-model
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-AGMT-001-01-service-agreement-model
+git checkout -b feature/AGMT-001-CODE-01-service-agreement-model
 ```
 
 Ensure pre-commit hooks are installed.

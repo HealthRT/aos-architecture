@@ -1,17 +1,17 @@
 ---
-title: "[FEATURE] WO-VISIT-001-02: Add MN DHS Compliance Fields & Unit Calculations"
+title: "[FEATURE] VISIT-001-CODE-02: Add MN DHS Compliance Fields & Unit Calculations"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-VISIT-001-02 – Add MN DHS Compliance Fields & Unit Calculations
+# Work Order: VISIT-001-CODE-02 – Add MN DHS Compliance Fields & Unit Calculations
 
 ## 1. Context & Objective
 
 Extend the `evv.visit` model with Minnesota Department of Human Services (MN DHS) required fields: procedure code capture, unit calculations, and shared service flag. These fields are mandatory for state EVV reporting compliance.
 
 **Story:** VISIT-001 - Create Core Visit Record with Service Selection & Notes  
-**Depends On:** WO-VISIT-001-01 (Visit Model Foundation)
+**Depends On:** VISIT-001-CODE-01 (Visit Model Foundation)
 
 ---
 
@@ -54,14 +54,14 @@ git log --oneline | head -10
 ### Git Workflow
 
 **Base Branch:** main  
-**New Branch:** feature/WO-VISIT-001-02-mndhs-compliance
+**New Branch:** feature/VISIT-001-CODE-02-mndhs-compliance
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-VISIT-001-02-mndhs-compliance
+git checkout -b feature/VISIT-001-CODE-02-mndhs-compliance
 ```
 
 ---
@@ -430,14 +430,14 @@ def test_workflow_visit_with_unit_calculation(self):
 - `@aos-architecture/standards/01-odoo-coding-standards.md`
 - `@aos-architecture/standards/08-testing-requirements.md` (MANDATORY)
 - `@aos-architecture/standards/TESTING_STRATEGY.md` (MANDATORY - for workflow tests)
-- `@WO-VISIT-001-01.md` (for context on base implementation)
+- `@VISIT-001-CODE-01.md` (for context on base implementation)
 
 ---
 
 ## 8. Technical Constraints
 
 - **Odoo Version:** All code and XML must be compatible with **Odoo 18.0 Community Edition**
-- **HIPAA Compliance:** This model contains PHI. Maintain all security measures from WO-VISIT-001-01
+- **HIPAA Compliance:** This model contains PHI. Maintain all security measures from VISIT-001-CODE-01
 - **Backward Compatibility:** Do not break existing visit records or functionality
 - **Change Size:** Keep diff <300 LOC
 
@@ -462,7 +462,7 @@ bash scripts/run-tests.sh evv_visits
   ```
   
 - [ ] **Confirm NEW test count includes your additions:**
-  - Base tests from WO-VISIT-001-01: ~10 tests
+  - Base tests from VISIT-001-CODE-01: ~10 tests
   - Your new tests: ~9 tests
   - Total expected: ~19 tests minimum
 

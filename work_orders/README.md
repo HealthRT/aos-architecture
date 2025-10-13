@@ -128,8 +128,13 @@ WO remains in /dispatched/ as historical record
 | Feature | Spec | Work Orders | Status |
 |---------|------|-------------|--------|
 | Service Agreement | AGMT-001 | WO-AGMT-001-01 through 05 | ✅ Completed & Merged |
+| Core Visit Record | VISIT-001 | WO-VISIT-001-01, WO-VISIT-001-02 | 📝 Pending Dispatch |
 
-**Location:** `/work_orders/evv/AGMT-001/`
+**Locations:**  
+- Service Agreement: `/work_orders/evv/AGMT-001/`
+- Visit Record: `/work_orders/pending/WO-VISIT-001-*.md`
+
+**VISIT-001 Note:** WO-003 and WO-004 pending decomposition. WO-001 and WO-002 ready for dispatch.
 
 ### **Hub System**
 

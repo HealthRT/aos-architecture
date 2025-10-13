@@ -1,0 +1,68 @@
+id: SVE-001
+title: "Service Validation Engine (SVE)"
+summary: "Defines the architecture for a centralized, API-first service that provides real-time validation of service delivery against authorized service agreements."
+
+# --- User Story (for human context) ---
+user_story: "As a System Architect, I want a centralized, internal 'referee' service that can provide a definitive, real-time answer to whether a proposed or delivered service is compliant with its authorization, so that we can prevent billing errors and ensure data integrity across the entire EVV platform."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "System Architect"
+compliance:
+  hipaa_implicated: true
+  phi_fields: [] # This is a logic engine; it processes PHI but does not own/store it.
+  access_control: [] # This is an internal service, not directly user-facing. Access is programmatic.
+  immutable_core_impact: true
+
+# --- Technical Specification ---
+module: "evv_agreements"
+depends_on:
+  - "evv_core"
+  - "evv_visits"
+out_of_scope:
+  - "The UI that consumes the engine's output."
+  - "Validation rules beyond the MVP's 'Simple Bucket' model."
+
+models:
+  - name: "service.agreement"
+    description: "The SVE adds a core business logic method to the service.agreement model."
+    methods:
+      - name: "get_available_units"
+        signature: "def get_available_units(self, effective_date: date) -> float:"
+        intent: "The core method of the SVE. It performs a real-time calculation of the number of truly available units for a given service agreement line as of a specific date."
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "What is the formula for calculating available units?"
+    a: "Available Units = Total Authorized Units - Consumed Units - Earmarked Units."
+  - q: "What are 'Consumed Units'?"
+    a: "The sum of `calculated_units` from all `evv.visit` records that are linked to this service agreement and have a state of 'verified'."
+  - q: "What are 'Earmarked Units'?"
+    a: "For MVP, this is the sum of `calculated_units` from all `evv.visit` records that are linked to this service agreement and have a state of 'in_progress' or 'pending_verification' or 'pending_correction_approval'. Post-MVP, this will also include scheduled shifts."
+  - q: "How does the engine handle time-to-unit conversion?"
+    a: "The engine will use the `unit_of_measure` and `minutes_per_unit` fields on the service agreement itself to correctly convert the duration of visits into billable units before performing its calculation."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN a service agreement has 100 total_units and no visits, WHEN `get_available_units` is called, THEN it must return 100.0."
+  - "GIVEN a service agreement has 100 total_units and one 'verified' visit of 8 units, WHEN `get_available_units` is called, THEN it must return 92.0."
+  - "GIVEN a service agreement has 100 total_units and one 'in_progress' visit of 4 units, WHEN `get_available_units` is called, THEN it must return 96.0."
+  - "GIVEN a service agreement has 100 total_units, one 'verified' visit of 8 units, and one 'pending_verification' visit of 4 units, WHEN `get_available_units` is called, THEN it must return 88.0."
+  - "GIVEN a service agreement where 1 unit = 60 minutes, and a 120-minute 'verified' visit is linked to it, WHEN `get_available_units` is called, THEN the calculation must correctly identify the visit as consuming 2.0 units."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "models/service_agreement.py" # Add the new method here.
+  tests:
+    - "tests/test_service_validation_engine.py"
+  docs:
+    - "docs/architecture/service_validation_engine.md"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "Implement the `get_available_units` method on the `service.agreement` model. The logic must be robust and account for all visit states as defined in the rules."
+  qa_output: "Generate comprehensive tests that cover all scenarios in the acceptance criteria, including different visit states and unit conversion rules."
+  security_focus: "This method will be a core component of our compliance. Ensure all calculations are precise."

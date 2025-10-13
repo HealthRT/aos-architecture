@@ -1,11 +1,10 @@
 ---
-title: "[FEATURE] WO-SYSTEM-001-02: Create Reliable Test Runner for hub"
+title: "[FEATURE] SYSTEM-001-CODE-02: Create Reliable Test Runner for hub"
 repo: "HealthRT/hub"
-assignee: "aos-coder-agent"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:hub-traction,priority:high"
 ---
-# Work Order: WO-SYSTEM-001-02 – Create Reliable Test Runner for hub
+# Work Order: SYSTEM-001-CODE-02 – Create Reliable Test Runner for hub
 
 ## 1. Context & Objective
 
@@ -62,14 +61,14 @@ docker compose -f docker-compose.agent.yml up -d
 ### Git Workflow
 
 **Base Branch:** main  
-**New Branch:** feature/WO-SYSTEM-001-02-hub-test-runner
+**New Branch:** feature/SYSTEM-001-CODE-02-hub-test-runner
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/hub
 git checkout main
 git pull origin main
-git checkout -b feature/WO-SYSTEM-001-02-hub-test-runner
+git checkout -b feature/SYSTEM-001-CODE-02-hub-test-runner
 ```
 
 ---
@@ -85,7 +84,7 @@ Agents currently lack a reliable, single-command method to execute module tests 
 **Purpose:** Start an isolated Docker environment with dynamic port allocation.
 
 **Requirements:**
-- Accept one argument: unique environment name (e.g., `WO-TRACTION-001`).
+- Accept one argument: unique environment name (e.g., `TRACTION-001-CODE-01`).
 - Scan ports 8090-8100 to find first available port.
 - If all ports occupied, exit with non-zero code and clear error message.
 - Start Docker environment using `docker-compose.agent.yml` with unique project name (derived from env name) and allocated port.
@@ -285,7 +284,7 @@ trap cleanup EXIT
 - `@aos-architecture/prompts/onboarding_coder_agent.md`
 - `@aos-architecture/templates/work_order_template.md`
 - `@aos-architecture/standards/01-odoo-coding-standards.md`
-- `@WO-SYSTEM-001-01.md` (for parity reference)
+- `@SYSTEM-001-CODE-01.md` (for parity reference)
 
 ---
 
@@ -295,7 +294,7 @@ trap cleanup EXIT
 - **Portability:** Scripts must run on Linux environments with bash, Docker, and standard POSIX utilities.
 - **No Additional Dependencies:** Do not require installation of additional tools beyond Docker and bash.
 - **Backward Compatibility:** Changes to `docker-compose.agent.yml` must not break existing workflows.
-- **Parity with EVV:** Core script logic must match WO-SYSTEM-001-01 implementation; document any intentional divergence.
+- **Parity with EVV:** Core script logic must match SYSTEM-001-CODE-01 implementation; document any intentional divergence.
 - **Change Size:** Keep total diff <500 LOC.
 
 ---

@@ -31,6 +31,7 @@ depends_on:
   - "evv_core"
   - "evv_patients"
   - "evv_agreements"
+  - "evv_dsps"
 out_of_scope:
   - "Offline clock-in/clock-out functionality."
   - "Handling for visit exceptions (e.g., missed clock-out)."
@@ -41,7 +42,7 @@ models:
     description: "Represents a single, electronically verified service delivery event. This is the core transactional model for the EVV system."
     fields:
       - { name: "patient_id", type: "Many2one", relation: "evv.patient", required: true, help: "The patient who received the service." }
-      - { name: "dsp_id", type: "Many2one", relation: "hr.employee", required: true, help: "The DSP who provided the service." }
+      - { name: "dsp_id", type: "Many2one", relation: "evv.dsp", required: true, help: "The DSP proxy record for the staff member who provided the service." }
       - { name: "service_agreement_id", type: "Many2one", relation: "service.agreement", required: true, help: "The specific, authorized service line that was performed during this visit. Selected by the DSP at clock-in." }
       - { name: "clock_in_timestamp", type: "Datetime", required: true, help: "The precise date and time the DSP clocked in." }
       - { name: "clock_in_location", type: "Char", required: false, help: "GPS coordinates captured at the moment of clock-in (e.g., '44.9778,-93.2650')." }

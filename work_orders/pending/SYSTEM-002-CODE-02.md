@@ -1,18 +1,18 @@
 ---
-title: "[INFRASTRUCTURE] WO-SYSTEM-002-02: Resilient Test Runner for hub"
+title: "[INFRASTRUCTURE] SYSTEM-002-CODE-02: Resilient Test Runner for hub"
 repo: "HealthRT/hub"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:hub-traction,priority:high"
 ---
-# Work Order: WO-SYSTEM-002-02 – Resilient Test Runner for hub
+# Work Order: SYSTEM-002-CODE-02 – Resilient Test Runner for hub
 
 ## 1. Context & Objective
 
-**REPLACES WO-SYSTEM-001-02.** Create a hardened, single-command `run-tests.sh` script for the `hub` repository that guarantees Docker resource cleanup even on failure or crash. This mirrors the EVV implementation and resolves the critical port-conflict blocker documented in Process Improvement Entry #012 and Entry #014.
+**REPLACES SYSTEM-001-CODE-02.** Create a hardened, single-command `run-tests.sh` script for the `hub` repository that guarantees Docker resource cleanup even on failure or crash. This mirrors the EVV implementation and resolves the critical port-conflict blocker documented in Process Improvement Entry #012 and Entry #014.
 
 **Critical Success Factor:** The `trap` command for guaranteed cleanup is non-negotiable. This is the primary deliverable.
 
-**Parity Requirement:** Core logic must match WO-SYSTEM-002-01 implementation for consistency.
+**Parity Requirement:** Core logic must match SYSTEM-002-CODE-01 implementation for consistency.
 
 ---
 
@@ -53,14 +53,14 @@ mkdir -p scripts
 ### Git Workflow
 
 **Base Branch:** main  
-**New Branch:** feature/WO-SYSTEM-002-02-hub-resilient-test-runner
+**New Branch:** feature/SYSTEM-002-CODE-02-hub-resilient-test-runner
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/hub
 git checkout main
 git pull origin main
-git checkout -b feature/WO-SYSTEM-002-02-hub-resilient-test-runner
+git checkout -b feature/SYSTEM-002-CODE-02-hub-resilient-test-runner
 ```
 
 ---
@@ -89,7 +89,7 @@ Create `scripts/run-tests.sh` that is a **self-contained, bulletproof test runne
 
 ### `scripts/run-tests.sh` - Complete Specification
 
-**CRITICAL:** This script must maintain parity with WO-SYSTEM-002-01 (EVV) implementation. Only repository-specific details should differ (project name prefix: `hub-agent-test-` instead of `evv-agent-test-`).
+**CRITICAL:** This script must maintain parity with SYSTEM-002-CODE-01 (EVV) implementation. Only repository-specific details should differ (project name prefix: `hub-agent-test-` instead of `evv-agent-test-`).
 
 #### A. Script Header & Error Handling
 ```bash
@@ -377,7 +377,7 @@ bash scripts/run-tests.sh [module_name]
 - [ ] All docs emphasize cleanup verification
 
 **Parity with EVV:**
-- [ ] Core script logic matches WO-SYSTEM-002-01 implementation
+- [ ] Core script logic matches SYSTEM-002-CODE-01 implementation
 - [ ] Only repository-specific details differ (project name prefix)
 
 ### Testing Requirements (MANDATORY)
@@ -448,7 +448,7 @@ docker ps -a | grep hub-agent-test
 - `@aos-architecture/prompts/onboarding_coder_agent.md`
 - `@aos-architecture/templates/work_order_template.md`
 - `@aos-architecture/standards/01-odoo-coding-standards.md`
-- `@WO-SYSTEM-002-01.md` (for parity reference)
+- `@SYSTEM-002-CODE-01.md` (for parity reference)
 
 ---
 
@@ -459,7 +459,7 @@ docker ps -a | grep hub-agent-test
 - **No Additional Dependencies:** Do not require installation of additional tools beyond Docker and bash
 - **Backward Compatibility:** Changes to `docker-compose.agent.yml` must not break existing workflows
 - **No sudo:** Scripts must work with Docker user permissions
-- **Parity Required:** Core logic must match WO-SYSTEM-002-01 implementation
+- **Parity Required:** Core logic must match SYSTEM-002-CODE-01 implementation
 - **Change Size:** Keep total diff <500 LOC
 
 **CRITICAL:** The `trap` for cleanup is non-negotiable. This is the primary deliverable.

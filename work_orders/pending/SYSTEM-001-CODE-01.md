@@ -1,10 +1,10 @@
 ---
-title: "[FEATURE] WO-SYSTEM-001-01: Create Reliable Test Runner for evv"
+title: "[FEATURE] SYSTEM-001-CODE-01: Create Reliable Test Runner for evv"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-SYSTEM-001-01 – Create Reliable Test Runner for evv
+# Work Order: SYSTEM-001-CODE-01 – Create Reliable Test Runner for evv
 
 ## 1. Context & Objective
 
@@ -61,14 +61,14 @@ docker compose -f docker-compose.agent.yml up -d
 ### Git Workflow
 
 **Base Branch:** main  
-**New Branch:** feature/WO-SYSTEM-001-01-evv-test-runner
+**New Branch:** feature/SYSTEM-001-CODE-01-evv-test-runner
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-SYSTEM-001-01-evv-test-runner
+git checkout -b feature/SYSTEM-001-CODE-01-evv-test-runner
 ```
 
 ---
@@ -84,7 +84,7 @@ Agents currently lack a reliable, single-command method to execute module tests 
 **Purpose:** Start an isolated Docker environment with dynamic port allocation.
 
 **Requirements:**
-- Accept one argument: unique environment name (e.g., `WO-SYSTEM-001-01`).
+- Accept one argument: unique environment name (e.g., `SYSTEM-001-CODE-01`).
 - Scan ports 8090-8100 to find first available port.
 - If all ports occupied, exit with non-zero code and clear error message.
 - Start Docker environment using `docker-compose.agent.yml` with unique project name (derived from env name) and allocated port.

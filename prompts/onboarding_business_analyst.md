@@ -119,6 +119,16 @@ Scrum Master/Coder has question → YOU clarify → They proceed
 
 **Token Budget:** ~100-500 tokens per clarification
 
+### **The Downstream Process (For Your Context)**
+
+Once your specification is approved, it enters the implementation pipeline. You are not directly involved, but you should be aware of the process:
+
+1.  **Decomposition (Scrum Master):** Your `Story.yaml` is broken down into granular `CODE` and `QA` work orders with IDs like `AGMT-001-CODE-01`.
+2.  **Implementation (Coder Agent):** Coder agents build the feature.
+3.  **Validation (QA Agent):** A separate QA agent tests the feature against your acceptance criteria. If they find a bug, a loop begins until the feature passes.
+
+This structured process ensures that the requirements you define are built and validated correctly.
+
 ---
 
 ## 📐 3. Feature Brief Creation (Your Starting Point)

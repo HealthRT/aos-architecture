@@ -1,0 +1,70 @@
+id: DSP-001
+title: "Create Dedicated DSP Proxy Record"
+summary: "Creates a dedicated, read-only DSP record in the EVV system to act as a secure proxy for the master employee record in the Hub."
+
+# --- User Story (for human context) ---
+user_story: "As a System Architect, I want a secure, de-coupled representation of a DSP within the EVV system, so that we can link visits to staff without violating our federated architecture."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "System Architect"
+  - "DC (Designated Coordinator)"
+compliance:
+  hipaa_implicated: true
+  phi_fields:
+    - "evv.dsp.patient_ids" # The link between a DSP and their assigned patients is PHI.
+  access_control:
+    - role: "DC (Designated Coordinator)"
+      permissions: ["read", "write"] # Write permission is for assigning patients, not editing DSP data.
+  immutable_core_impact: false
+
+# --- Technical Specification ---
+module: "evv_dsps"
+depends_on:
+  - "evv_core"
+  - "evv_patients"
+out_of_scope:
+  - "Syncing of training or qualification data for MVP."
+  - "The API and mechanism for syncing data from the Hub (to be defined in a separate spec)."
+
+models:
+  - name: "evv.dsp"
+    description: "A dedicated, read-only proxy model for a DSP. Data is synced from the Hub."
+    fields:
+      - { name: "external_hub_id", type: "Integer", required: true, help: "The unique ID of the master hr.employee record in the Hub." }
+      - { name: "firstname", type: "Char", required: true, help: "A synced, read-only copy of the DSP's first name." }
+      - { name: "lastname", type: "Char", required: true, help: "A synced, read-only copy of the DSP's last name." }
+      - { name: "email", type: "Char", required: true, help: "A synced, read-only copy of the DSP's email address." }
+      - { name: "patient_ids", type: "Many2many", relation: "evv.patient", help: "A list of the patients this DSP is authorized to serve. Managed by the DC." }
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "Can a user edit a DSP's name in the EVV system?"
+    a: "No. The core DSP data (name, email) is a read-only copy of the data from the Hub, which is the single source of truth. The only editable field is the patient_ids assignment list."
+  - q: "How is the link between a DSP and a Patient established?"
+    a: "A Designated Coordinator will edit the DSP record in the EVV system and add authorized patients to the 'patient_ids' list."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN a DSP record exists in the EVV system, WHEN a DC views the record, THEN they must see a field to add or remove patients from the DSP's authorized list."
+  - "GIVEN a DC adds a patient to a DSP's record, WHEN they save the record, THEN the link must be successfully created."
+  - "GIVEN a DSP is selected on the Visit form, WHEN the user tries to select a patient, THEN the patient list must be filtered to show only the patients assigned to that DSP."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "models/evv_dsp.py"
+    - "views/evv_dsp_views.xml"
+    - "security/ir.model.access.csv"
+  tests:
+    - "tests/test_dsp_patient_assignment.py"
+  docs:
+    - "docs/models/evv_dsp.md"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "Create the new evv.dsp model. Note that core fields are conceptually read-only, but the patient_ids field must be editable by the DC."
+  qa_output: "Generate tests that confirm a DC can manage the patient list for a DSP and that this list correctly filters the patient selection on other forms."
+  security_focus: "Ensure that only a DC or higher role can manage the patient assignments for a DSP."

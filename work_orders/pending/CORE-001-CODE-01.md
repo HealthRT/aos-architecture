@@ -1,10 +1,10 @@
 ---
-title: "[FEATURE] WO-CORE-001-01: Integrate partner_firstname with evv_core"
+title: "[FEATURE] CORE-001-CODE-01: Integrate partner_firstname with evv_core"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-CORE-001-01 – Integrate partner_firstname with evv_core
+# Work Order: CORE-001-CODE-01 – Integrate partner_firstname with evv_core
 
 ## 1. Context & Objective
 
@@ -16,14 +16,14 @@ Adopt the community `partner_firstname` module and update `evv_core` so discrete
 
 **Repository:** evv  
 **Base Branch:** main  
-**New Branch:** feature/WO-CORE-001-01-partner-firstname
+**New Branch:** feature/CORE-001-CODE-01-partner-firstname
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-CORE-001-01-partner-firstname
+git checkout -b feature/CORE-001-CODE-01-partner-firstname
 ```
 
 Ensure pre-commit hooks described in `standards/00-contributor-guide.md` are installed locally.

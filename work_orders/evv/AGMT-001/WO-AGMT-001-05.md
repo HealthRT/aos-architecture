@@ -1,5 +1,5 @@
 
-Please ensure the Scrum Master adds a new section to this file for SYSTEM-001. Once the file is updated, I will be ready to perform my QC review.---
+Please ensure the Scrum Master adds a new section to this file for SYSTEM-001. Once the file is updated, I will be ready to perform my QC review.I'm seeing duplicates of work order files. Can you take a look and see why it's happening? It's making it confusing right now, and trying to give the QA a task, but the task I'm trying to get them appears twice when I try to tag the file.---
 title: "[DOCS] WO-AGMT-001-05: Author Documentation for Service Agreements"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"

@@ -1,10 +1,10 @@
 ---
-title: "[FEATURE] WO-PT-001-01: Implement evv.patient Model"
+title: "[FEATURE] PT-001-CODE-01: Implement evv.patient Model"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-PT-001-01 – Implement evv.patient Model
+# Work Order: PT-001-CODE-01 – Implement evv.patient Model
 
 ## 1. Context & Objective
 
@@ -16,14 +16,14 @@ Create the HIPAA-compliant `evv.patient` model, associated views, security, and 
 
 **Repository:** evv  
 **Base Branch:** main  
-**New Branch:** feature/WO-PT-001-01-patient-model
+**New Branch:** feature/PT-001-CODE-01-patient-model
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-PT-001-01-patient-model
+git checkout -b feature/PT-001-CODE-01-patient-model
 ```
 
 Confirm pre-commit hooks are active per contributor guide.

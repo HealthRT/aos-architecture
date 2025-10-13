@@ -1,14 +1,14 @@
 ---
-title: "[INFRASTRUCTURE] WO-SYSTEM-002-01: Resilient Test Runner for evv"
+title: "[INFRASTRUCTURE] SYSTEM-002-CODE-01: Resilient Test Runner for evv"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-SYSTEM-002-01 – Resilient Test Runner for evv
+# Work Order: SYSTEM-002-CODE-01 – Resilient Test Runner for evv
 
 ## 1. Context & Objective
 
-**REPLACES WO-SYSTEM-001-01.** Create a hardened, single-command `run-tests.sh` script for the `evv` repository that guarantees Docker resource cleanup even on failure or crash. This resolves the critical port-conflict blocker documented in Process Improvement Entry #012 and Entry #014.
+**REPLACES SYSTEM-001-CODE-01.** Create a hardened, single-command `run-tests.sh` script for the `evv` repository that guarantees Docker resource cleanup even on failure or crash. This resolves the critical port-conflict blocker documented in Process Improvement Entry #012 and Entry #014.
 
 **Critical Success Factor:** The `trap` command for guaranteed cleanup is non-negotiable. This is the primary deliverable.
 
@@ -51,14 +51,14 @@ mkdir -p scripts
 ### Git Workflow
 
 **Base Branch:** main  
-**New Branch:** feature/WO-SYSTEM-002-01-evv-resilient-test-runner
+**New Branch:** feature/SYSTEM-002-CODE-01-evv-resilient-test-runner
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-SYSTEM-002-01-evv-resilient-test-runner
+git checkout -b feature/SYSTEM-002-CODE-01-evv-resilient-test-runner
 ```
 
 ---

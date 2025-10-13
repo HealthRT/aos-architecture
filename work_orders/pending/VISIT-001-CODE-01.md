@@ -1,10 +1,10 @@
 ---
-title: "[FEATURE] WO-VISIT-001-01: Create Visit Model Foundation"
+title: "[FEATURE] VISIT-001-CODE-01: Create Visit Model Foundation"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"
 labels: "agent:coder,module:evv-compliance,priority:high"
 ---
-# Work Order: WO-VISIT-001-01 – Create Visit Model Foundation
+# Work Order: VISIT-001-CODE-01 – Create Visit Model Foundation
 
 ## 1. Context & Objective
 
@@ -59,14 +59,14 @@ For automated testing, use the `run-tests.sh` script which handles environment c
 ### Git Workflow
 
 **Base Branch:** main  
-**New Branch:** feature/WO-VISIT-001-01-visit-model-foundation
+**New Branch:** feature/VISIT-001-CODE-01-visit-model-foundation
 
 **Setup Commands:**
 ```bash
 cd /home/james/development/aos-development/evv
 git checkout main
 git pull origin main
-git checkout -b feature/WO-VISIT-001-01-visit-model-foundation
+git checkout -b feature/VISIT-001-CODE-01-visit-model-foundation
 ```
 
 ---

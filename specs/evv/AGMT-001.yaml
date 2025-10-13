@@ -1,6 +1,6 @@
 id: AGMT-001
-title: "Create Single Service Agreement per Individual (MVP)"
-summary: "Enables a DC to manually create a single, active service agreement for a patient, enforcing a one-agreement-per-individual limit for the MVP."
+title: "Create Service Agreement Line"
+summary: "Enables a DC to manually create a single service agreement line for a patient, forming the basis of a multi-line authorization."
 
 # --- User Story (for human context) ---
 user_story: "As a Designated Coordinator, I want to manually create a 'Simple Bucket' Service Agreement, so that I can establish the total authorized service units for a patient's care period."
@@ -33,11 +33,11 @@ out_of_scope:
   - "Automated ingestion of agreements (SFTP, OCR, etc.)"
   - "The Service Validation Engine's consumption of this data (will be defined in other stories)"
   - "The override process for validation warnings"
-  - "Support for multiple service lines or multiple active agreements for a single individual. Per stakeholder decision on 2025-10-12, the MVP will be strictly limited to one active service agreement per individual. The immediate post-MVP goal is to support a multi-line form that matches the state document."
+  - "A UI for creating multiple service lines in a single operation (e.g., a header/detail screen). MVP UI will create one line at a time."
 
 models:
   - name: "service.agreement"
-    description: "Represents a single service authorization line from a county waiver agreement. Multiple service lines may share the same agreement_number but have different procedure codes, modifiers, or date ranges."
+    description: "Represents a single service authorization line from a county waiver agreement. Multiple service lines may exist for a single patient, each with its own rules and budget."
     fields:
       # --- Agreement Header & Traceability ---
       - { name: "agreement_number", type: "Char", required: false, help: "External service agreement ID from county system (e.g., 32229002314). Multiple service lines may share same agreement number." }
@@ -65,6 +65,8 @@ models:
       
       # --- Authorization Quantities ---
       - { name: "total_units", type: "Float", required: true, digits: "(12, 2)", help: "Total authorized units/quantity for this service line (e.g., 3509.00)" }
+      - { name: "unit_of_measure", type: "Selection", selection: "[('minutes', 'Minutes'), ('hours', 'Hours'), ('event', 'Event')]", required: true, default: "'minutes'", help: "The type of unit being authorized." }
+      - { name: "minutes_per_unit", type: "Integer", required: false, default: "15", help: "The number of minutes that constitute a single billable unit. E.g., 15 for standard PCA services." }
       
       # --- Financial Fields ---
       - { name: "rate_per_unit", type: "Monetary", required: false, currency_field: "currency_id", help: "Authorized reimbursement rate per unit (e.g., $11.66)" }
@@ -130,9 +132,6 @@ rules:
   - q: "Can an agreement be created without a patient?"
     a: "No, the patient_id field is mandatory (required=true)."
     
-  - q: "Can a patient have more than one active service agreement?"
-    a: "No. For the MVP, a validation rule must prevent the activation of a new agreement if the same patient already has another agreement in the 'active' state."
-
   - q: "Can an agreement be created without a procedure code?"
     a: "No, the procedure_code field is mandatory (required=true). This identifies what service is being authorized."
     
@@ -182,9 +181,6 @@ acceptance_criteria:
   - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering through_date, THEN the system must raise a validation error."
   - "GIVEN a new Service Agreement form, WHEN the user tries to save without entering total_units, THEN the system must raise a validation error."
   
-  # Single Active Agreement Validation (MVP)
-  - "GIVEN a patient already has an 'active' service agreement, WHEN a user tries to activate a second 'draft' agreement for the same patient, THEN the system must raise a validation error and prevent the activation."
-  
   # Date Range Validation
   - "GIVEN a new Service Agreement form, WHEN the user sets effective_date after through_date and tries to save, THEN the system must raise a validation error."
   - "GIVEN a new Service Agreement form, WHEN the user sets effective_date equal to through_date, THEN the system must allow the save (same-day authorization is valid)."
@@ -192,6 +188,7 @@ acceptance_criteria:
   # Units Validation
   - "GIVEN a new Service Agreement form, WHEN the user enters a negative value for total_units, THEN the system must raise a validation error."
   - "GIVEN a new Service Agreement form, WHEN the user enters zero for total_units, THEN the system must raise a validation error."
+  - "GIVEN a new Service Agreement, WHEN the record is saved, THEN the `unit_of_measure` field must default to 'Minutes'."
   
   # Computed Fields
   - "GIVEN a Service Agreement with rate_per_unit=11.66 and total_units=3509, WHEN the record is saved, THEN total_amount must be computed as $40,914.94."

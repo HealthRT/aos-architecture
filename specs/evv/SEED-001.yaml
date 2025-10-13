@@ -1,0 +1,85 @@
+id: SEED-001
+title: "Create Foundational Seed Data for EVV MVP"
+summary: "Defines a set of realistic, interconnected demo data records that are required to test the core MVP workflows of the EVV system."
+
+# --- User Story (for human context) ---
+user_story: "As a Developer, I want a standardized, pre-built set of sample data, so that I can efficiently test the interactions between Patients, Service Agreements, DSPs, and Visits without having to manually create the data for every test."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "Developer"
+  - "QA Agent"
+compliance:
+  hipaa_implicated: false # This is synthetic, non-PHI data.
+  phi_fields: []
+  access_control: []
+  immutable_core_impact: false
+
+# --- Technical Specification ---
+module: "evv_core" # Seed data is a developer tool, best placed in the core module.
+depends_on:
+  - "evv_patients"
+  - "evv_case_managers"
+  - "evv_agreements"
+  - "evv_dsps"
+out_of_scope:
+  - "A UI for managing seed data."
+  - "Data for post-MVP features like scheduling or billing."
+
+# --- Data Specification ---
+# This section defines the specific records to be created.
+data_records:
+  - model: "res.partner"
+    records:
+      - id: "partner_patient_jane_doe"
+        values: { firstname: "Jane", lastname: "Doe", email: "jane.doe@example.com" }
+      - id: "partner_cm_john_smith"
+        values: { firstname: "John", lastname: "Smith", email: "j.smith@countysocial.gov" }
+      - id: "partner_dsp_emily_white"
+        values: { firstname: "Emily", lastname: "White", email: "emily.w@ouragency.com" }
+        
+  - model: "evv.patient"
+    records:
+      - id: "patient_jane_doe"
+        values: { partner_id: "ref('partner_patient_jane_doe')", recipient_id_external: "PATIENT-001" }
+
+  - model: "evv.case_manager"
+    records:
+      - id: "cm_john_smith"
+        values: { partner_id: "ref('partner_cm_john_smith')", case_manager_external_id: "CM-A641" }
+        
+  - model: "evv.dsp"
+    records:
+      - id: "dsp_emily_white"
+        values: { external_hub_id: 1, partner_id: "ref('partner_dsp_emily_white')", email: "emily.w@ouragency.com" }
+
+  - model: "service.agreement"
+    records:
+      - id: "sa_jane_doe_pca"
+        values:
+          patient_id: "ref('patient_jane_doe')"
+          state: "'active'"
+          procedure_code: "'H2014'"
+          total_units: 100.0
+          unit_of_measure: "'minutes'"
+          minutes_per_unit: 15
+          effective_date: "date.today() - timedelta(days=30)"
+          through_date: "date.today() + timedelta(days=60)"
+      - id: "sa_jane_doe_respite"
+        values:
+          patient_id: "ref('patient_jane_doe')"
+          state: "'draft'" # This one is not active, for testing purposes.
+          procedure_code: "'T1005'"
+          total_units: 50.0
+          unit_of_measure: "'hours'"
+          minutes_per_unit: 60
+          effective_date: "date.today()"
+          through_date: "date.today() + timedelta(days=90)"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "Create a data file (e.g., in a `data/` directory) that will be loaded by Odoo when the module is installed. Use XML `noupdate='1'` to prevent Odoo from overwriting the data on module updates."
+  qa_output: "QA tests should be written to expect this data to exist and can use it as the basis for workflow tests."
+  security_focus: "Ensure the data created is synthetic and contains absolutely no real-world PHI."

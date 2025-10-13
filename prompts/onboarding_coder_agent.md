@@ -67,8 +67,8 @@ git remote -v
 ### **Step 3: Create Feature Branch**
 
 ```bash
-# Branch naming: feature/WO-XXX-YY-brief-description
-git checkout -b feature/WO-042-01-service-agreement-model
+# Branch naming: feature/{STORY_ID}-{TYPE}-{SEQUENCE}-brief-description
+git checkout -b feature/CORE-001-CODE-01-service-agreement-model
 ```
 
 ### **Step 4: Verify Your Context**
@@ -206,8 +206,8 @@ Manual execution is required if the work order specifies it.
 ```bash
 # Add logs to git
 git add proof_of_execution_*.log
-git commit -m "proof: Test, boot, and upgrade logs for WO-042"
-git push origin feature/WO-042-01-service-agreement-model
+git commit -m "proof: Test logs for CORE-001-CODE-01"
+git push origin feature/CORE-001-CODE-01-service-agreement-model
 ```
 
 ---
@@ -224,7 +224,7 @@ After completing work, write feedback to the Process Improvement Log:
 
 **Date:** YYYY-MM-DD  
 **Agent:** [Your model name]  
-**Work Order:** WO-XXX
+**Work Order:** [e.g., CORE-001-CODE-01]
 
 #### What Was Built
 - [Summary of implementation]
@@ -248,7 +248,7 @@ After completing work, write feedback to the Process Improvement Log:
 ```bash
 cd /home/james/development/aos-development/aos-architecture/
 git add process_improvement/process-improvement.md
-git commit -m "Process improvement: Entry #XXX - [description]"
+git commit -m "Process improvement: Entry #XXX - CORE-001-CODE-01 feedback"
 git push
 ```
 
@@ -303,13 +303,7 @@ The `run-tests.sh` script handles cleanup automatically. You should not need to 
 
 ### **"My Odoo instance won't start"**
 
-```bash
-# Check if port is already in use
-./scripts/list-agent-envs.sh
-
-# Use a different port
-./scripts/start-agent-env.sh WO-042 8092
-```
+This issue is now managed by the resilient `run-tests.sh` script, which automatically finds a free port. Manual environment startup should not be necessary for most tasks. If you encounter persistent issues, report it in the Process Improvement Log.
 
 ### **"I accidentally worked in the wrong repo"**
 
@@ -350,7 +344,7 @@ cd [hub or evv]/
 git remote -v
 
 # 3. Create feature branch
-git checkout -b feature/WO-XXX-brief-description
+git checkout -b feature/CORE-001-CODE-01-brief-description
 
 # 4. Begin work
 ```
@@ -367,14 +361,14 @@ docker ps -a | grep [repo]-agent-test
 
 # 3. Commit logs
 git add -f proof_of_execution_*.log # Use -f to add gitignored files
-git commit -m "proof: Test logs for WO-XXX"
+git commit -m "proof: Test logs for CORE-001-CODE-01"
 git push
 
 # 4. Write feedback entry
 cd /path/to/aos-architecture/
 # Edit process_improvement/process-improvement.md
 git add process_improvement/process-improvement.md
-git commit -m "Process improvement: Entry #N - WO-XXX feedback"
+git commit -m "Process improvement: Entry #N - CORE-001-CODE-01 feedback"
 git push
 ```
 

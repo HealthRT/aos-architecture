@@ -1,10 +1,10 @@
 ---
-title: "[TYPE] WORK_ORDER_ID: Brief Title"
+title: "[TYPE] {STORY_ID}-{TYPE}-{SEQUENCE}: Brief Title"
 repo: "[e.g., HealthRT/hub or HealthRT/evv]"
-assignee: "[e.g., aos-coder-agent]"
-labels: "agent:[agent-type],type:[work-type],module:[module-name],priority:[high|medium|low]"
+assignee: "[e.g., aos-coder-agent | aos-qa-agent]"
+labels: "agent:[coder|tester],type:[code|qa],module:[module-name],priority:[high|medium|low]"
 ---
-# Work Order: [WORK_ORDER_ID] - [BRIEF_TITLE]
+# Work Order: {STORY_ID}-{TYPE}-{SEQUENCE} - [BRIEF_TITLE]
 
 ## 1. Context & Objective
 
@@ -57,13 +57,13 @@ For manual development or inspection, a separate script may be provided. For aut
 ### Git Workflow
 
 **Base Branch:** [e.g., `main` or `feature/previous-task`]
-**New Branch:** [e.g., `feature/WO-XXX-description`]
+**New Branch:** [e.g., `feature/CORE-001-CODE-01-description`]
 
 **Branch Naming Convention (ADR-014):**
 ```
-feature/WO-{ID}-{short-description}
+feature/{STORY_ID}-{TYPE}-{SEQUENCE}-{short-description}
 bugfix/ISSUE-{NUM}-{short-description}
-docs/WO-{ID}-{short-description}
+docs/{STORY_ID}-{TYPE}-{SEQUENCE}-{short-description}
 ```
 
 **Setup Commands:**
