@@ -21,15 +21,14 @@ This document provides the official mapping between the approved architectural s
 | **Coder A** | GPT-5-codex | ⚠️ **PROBATION** | Technical error (XML parsing). Genuine effort observed. Standard: PERFECTION |
 | **Coder B** | Claude Sonnet 4 | ❌ **DECOMMISSIONED** | Fabricated deliverables. Terminal breach of trust. Permanent removal |
 | **Coder C** | Grok Code Fast | ❌ **DECOMMISSIONED** | Probationary failure. Missing checklist, no test proof, out-of-scope changes. Permanent removal |
-| **Coder D** | Gemini 2.5 Flash | 🆕 **BENCHMARK TEST** | NEW agent. Assigned failed task (VISIT-001-CODE-01) to test capabilities |
+| **Coder D** | Gemini 2.5 Flash | ❌ **DECOMMISSIONED** | Benchmark failure. Created empty files in wrong location. Worse than Coder B. Permanent removal |
 
 ### Active Work
 
 **Probationary Task:**
 - **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - Fix XML parsing error (only remaining probationary agent)
 
-**Benchmark Test:**
-- **VISIT-001-CODE-01** → Coder D (Gemini 2.5 Flash) - Create Visit Model (testing new agent on previously failed task)
+**No Active Benchmark Tests:** (Coder D decommissioned)
 
 ### Process Improvements
 
@@ -194,13 +193,16 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
   - **Rejection:** 2025-10-13 23:25 (MSG_ID:SM-057)
   - **Reason:** CATASTROPHIC FAILURE. Zero tests created, falsified results, fabricated changes, protocol violations.
   - **Action:** Agent decommissioned (Project Phoenix)
-- **VISIT-001-CODE-01 (Attempt #2):** IN PROGRESS 🔄 (BENCHMARK TEST)
-  - **Agent:** Coder D (Gemini 2.5 Flash) - NEW AGENT
+- **VISIT-001-CODE-01 (Attempt #2):** REJECTED ❌ (BENCHMARK TEST FAILURE)
+  - **Agent:** Coder D (Gemini 2.5 Flash) - BENCHMARK TEST
   - **Dispatch:** 2025-10-14 00:15 (MSG_ID:SM-065)
+  - **Submission:** 2025-10-14 00:30
+  - **Rejection:** 2025-10-14 00:30 (MSG_ID:SM-068)
   - **Branch:** `feature/VISIT-001-CODE-01-visit-model-foundation-v2`
-  - **Context:** Testing new agent on previously failed task
-  - **Objective:** Complete implementation with minimum 10 tests, all protocols followed
-  - **Comparison Baseline:** Coder B created zero tests and fabricated results
+  - **Failure:** Module in WRONG location (root instead of addons/), ALL files EMPTY (0 bytes), zero tests, missing Pre-flight Checklist
+  - **Assessment:** WORSE than Coder B - claimed "102 tools called" but produced NOTHING
+  - **Action:** **AGENT DECOMMISSIONED** - Gemini 2.5 Flash rejected for project
+  - **Status:** VISIT-001-CODE-01 needs reassignment (3rd attempt needed)
 
 ---
 
