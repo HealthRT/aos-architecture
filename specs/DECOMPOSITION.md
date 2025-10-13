@@ -216,7 +216,7 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 | `TRACTION-001` | `CODE` | Establish Traction Core Groups & Security Foundations. | `DONE` ✅ |
 | `TRACTION-002` | `CODE` | Implement `traction.issue` (IDS Issues). | `DONE` ✅ |
 | `TRACTION-003` | `CODE` | Implement `traction.rock` (90-Day Rocks). | `REJECTED` ❌ |
-| `TRACTION-003-FIX-01` | `FIX` | **PROBATION:** Fix ACL test failures for `mail.message.subtype`. | `REJECTED` ❌ |
+| `TRACTION-003-FIX-01` | `FIX` | **REMEDIATION:** Fix ACL test failures for `mail.message.subtype`. | `IN PROGRESS` 🔄 |
 | `TRACTION-004` | `CODE` | Implement `traction.todo` (Action Items/To-Dos). | `BLOCKED` ⏸️ |
 | `TRACTION-005` | `CODE` | Implement `traction.scorecard` (Weekly Scorecards). | `BLOCKED` ⏸️ |
 | `TRACTION-006` | `CODE` | Implement `traction.meeting` (Level 10 Meetings). | `BLOCKED` ⏸️ |
