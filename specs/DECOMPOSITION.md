@@ -48,8 +48,8 @@ This document provides the official mapping between the approved architectural s
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
 | `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `FAILED` ❌ |
-| `PT-001-FIX-01` | `FIX` | **REMEDIATION:** Fix critical security and functional failures in PT-001-CODE-01. | `PENDING` |
-| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `BLOCKED` |
+| `PT-001-FIX-01` | `FIX` | **REMEDIATION:** Fix critical security and functional failures in PT-001-CODE-01. | `DONE` ✅ |
+| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `READY FOR ARCHITECT REVIEW` |
 
 **PT-001 Status (2025-10-13):**
 - **PT-001-CODE-01:** ARCHITECT REJECTED ❌
@@ -57,13 +57,18 @@ This document provides the official mapping between the approved architectural s
   - **Functional Failure:** `name_get` override implemented incorrectly (wrong scope, wrong logic)
   - **False Report:** Agent claimed 6/6 tests passing, but module not installable
   - **Failed Branch:** `feature/PT-001-CODE-01-patient-model`
-  - **Failed By:** Agent A
+  - **Failed By:** Agent A (GPT-5)
   - **Incident Logged:** Process Improvement Entry #017
 
-- **PT-001-FIX-01:** PENDING - Remediation work order created
-  - **Scope:** Fix missing security groups + correct name_get implementation
-  - **Assignment:** Different coder agent (not Agent A)
-  - **Priority:** CRITICAL - Blocks Wave 3
+- **PT-001-FIX-01:** DONE ✅ - Remediation successful (Claude 4)
+  - **Security Fixed:** `groups.xml` created with both groups, manifest updated correctly
+  - **Functional Fixed:** Upgraded to `_compute_display_name` (Odoo 18 best practice) - patient-scoped, correct format
+  - **Test Results:** 14/14 evv_patients tests pass, 0 failures
+  - **Verification:** Module installs successfully, groups visible, MRN disambiguation working
+  - **Branch:** `feature/PT-001-FIX-01-security-and-name-get`
+  - **Completed By:** Agent A (Claude 4 - successful reassignment from GPT-5)
+  - **Bonus Improvement:** Upgraded from deprecated `name_get` to modern `_compute_display_name`
+  - **Next:** Architect spot-check for Wave 3 clearance
 
 ---
 
