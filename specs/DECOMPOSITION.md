@@ -82,6 +82,12 @@ This document provides the official mapping between the approved architectural s
 - **Dependencies:** CM-001 ✅ APPROVED, PT-001 ✅ APPROVED
 - **Wave 3 Status:** CLEARED FOR LAUNCH by Executive Architect
 - **Dispatch:** 2025-10-13 (immediately following PT-001-FIX-01 approval)
+- **Scope Update:** Changed from greenfield to refactoring (existing pre-Wave 2 code discovered)
+  - **Issue:** Existing implementation uses `res.partner` with boolean flags (pre-Wave 2 architecture)
+  - **Solution:** Refactor to use dedicated `evv.patient` and `evv.case_manager` models
+  - **Architect Approval:** Full architectural authority granted for restructuring
+  - **Revised Estimate:** 12-16 hours (original 8-10 + refactoring 4-6)
+  - **Mandatory Changes:** Use Wave 2 models (non-negotiable), reuse security groups, full spec alignment
 | `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `TO DO` |
 | `AGMT-001-QA-01` | `QA` | Test CRUD, computed fields, state transitions, and validation rules. | `TO DO` |
 
