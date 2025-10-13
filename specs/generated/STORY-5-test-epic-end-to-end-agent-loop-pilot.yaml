@@ -1,0 +1,13 @@
+id: GENERATED-5
+title: "[TEST EPIC] End-to-end agent loop pilot"
+summary: |
+  Generated from Epic #5. Replace this summary with the precise objective.
+
+user_story: |
+  This is a test Epic to verify BA→Architect→Scrum→Coder automation loop.\n\nScope: Minimal placeholder to trigger workflows.\nSuccess Criteria:\n- BA creates Story PR and comments back here\n- Architect workflow comments on PR after labeling\n- Scrum workflow acknowledges on approval\n- Coder workflow triggers on new agent:coder issue\n
+
+acceptance_criteria:
+  - "TBD"
+
+models: []
+artifacts: { code: [], tests: [], docs: [] }
