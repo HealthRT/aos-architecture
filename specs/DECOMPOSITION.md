@@ -47,7 +47,7 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `TO DO` |
+| `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `IN PROGRESS` |
 | `PT-001-CODE-02` | `CODE` | Implement views and security for `evv.patient`. | `TO DO` |
 | `PT-001-CODE-03` | `CODE` | Implement disambiguated search for `partner_id` linking. | `TO DO` |
 | `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `TO DO` |
@@ -80,7 +80,7 @@ This document provides the official mapping between the approved architectural s
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
 | `SYSTEM-002-CODE-01` | `CODE` | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `evv` repository. | `DONE` |
-| `SYSTEM-002-CODE-02` | `CODE` | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `hub` repository. | `TO DO` |
+| `SYSTEM-002-CODE-02` | `CODE` | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `hub` repository. | `IN PROGRESS` |
 
 **Architectural Note (2025-10-13):** Initial implementation of `SYSTEM-002-CODE-01` was incomplete and revealed multiple flaws under QA stress-testing (`CORE-001-QA-01`):
 - **Issue #1:** Missing DB initialization commands and healthcheck configuration (FIXED)
