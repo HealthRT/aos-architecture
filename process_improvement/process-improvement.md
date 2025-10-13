@@ -1336,3 +1336,160 @@ Successfully implemented the foundational `traction.group` model for the Tractio
 - **CRITICAL: Stabilize the Test Runner Environment:** The inability to reliably run tests and capture logs is the most significant process issue encountered. This needs to be the highest priority to fix. Without this, no work can be truly verified as "done". A dedicated, robust script for running tests inside an agent container is needed, and it must be validated to work every time.
 - The `start-agent-env.sh` script should have more robust port detection to avoid the initial failures.
 
+---
+
+## Entry #013 - Upstream Feedback (Scrum Master - Work Order Directory Structure)
+
+**Date:** 2025-10-13  
+**Agent Type:** Scrum Master Agent (Claude Sonnet 4.5)  
+**Feedback Source:** Self-reflection during work order file management  
+**Loop Type:** Upstream (Process Documentation Gap)
+
+### Summary
+Scrum Master agent created duplicate work orders in both `/pending/` and `/dispatched/` directories for EVV foundational specs (CORE-001, PT-001, CM-001, AGMT-001). Investigation revealed that `onboarding_scrum_master.md` lacks guidance on work order lifecycle and directory structure, leading to confusion about file placement and movement between lifecycle stages.
+
+### What Happened
+- **Oct 12 18:20-18:22**: Work orders copied to `/dispatched/` directory
+- **Oct 12 18:22**: Original versions remained in `/pending/` directory
+- **Oct 13**: Human identified duplication issue during review
+- **Analysis**: Scrum Master was never briefed on the distinction between `/pending/` and `/dispatched/` directories
+
+### Root Cause Analysis
+
+**Documentation Gap in `onboarding_scrum_master.md`:**
+
+**What it DOES say:**
+```markdown
+Output: You will produce one or more Work Order Markdown files.
+  - Place the completed file(s) in the /work_orders/pending/ directory.
+  - The filename must be the Work Order ID (e.g., AGMT-001.1.md).
+```
+
+**What it DOESN'T explain:**
+1. Work order lifecycle (`pending` → `dispatched`)
+2. That files should exist in only ONE location at a time
+3. That `/dispatched/` is for historical records of work actively assigned to agents
+4. When/how to reference `work_orders/README.md` for complete directory structure
+5. Difference between pending (awaiting dispatch) and dispatched (active work)
+
+**What was learned AFTER investigation:**
+From `work_orders/README.md`:
+```markdown
+### **3. Dispatch**
+Human copies WO to /work_orders/dispatched/
+  ↓
+Creates consolidated dispatch brief
+  ↓
+Sends to Coder Agent
+```
+
+The README clearly documents the lifecycle, but the Scrum Master primer never references it.
+
+### Impact Metrics
+
+**Discovery:**
+- **When:** Day after work order creation, during file review
+- **By Whom:** Human overseer
+- **Cost:** 5 minutes to identify, 10 minutes to clean up duplicates
+
+**Risk Avoided:**
+- Confusion about which file is source of truth
+- Potential edits to wrong copy
+- Inconsistent work order states across locations
+
+**Actual Impact:**
+- Low - caught quickly during review
+- Required deletion of 4 duplicate files from `/dispatched/`
+- No work had been dispatched yet, so no downstream confusion
+
+### Comparison to Similar Entries
+
+Similar to **Entry #009** (Docker/repo confusion) - both represent gaps where agents made reasonable assumptions in absence of explicit documentation.
+
+### Remediation Implemented
+
+**Immediate:**
+- ✅ Deleted 4 duplicate work orders from `/dispatched/`
+- ✅ Verified clean state: 6 work orders in `/pending/`, appropriate files in `/dispatched/`
+
+**Recommended for `onboarding_scrum_master.md`:**
+
+Add to Section 2 or Section 3:
+
+```markdown
+## Work Order Directory Lifecycle
+
+**Your work orders will be placed in `/work_orders/pending/` initially.**
+
+### Directory Structure
+- **`/pending/`**: Work orders ready for review but not yet dispatched to agents
+- **`/dispatched/`**: Active work orders currently assigned to agents (copied from pending)
+- **`/[domain]/[FEATURE]/`**: Original source of truth for feature-specific work orders
+
+### Important Rules
+1. **One location at a time:** Work orders should only exist in ONE of these locations based on their lifecycle stage
+2. **Pending → Dispatched:** Human overseer moves (copies) work orders from pending to dispatched when assigning to agents
+3. **Not your responsibility:** You create work orders in `/pending/`; humans handle dispatch
+
+**For complete directory structure details, see:** `@work_orders/README.md`
+```
+
+### Recommendations for Process Improvement
+
+#### 1. ✅ PROPOSED: Update Scrum Master Onboarding
+
+Add new section documenting:
+- Work order lifecycle stages
+- Directory structure and purpose of each
+- Reference to `work_orders/README.md` for complete details
+- Clear rule: "Create in `/pending/`, don't touch `/dispatched/`"
+
+#### 2. Consider: Scrum Master Self-Check Additions
+
+Add to Section 4.1 (Self-Check Before Submitting):
+```markdown
+- [ ] **Work orders placed in correct directory:** All in `/pending/`, none in `/dispatched/`
+- [ ] **No duplicate files:** Each work order exists in only ONE location
+```
+
+#### 3. Consider: Automated Validation
+
+Create script to check for duplicate work order IDs across directories:
+```bash
+./scripts/validate-work-order-uniqueness.sh
+# Fails if same WO-XXX-YY exists in multiple locations
+```
+
+### Lessons Learned
+
+1. **Explicit > Implicit:** Even if something seems "obvious" (like file lifecycle), document it explicitly
+2. **Reference Critical Docs:** If a detailed README exists, point to it in the primer
+3. **Define Boundaries:** Clearly state what's the agent's responsibility vs. human's responsibility
+4. **Early Detection:** Human review caught this before any real impact
+
+### Success Criteria for Fix
+
+**Before:**
+- Scrum Master primer: 0 mentions of work order lifecycle
+- Scrum Master primer: 0 references to `work_orders/README.md`
+- Agent understanding: Implicit assumption about file placement
+
+**After (if recommendation implemented):**
+- Scrum Master primer: Explicit lifecycle section
+- Scrum Master primer: Direct reference to detailed README
+- Agent understanding: Clear boundaries and responsibilities
+
+### Attribution
+
+**Issue Identified:** Human overseer during file review  
+**Analysis:** Scrum Master Agent (self-reflection)  
+**Recommendation:** Update `onboarding_scrum_master.md` Section 2 or 3  
+**Status:** Logged for implementation
+
+### Related Entries
+
+- **Entry #009:** Multi-repo Docker confusion (similar documentation gap pattern)
+- **Entry #005:** Work order quality issues (upstream process improvement)
+
+---
+

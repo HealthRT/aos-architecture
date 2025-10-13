@@ -139,6 +139,16 @@ WO remains in /dispatched/ as historical record
 
 **Location:** `/work_orders/hub/`
 
+### **System Infrastructure**
+
+| Initiative | Spec | Work Orders | Status |
+|------------|------|-------------|--------|
+| Agent Test Runner Stabilization | SYSTEM-001 | WO-SYSTEM-001-01, WO-SYSTEM-001-02 | 📝 Pending Dispatch |
+
+**Locations:**  
+- EVV: `/work_orders/pending/WO-SYSTEM-001-01.md`  
+- Hub: `/work_orders/pending/WO-SYSTEM-001-02.md`
+
 ---
 
 ## 🛠️ How to Create Work Orders

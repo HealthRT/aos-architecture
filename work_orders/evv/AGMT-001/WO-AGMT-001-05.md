@@ -1,4 +1,5 @@
----
+
+Please ensure the Scrum Master adds a new section to this file for SYSTEM-001. Once the file is updated, I will be ready to perform my QC review.---
 title: "[DOCS] WO-AGMT-001-05: Author Documentation for Service Agreements"
 repo: "HealthRT/evv"
 assignee: "aos-coder-agent"

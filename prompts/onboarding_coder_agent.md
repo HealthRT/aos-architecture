@@ -156,23 +156,26 @@ Testing is **NOT optional**. Every code change requires tests.
    from . import test_service_agreement
    from . import test_partner_extension
    ```
-4. **Run tests in YOUR isolated environment:**
+4. **Run tests using the automated test runner:**
    ```bash
-   docker exec odoo_hub_WO-042 odoo -c /etc/odoo/odoo.conf \
-       --test-enable --stop-after-init --log-level=test \
-       -d postgres_WO-042 -i your_module > proof_of_execution_tests.log 2>&1
+   # From within the correct repository (hub/ or evv/)
+   bash scripts/run-tests.sh your_module
    ```
 5. **Verify YOUR module ran:**
+
+   The `run-tests.sh` script automatically verifies that your module's tests were executed and will exit with an error if they were not. Check the script's output for success.
+
    ```bash
-   grep "odoo.tests.stats: your_module" proof_of_execution_tests.log
-   # Expected: your_module: 11 tests, 0 failed
+   # Expected output snippet
+   ✅ Success! Test execution for 'your_module' confirmed.
+   odoo.tests.stats: your_module: 11 tests, 0 failed, 0 error(s)
    ```
 
 ### **Common Mistake: Tests Never Ran**
 
-**Symptom:** Log shows "0 failed, 0 errors" but no module name in stats  
-**Cause:** Empty `tests/__init__.py` - tests weren't imported  
-**Fix:** Add `from . import test_*` for each test file
+**Symptom:** The `run-tests.sh` script fails with an error message indicating your module could not be verified in the test stats.
+**Cause:** Empty `tests/__init__.py` - tests weren't imported.
+**Fix:** Add `from . import test_*` for each test file.
 
 **This was documented in Process Improvement Entry #007.**
 
@@ -180,48 +183,56 @@ Testing is **NOT optional**. Every code change requires tests.
 
 ## 6. Proof of Execution (MANDATORY)
 
-Before declaring work "complete," you MUST provide 3 logs:
+Before declaring work "complete," you MUST provide logs.
 
 ### **6.1. Test Log**
 
-```bash
-# In YOUR isolated environment
-docker exec odoo_hub_WO-042 odoo -c /etc/odoo/odoo.conf \
-    --test-enable --stop-after-init --log-level=test \
-    -d postgres_WO-042 -i your_module > proof_of_execution_tests.log 2>&1
+The primary method for generating the test log is via the automated test runner.
 
-# Verify your module ran
-grep "odoo.tests.stats: your_module" proof_of_execution_tests.log
+```bash
+# In the root of the correct repository (hub/ or evv/)
+bash scripts/run-tests.sh your_module
+
+# This single command will:
+# 1. Create a temporary, clean environment.
+# 2. Run all tests for 'your_module'.
+# 3. Create 'proof_of_execution_tests.log' with the full output.
+# 4. Automatically clean up the environment.
+# 5. Exit with an error if tests fail or never ran.
 ```
 
-**MUST show:** `your_module: N tests, 0 failed, 0 errors`
+**MUST show:** The script's output confirms successful execution and the log file must show `your_module: N tests, 0 failed, 0 errors`.
 
-### **6.2. Boot Log**
+### **6.2. Boot Log (If Required)**
+
+If your work order explicitly requires a boot log in addition to the test log, you can generate it by manually starting an environment.
 
 ```bash
-# Restart Odoo to verify clean boot
-WORK_ORDER=WO-042 PORT=8090 docker-compose -f docker-compose.agent.yml restart
+# Start a persistent environment for your work order
+./scripts/start-agent-env.sh WO-XXX
 
 # Wait for startup
 sleep 30
 
 # Capture boot log
-WORK_ORDER=WO-042 PORT=8090 docker-compose -f docker-compose.agent.yml logs --tail=100 odoo \
-    > proof_of_execution_boot.log 2>&1
+# Note: The project name is derived from your WO-XXX
+PROJECT_NAME="evv-$(echo WO-XXX | tr '[:upper:]' '[:lower:]')"
+docker-compose -p $PROJECT_NAME logs --tail=100 odoo > proof_of_execution_boot.log 2>&1
 ```
 
-**MUST show:** No errors, module loaded successfully
+**MUST show:** No errors, module loaded successfully.
 
-### **6.3. Upgrade Log**
+### **6.3. Upgrade Log (If Required)**
+
+Similarly, generate an upgrade log from your persistent environment if required.
 
 ```bash
-# Test upgrade path (critical for production deployments)
-docker exec odoo_hub_WO-042 odoo -c /etc/odoo/odoo.conf \
-    --stop-after-init -d postgres_WO-042 -u your_module \
+# Test upgrade path
+PROJECT_NAME="evv-$(echo WO-XXX | tr '[:upper:]' '[:lower:]')"
+docker-compose -p $PROJECT_NAME exec odoo odoo -c /etc/odoo/odoo.conf \
+    --stop-after-init -d postgres -u your_module \
     > proof_of_execution_upgrade.log 2>&1
 ```
-
-**MUST show:** Upgrade completed without errors
 
 ### **6.4. Commit Logs**
 
@@ -397,36 +408,28 @@ git checkout -b feature/WO-XXX-brief-description
 ### **Before You Say "I'm Done"**
 
 ```bash
-# 1. Run tests
-docker exec odoo_[repo]_WO-XXX odoo -c /etc/odoo/odoo.conf \
-    --test-enable --stop-after-init --log-level=test \
-    -d postgres_WO-XXX -i [module] > proof_of_execution_tests.log 2>&1
+# 1. Run tests and generate log
+bash scripts/run-tests.sh [module]
 
-# 2. Verify YOUR module ran
-grep "odoo.tests.stats: [module]" proof_of_execution_tests.log
+# 2. Verify YOUR module ran and passed (script does this automatically)
 
-# 3. Boot test
-WORK_ORDER=WO-XXX PORT=YYYY docker-compose -f docker-compose.agent.yml restart
-sleep 30
-WORK_ORDER=WO-XXX PORT=YYYY docker-compose -f docker-compose.agent.yml logs --tail=100 odoo > proof_of_execution_boot.log 2>&1
+# 3. Generate Boot/Upgrade logs (if required by work order)
+# ./scripts/start-agent-env.sh WO-XXX
+# ... (capture logs) ...
 
-# 4. Upgrade test
-docker exec odoo_[repo]_WO-XXX odoo -c /etc/odoo/odoo.conf \
-    --stop-after-init -d postgres_WO-XXX -u [module] > proof_of_execution_upgrade.log 2>&1
-
-# 5. Commit logs
-git add proof_of_execution_*.log
+# 4. Commit logs
+git add -f proof_of_execution_*.log # Use -f to add gitignored files
 git commit -m "proof: Test, boot, and upgrade logs for WO-XXX"
 git push
 
-# 6. Write feedback entry
+# 5. Write feedback entry
 cd /path/to/aos-architecture/
 # Edit process_improvement/process-improvement.md
 git add process_improvement/process-improvement.md
 git commit -m "Process improvement: Entry #N - WO-XXX feedback"
 git push
 
-# 7. Clean up
+# 6. Clean up (if you started a manual environment)
 cd [repo]/
 ./scripts/stop-agent-env.sh WO-XXX --cleanup
 ```

@@ -13,7 +13,7 @@ This document provides the official mapping between the approved architectural s
 | Work Order ID | Type       | Description                                                              | Status      |
 |---------------|------------|--------------------------------------------------------------------------|-------------|
 | `WO-CORE-001` | `CODE`     | Integrate `partner_firstname` module into `evv_core` manifest.           | `DONE`      |
-| `WO-CORE-002` | `QA`       | Test name computation and field visibility for Individual/Company types. | `READY`     |
+| `WO-CORE-002` | `QA`       | Test name computation and field visibility for Individual/Company types. | `BLOCKED`   |
 
 ---
 
@@ -48,8 +48,18 @@ This document provides the official mapping between the approved architectural s
 
 ---
 
+## 5. SYSTEM-001: Agent Test Runner Stabilization
+
+| Work Order ID        | Type       | Description                                                                    | Status      |
+|----------------------|------------|--------------------------------------------------------------------------------|-------------|
+| `WO-SYSTEM-001-01`   | `CODE`     | Create reliable `run-tests.sh` script for `evv` repository and update docs.   | `TO DO`     |
+| `WO-SYSTEM-001-02`   | `CODE`     | Create reliable `run-tests.sh` script for `hub` repository and update docs.   | `TO DO`     |
+
+---
+
 ## Dependency & Sequencing
 
+-   **Wave 0 (Infrastructure):** `WO-SYSTEM-001-01`, `WO-SYSTEM-001-02` (Can run in parallel; should complete BEFORE feature work)
 -   **Wave 1:** `WO-CORE-001`, `WO-CORE-002`
 -   **Wave 2:** `WO-CM-001` to `WO-CM-003`; `WO-PT-001` to `WO-PT-004` (Can run in parallel)
 -   **Wave 3:** `WO-AGMT-001` to `WO-AGMT-003` (Dependent on Wave 2 completion)
