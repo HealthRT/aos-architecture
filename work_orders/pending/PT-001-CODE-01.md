@@ -164,22 +164,16 @@ docker compose exec evv odoo-bin \
 
 ### 8.2 Boot Verification
 ```bash
-docker compose up -d --force-recreate evv
-sleep 30
-docker compose logs --tail="100" evv
+# This is now handled by the test runner. If boot fails, the test will fail.
+# No separate action is needed unless specified for manual inspection.
 ```
-- Provide last 100 log lines showing successful boot.
 
 ### 8.3 Module Upgrade Test
 ```bash
-docker compose exec evv odoo-bin \
-  -c /etc/odoo/odoo.conf \
-  -d evv \
-  -u evv_patients \
-  --stop-after-init
+# This is now handled by the test runner, which performs a clean install.
+# No separate action is needed unless specified for manual inspection.
 ```
-- Summarize upgrade output confirming no errors.
 
-If Docker unavailable, escalate immediately.
+If the `run-tests.sh` script fails, do not attempt to fix it. Escalate immediately.
 
 

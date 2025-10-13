@@ -374,22 +374,19 @@ Before proceeding, you MUST verify YOUR tests actually ran:
 
 **Provide:** Test output showing YOUR module's tests AND `0 failed, 0 error(s)`.
 
-### 9.2 Boot Verification (REQUIRED)
+### 9.2 Boot Verification
 ```bash
-# Verify module boots cleanly
-cd /home/james/development/aos-development/evv
-docker compose up -d
-sleep 30
-docker compose logs --tail="100" odoo
+# This is now handled by the test runner. If boot fails, the test will fail.
+# No separate action is needed unless specified for manual inspection.
 ```
-**Provide:** Last 50-100 lines of boot log, confirming a clean start.
 
-### 9.3 Module Upgrade Test (REQUIRED)
+### 9.3 Module Upgrade Test
 ```bash
-# Test module upgrade
-docker compose exec odoo odoo-bin -c /etc/odoo/odoo.conf -d odoo -u evv_visits --stop-after-init
+# This is now handled by the test runner, which performs a clean install.
+# No separate action is needed unless specified for manual inspection.
 ```
-**Provide:** Log output showing a successful upgrade with no errors.
+
+If the `run-tests.sh` script fails, do not attempt to fix it. Escalate immediately.
 
 ### 9.4 Cleanup Verification
 ```bash

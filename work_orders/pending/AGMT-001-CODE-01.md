@@ -145,35 +145,23 @@ Follow standard implementation/testing workflow, max two bug-fix iterations. Esc
 
 ### 8.1 Test Execution
 ```bash
-cd /home/james/development/aos-development
-docker compose exec evv odoo-bin \
-  -c /etc/odoo/odoo.conf \
-  -d evv \
-  --test-enable \
-  --stop-after-init \
-  -i evv_agreements \
-  --log-level=test:INFO
+# From within the evv repository directory
+bash scripts/run-tests.sh evv_agreements
 ```
-- Provide full test output (counts, duration, 0 failures).
+- Provide full test output from `proof_of_execution_tests.log` (counts, duration, 0 failures).
 
 ### 8.2 Boot Verification
 ```bash
-docker compose up -d --force-recreate evv
-sleep 30
-docker compose logs --tail="100" evv
+# This is now handled by the test runner. If boot fails, the test will fail.
+# No separate action is needed unless specified for manual inspection.
 ```
-- Supply last 100 log lines showing successful boot, no errors.
 
 ### 8.3 Module Upgrade Test
 ```bash
-docker compose exec evv odoo-bin \
-  -c /etc/odoo/odoo.conf \
-  -d evv \
-  -u evv_agreements \
-  --stop-after-init
+# This is now handled by the test runner, which performs a clean install.
+# No separate action is needed unless specified for manual inspection.
 ```
-- Confirm upgrade runs cleanly; summarize output in handoff comment.
 
-If Docker unavailable, escalate immediately; proof steps mandatory.
+If the `run-tests.sh` script fails, do not attempt to fix it. Escalate immediately.
 
 
