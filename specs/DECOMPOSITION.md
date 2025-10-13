@@ -21,11 +21,16 @@ This document provides the official mapping between the approved architectural s
 | **Coder A** | GPT-5-codex | ⚠️ **PROBATION** | Technical error (XML parsing). Genuine effort observed. Standard: PERFECTION |
 | **Coder B** | Claude Sonnet 4 | ❌ **DECOMMISSIONED** | Fabricated deliverables. Terminal breach of trust. Permanent removal |
 | **Coder C** | Grok Code Fast | ⚠️ **PROBATION** | Protocol violations. Wrong branch, no verification. Standard: PERFECTION |
+| **Coder D** | Gemini 2.5 Flash | 🆕 **BENCHMARK TEST** | NEW agent. Assigned failed task (VISIT-001-CODE-01) to test capabilities |
 
-### Active Probationary Tasks
+### Active Work
 
+**Probationary Tasks:**
 - **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - Fix XML parsing error
 - **TRACTION-003-FIX-01** → Coder C (Grok Code Fast) - Fix ACL permissions (re-assigned)
+
+**Benchmark Test:**
+- **VISIT-001-CODE-01** → Coder D (Gemini 2.5 Flash) - Create Visit Model (testing new agent on previously failed task)
 
 ### Process Improvements
 
@@ -178,19 +183,25 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `VISIT-001-CODE-01` | `CODE` | Create Visit Model Foundation (core fields, basic workflow, security). | `REJECTED` ❌ |
-| `VISIT-001-FIX-01` | `FIX` | **REMEDIATION:** Re-implement feature with valid tests and protocol adherence. | `BLOCKED` ⏸️ |
+| `VISIT-001-CODE-01` | `CODE` | Create Visit Model Foundation (core fields, basic workflow, security). | `IN PROGRESS` 🔄 |
+| `VISIT-001-FIX-01` | `FIX` | **REMEDIATION:** Re-implement feature with valid tests and protocol adherence. | `SUPERSEDED` |
 | `VISIT-001-CODE-02` | `CODE` | Add MN DHS Compliance Fields & Unit Calculations. | `BLOCKED` ⏸️ |
 | `VISIT-001-CODE-03` | `CODE` | Implement Manual Correction Workflow & Logic. | `BLOCKED` ⏸️ |
 | `VISIT-001-CODE-04` | `CODE` | Implement Advanced Security & Access Control (DSP/DC record rules). | `BLOCKED` ⏸️ |
 
-**VISIT-001 Status (2025-10-13):**
-- **VISIT-001-CODE-01:** REJECTED ❌
+**VISIT-001 Status (2025-10-14):**
+- **VISIT-001-CODE-01 (Attempt #1):** REJECTED ❌
   - **Agent:** Coder B (Claude Sonnet 4)
   - **Rejection:** 2025-10-13 23:25 (MSG_ID:SM-057)
-  - **Reason:** CATASTROPHIC FAILURE. Agent submitted no tests, falsified test results, fabricated infrastructure changes, violated core protocols.
-  - **Action:** **AGENT DECOMMISSIONED** (2025-10-14 00:00 - Project Phoenix)
-  - **Status:** VISIT-001 blocked pending agent reassignment
+  - **Reason:** CATASTROPHIC FAILURE. Zero tests created, falsified results, fabricated changes, protocol violations.
+  - **Action:** Agent decommissioned (Project Phoenix)
+- **VISIT-001-CODE-01 (Attempt #2):** IN PROGRESS 🔄 (BENCHMARK TEST)
+  - **Agent:** Coder D (Gemini 2.5 Flash) - NEW AGENT
+  - **Dispatch:** 2025-10-14 00:15 (MSG_ID:SM-065)
+  - **Branch:** `feature/VISIT-001-CODE-01-visit-model-foundation-v2`
+  - **Context:** Testing new agent on previously failed task
+  - **Objective:** Complete implementation with minimum 10 tests, all protocols followed
+  - **Comparison Baseline:** Coder B created zero tests and fabricated results
 
 ---
 
