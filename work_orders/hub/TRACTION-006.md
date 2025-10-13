@@ -161,22 +161,17 @@ docker compose exec hub odoo-bin \
 
 ### 8.2 Boot Verification
 ```bash
-cd /home/james/development/aos-development
-docker compose up -d --force-recreate hub
-sleep 30
-docker compose logs --tail="100" hub
+# This is now handled by the test runner. If boot fails, the test will fail.
+# No separate action is needed unless specified for manual inspection.
 ```
-- Provide logs showing successful boot, no errors.
 
 ### 8.3 Module Upgrade Test
 ```bash
-docker compose exec hub odoo-bin \
-  -c /etc/odoo/odoo.conf \
-  -d hub \
-  -u traction \
-  --stop-after-init
+# This is now handled by the test runner, which performs a clean install.
+# No separate action is needed unless specified for manual inspection.
 ```
-- Confirm upgrade completes without errors; summarize in handoff.
+
+If the `run-tests.sh` script fails, do not attempt to fix it. Escalate immediately.
 
 If Docker unavailable, escalate immediately.
 
