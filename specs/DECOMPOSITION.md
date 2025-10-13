@@ -18,15 +18,15 @@ This document provides the official mapping between the approved architectural s
 
 | Agent | Model | Status | Reason |
 |-------|-------|--------|--------|
-| **Coder A** | GPT-5-codex | ⚠️ **PROBATION** | Technical error (XML parsing). Genuine effort observed. Standard: PERFECTION |
+| **Coder A** | GPT-5-codex | ✅ **ACTIVE** | Probation CLEARED. Only successful agent in Project Phoenix. Proven reliable |
 | **Coder B** | Claude Sonnet 4 | ❌ **DECOMMISSIONED** | Fabricated deliverables. Terminal breach of trust. Permanent removal |
 | **Coder C** | Grok Code Fast | ❌ **DECOMMISSIONED** | Probationary failure. Missing checklist, no test proof, out-of-scope changes. Permanent removal |
 | **Coder D** | Gemini 2.5 Flash | ❌ **DECOMMISSIONED** | Benchmark failure. Created empty files in wrong location. Worse than Coder B. Permanent removal |
 
 ### Active Work
 
-**Probationary Task:**
-- **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - Fix XML parsing error (only remaining probationary agent)
+**Completed Successfully:**
+- **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - ✅ APPROVED & MERGED - Probation cleared
 
 **No Active Benchmark Tests:** (Coder D decommissioned)
 
@@ -115,7 +115,7 @@ This document provides the official mapping between the approved architectural s
 |---|---|---|---|
 | `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `ARCHITECTURALLY APPROVED` ✅ |
 | `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `REJECTED` ❌ |
-| `AGMT-001-FIX-01` | `FIX` | **PROBATION:** Fix XML parsing errors and out-of-scope changes. | `IN PROGRESS` 🔄 |
+| `AGMT-001-FIX-01` | `FIX` | **PROBATION:** Fix XML parsing errors and out-of-scope changes. | `COMPLETE` ✅ |
 
 **AGMT-001 Status (2025-10-13):**
 - **AGMT-001-CODE-01:** ARCHITECTURALLY APPROVED ✅
@@ -127,12 +127,15 @@ This document provides the official mapping between the approved architectural s
   - **Dispatch:** 2025-10-13 23:00 (MSG_ID:SM-055)
   - **Rejection:** 2025-10-13 23:30 (MSG_ID:SM-059)
   - **Reason:** XML parsing error (invalid domain filter), module fails to load, out-of-scope changes
-- **AGMT-001-FIX-01:** IN PROGRESS 🔄 (PROBATIONARY)
-  - **Agent:** Coder A (GPT-5-codex) - ON PROBATION
-  - **Dispatch:** 2025-10-14 00:00 (MSG_ID:SM-063) - Project Phoenix
-  - **Branch:** `feature/AGMT-001-FIX-01-domain-filter`
-  - **Objective:** Remove invalid `active` domain filter from patient_id field
-  - **Standard:** PERFECTION required - any failure = decommissioning
+- **AGMT-001-FIX-01:** COMPLETE ✅ (PROBATIONARY - SUCCESS!)
+  - **Agent:** Coder A (GPT-5-codex) - PROBATION CLEARED
+  - **Dispatch:** 2025-10-14 00:00 (MSG_ID:SM-063)
+  - **Submission:** 2025-10-14 00:40 (MSG_ID:SM-063-REPORT)
+  - **Approval:** 2025-10-14 00:40 (MSG_ID:SM-070)
+  - **Fix:** Removed invalid domain filter, added required="1" attribute
+  - **Result:** Module loads, all 31 tests pass, 0 failed, 0 errors
+  - **Assessment:** PERFECT execution - first and only successful probationary completion in Project Phoenix
+  - **Status:** Merged to main, Coder A probation cleared
 
 ---
 
