@@ -29,11 +29,16 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `CM-001-CODE-01` | `CODE` | Create `evv_case_managers` module and `evv.case_manager` model. | `READY FOR DISPATCH` |
-| `CM-001-CODE-02` | `CODE` | Implement views and security for `evv.case_manager`. | `TO DO` |
-| `CM-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for CMs. | `TO DO` |
+| `CM-001-CODE-01` | `CODE` | Create `evv_case_managers` module and `evv.case_manager` model. | `DONE` ✅ |
+| `CM-001-CODE-02` | `CODE` | Implement views and security for `evv.case_manager`. | `N/A` |
+| `CM-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for CMs. | `READY FOR DISPATCH` |
 
-**Wave 2 Status (2025-10-13):** UNBLOCKED by CORE-001-QA-01 completion. CM-001-CODE-01 ready for immediate dispatch (sequential execution strategy).
+**Wave 2 Status:**
+- **2025-10-13:** UNBLOCKED by CORE-001-QA-01 completion
+- **CM-001-CODE-01:** DONE ✅ - Model, views, security, tests, and docs implemented
+- **CM-001-CODE-02:** Merged into CM-001-CODE-01 (implemented together)
+- **CM-001-QA-01:** Ready for QA validation
+- **Next:** PT-001-CODE-01 (sequential execution after CM-001 QA)
 
 ---
 
