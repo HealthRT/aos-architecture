@@ -77,16 +77,18 @@ This document provides the official mapping between the approved architectural s
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
 | `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `ARCHITECTURALLY APPROVED` ✅ |
-| `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `IN PROGRESS` 🔄 |
+| `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `REJECTED` ❌ |
 
 **AGMT-001 Status (2025-10-13):**
 - **AGMT-001-CODE-01:** ARCHITECTURALLY APPROVED ✅
   - **Agent:** Coder A (Claude 4)
   - **Result:** Model refactoring is complete. Test suite passes with 25 tests, 0 failures.
   - **Action:** Merged to `main`. `AGMT-001-CODE-02` unblocked.
-- **AGMT-001-CODE-02:** IN PROGRESS 🔄
+- **AGMT-001-CODE-02:** REJECTED ❌
   - **Agent:** Coder A (Claude 4)
-  - **Dispatch:** 2025-10-13 23:00 (MSG_ID:033)
+  - **Dispatch:** 2025-10-13 23:00 (MSG_ID:SM-055)
+  - **Rejection:** 2025-10-13 23:30 (MSG_ID:SM-059)
+  - **Reason:** XML parsing error (invalid domain filter), module fails to load, out-of-scope changes
 
 ---
 
