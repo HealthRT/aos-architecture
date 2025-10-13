@@ -1,0 +1,83 @@
+id: VISIT-001
+title: "Create Core Visit Record & Capture Service Selection"
+summary: "Enables a DSP to clock-in for a visit, capturing the specific service being performed, and creates the foundational visit record."
+
+# --- User Story (for human context) ---
+user_story: "As a Direct Support Professional (DSP), I want to select the specific service I am providing at clock-in, so that the system can accurately track the delivery of authorized services."
+
+# --- Strategic & Compliance Constraints ---
+component_type: Core
+scope: MVP
+stakeholders:
+  - "DSP (Direct Support)"
+  - "DC (Designated Coordinator)"
+compliance:
+  hipaa_implicated: true
+  phi_fields:
+    - "evv.visit.patient_id"
+    - "evv.visit.service_agreement_id"
+    - "evv.visit.clock_in_timestamp"
+    - "evv.visit.clock_out_timestamp"
+  access_control:
+    - role: "DSP (Direct Support)"
+      permissions: ["create_own", "read_own", "write_own"]
+    - role: "DC (Designated Coordinator)"
+      permissions: ["read_assigned", "write_assigned"]
+  immutable_core_impact: false
+
+# --- Technical Specification ---
+module: "evv_visits"
+depends_on:
+  - "evv_core"
+  - "evv_patients"
+  - "evv_agreements"
+out_of_scope:
+  - "Offline clock-in/clock-out functionality."
+  - "Handling for visit exceptions (e.g., missed clock-out)."
+  - "Backend validation logic that uses the selected service for MVP (see rule below)."
+
+models:
+  - name: "evv.visit"
+    description: "Represents a single, electronically verified service delivery event. This is the core transactional model for the EVV system."
+    fields:
+      - { name: "patient_id", type: "Many2one", relation: "evv.patient", required: true, help: "The patient who received the service." }
+      - { name: "dsp_id", type: "Many2one", relation: "hr.employee", required: true, help: "The DSP who provided the service." }
+      - { name: "service_agreement_id", type: "Many2one", relation: "service.agreement", required: true, help: "The specific, authorized service line that was performed during this visit. Selected by the DSP at clock-in." }
+      - { name: "clock_in_timestamp", type: "Datetime", required: true, help: "The precise date and time the DSP clocked in." }
+      - { name: "clock_in_location", type: "Char", required: false, help: "GPS coordinates captured at the moment of clock-in (e.g., '44.9778,-93.2650')." }
+      - { name: "clock_out_timestamp", type: "Datetime", required: false, help: "The precise date and time the DSP clocked out." }
+      - { name: "clock_out_location", type: "Char", required: false, help: "GPS coordinates captured at the moment of clock-out (e.g., '44.9778,-93.2650')." }
+      - { name: "state", type: "Selection", selection: "[('in_progress', 'In Progress'), ('pending_verification', 'Pending Verification'), ('verified', 'Verified'), ('rejected', 'Rejected')]", required: true, default: "'in_progress'", help: "The workflow state of the visit." }
+
+# --- Business Logic & Validation ---
+rules:
+  - q: "What service validation happens at clock-in for MVP?"
+    a: "For MVP, the backend validation is simple: it checks if the patient has AT LEAST ONE active service agreement. Per stakeholder direction, it does NOT yet validate against the specific service selected by the DSP. The service_agreement_id is captured for future use but is not used in the back-end validation logic for MVP."
+  - q: "What happens if the DSP's device is offline?"
+    a: "For MVP, the PWA requires a live internet connection to perform clock-in and clock-out. The action must fail with a clear error message if the device is offline. Offline support is a post-MVP requirement."
+
+# --- Testing & Verification ---
+acceptance_criteria:
+  - "GIVEN a patient has two different active service agreements ('In-Home Support' and 'Respite Care'), WHEN a DSP initiates clock-in for that patient on the PWA, THEN the PWA must display both service options and require the DSP to select one before proceeding."
+  - "GIVEN a DSP selects 'In-Home Support' and completes the clock-in, WHEN the visit record is created, THEN the `service_agreement_id` field on the `evv.visit` record must be correctly populated with the 'In-Home Support' service line record."
+  - "GIVEN the DSP's device has location services enabled, WHEN the DSP clocks in, THEN the system must capture and store their GPS coordinates in the `clock_in_location` field."
+  - "GIVEN the DSP's device has location services enabled, WHEN the DSP clocks out, THEN the system must capture and store their GPS coordinates in the `clock_out_location` field."
+  - "GIVEN a patient has no active service agreements, WHEN a DSP initiates clock-in for that patient, THEN the system must block the clock-in and display an error message stating that no authorized services are available."
+  - "GIVEN a DSP's device has no internet connectivity, WHEN they attempt to clock-in, THEN the PWA must display an error message (e.g., 'A network connection is required') and must not create a visit record."
+
+# --- Implementation Plan ---
+artifacts:
+  code:
+    - "models/evv_visit.py"
+    - "views/evv_visit_views.xml"
+    - "security/ir.model.access.csv"
+  tests:
+    - "tests/test_visit_creation.py"
+  docs:
+    - "docs/models/evv_visit.md"
+
+# --- Agent Guidance ---
+agent_hints:
+  builder_output: "Create the new evv.visit model. The service selection logic is primarily a PWA/frontend concern, but the backend must expose an endpoint that returns a list of active service agreements for a given patient."
+  qa_output: "Generate tests that confirm the visit record is created with the correct links and that the clock-in block for patients with no active agreements works as expected."
+  security_focus: "Ensure access controls are strictly enforced. A DSP must only be able to create/read/write their own visits. A DC should only have access to the visits of the DSPs they are assigned to."
