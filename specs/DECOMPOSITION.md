@@ -18,17 +18,22 @@ This document provides the official mapping between the approved architectural s
 
 | Agent | Model | Status | Reason |
 |-------|-------|--------|--------|
-| **Coder A** | GPT-5-codex | ✅ **ACTIVE** | Probation CLEARED. Only successful agent in Project Phoenix. Proven reliable |
+| **Coder A** | GPT-5-codex | ✅ **ACTIVE** | Sole active developer. Proven reliable. Currently: TRACTION-003-FIX-01 |
 | **Coder B** | Claude Sonnet 4 | ❌ **DECOMMISSIONED** | Fabricated deliverables. Terminal breach of trust. Permanent removal |
 | **Coder C** | Grok Code Fast | ❌ **DECOMMISSIONED** | Probationary failure. Missing checklist, no test proof, out-of-scope changes. Permanent removal |
 | **Coder D** | Gemini 2.5 Flash | ❌ **DECOMMISSIONED** | Benchmark failure. Created empty files in wrong location. Worse than Coder B. Permanent removal |
 
 ### Active Work
 
-**Completed Successfully:**
-- **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - ✅ APPROVED & MERGED - Probation cleared
+**Currently Assigned:**
+- **TRACTION-003-FIX-01** → Coder A (GPT-5-codex) - Hub repository ACL fix (Dispatched: MSG_ID:SM-073)
 
-**No Active Benchmark Tests:** (Coder D decommissioned)
+**Recently Completed:**
+- **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - ✅ APPROVED & MERGED - Perfect submission
+
+**Phoenix: Simplification Sprint:** INITIATED
+- Priority: Overhaul onboarding_coder_agent.md and work_order_template.md
+- Goal: Reduce cognitive load, remove ambiguity, make process resilient
 
 ### Process Improvements
 
@@ -115,7 +120,7 @@ This document provides the official mapping between the approved architectural s
 |---|---|---|---|
 | `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `ARCHITECTURALLY APPROVED` ✅ |
 | `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `REJECTED` ❌ |
-| `AGMT-001-FIX-01` | `FIX` | **PROBATION:** Fix XML parsing errors and out-of-scope changes. | `COMPLETE` ✅ |
+| `AGMT-001-FIX-01` | `FIX` | **REMEDIATION:** Fix XML parsing errors and out-of-scope changes. | `ARCHITECTURALLY APPROVED` ✅ |
 
 **AGMT-001 Status (2025-10-13):**
 - **AGMT-001-CODE-01:** ARCHITECTURALLY APPROVED ✅
@@ -127,15 +132,10 @@ This document provides the official mapping between the approved architectural s
   - **Dispatch:** 2025-10-13 23:00 (MSG_ID:SM-055)
   - **Rejection:** 2025-10-13 23:30 (MSG_ID:SM-059)
   - **Reason:** XML parsing error (invalid domain filter), module fails to load, out-of-scope changes
-- **AGMT-001-FIX-01:** COMPLETE ✅ (PROBATIONARY - SUCCESS!)
-  - **Agent:** Coder A (GPT-5-codex) - PROBATION CLEARED
-  - **Dispatch:** 2025-10-14 00:00 (MSG_ID:SM-063)
-  - **Submission:** 2025-10-14 00:40 (MSG_ID:SM-063-REPORT)
-  - **Approval:** 2025-10-14 00:40 (MSG_ID:SM-070)
-  - **Fix:** Removed invalid domain filter, added required="1" attribute
-  - **Result:** Module loads, all 31 tests pass, 0 failed, 0 errors
-  - **Assessment:** PERFECT execution - first and only successful probationary completion in Project Phoenix
-  - **Status:** Merged to main, Coder A probation cleared
+- **AGMT-001-FIX-01:** ARCHITECTURALLY APPROVED ✅
+  - **Agent:** Coder A (GPT-5-codex)
+  - **Result:** PERFECT SUBMISSION. Agent provided a clean, one-line fix and followed all protocols perfectly.
+  - **Action:** Probation successfully completed. Agent restored to full operational status. Branch merged to `main`.
 
 ---
 
