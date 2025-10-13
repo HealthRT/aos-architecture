@@ -79,14 +79,23 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `SYSTEM-002-CODE-01` | `CODE` | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `evv` repository. | `DONE` |
-| `SYSTEM-002-CODE-02` | `CODE` | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `hub` repository. | `IN PROGRESS` |
+| `SYSTEM-002-CODE-01` | `CODE` | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `evv` repository. | `DONE` ✅ |
+| `SYSTEM-002-CODE-02` | `CODE` | Create resilient single-script `run-tests.sh` with guaranteed cleanup for `hub` repository. | `DONE` ✅ |
 
-**Architectural Note (2025-10-13):** Initial implementation of `SYSTEM-002-CODE-01` was incomplete and revealed multiple flaws under QA stress-testing (`CORE-001-QA-01`):
-- **Issue #1:** Missing DB initialization commands and healthcheck configuration (FIXED)
-- **Issue #2:** Internal port conflict - container Odoo server conflicted with test execution (FIXED)
+**🎉 WAVE 0 INFRASTRUCTURE: COMPLETE (2025-10-13)**
 
-The Executive Architect implemented two rounds of fixes, refactoring the execution logic to use a robust, idiomatic pattern for containerized test commands. The test infrastructure is now validated, hardened, and complete.
+Both repositories now have identical, battle-tested infrastructure:
+- Resilient test runners with guaranteed cleanup
+- Dynamic port allocation (8090-8100)
+- Healthcheck waiting for robust execution
+- Unique project names prevent collisions
+- Validated through CORE-001-QA-01 stress-testing
+
+**Architectural Note:** Initial SYSTEM-002-CODE-01 implementation revealed multiple flaws under QA stress-testing:
+- **Issue #1:** Missing DB initialization and healthcheck (FIXED by architect)
+- **Issue #2:** Internal port 8069 conflict (FIXED by architect)
+
+The Executive Architect implemented two rounds of fixes, refactoring the execution logic to use a robust, idiomatic pattern. SYSTEM-002-CODE-02 implemented this proven pattern flawlessly.
 
 **Key Improvements over SYSTEM-001:**
 - Single script (no separate `start-agent-env.sh`)
