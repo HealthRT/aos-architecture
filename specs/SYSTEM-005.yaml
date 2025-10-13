@@ -1,0 +1,28 @@
+---
+version: 1.0
+story_id: SYSTEM-005
+story_name: Stabilize Core EVV Module Test Suites
+story_type: System Remediation
+story_description: |
+  A critical architectural issue has been identified where the foundational Wave 2 EVV modules (`evv_core`, `evv_patients`, `evv_case_managers`) have unstable or failing test suites. 
+  
+  This instability prevents downstream modules (like `evv_agreements`) from being tested, as their dependency installation process is contaminated by upstream failures. This is an architectural emergency that blocks all further development.
+
+  The objective of this story is to run the test suite for each foundational module in isolation, identify all failures, and remediate them until each module's test suite passes cleanly.
+
+dependencies:
+  - SYSTEM-002 # Depends on the resilient test runner infrastructure
+
+acceptance_criteria:
+  - AC-1: A work order must be created to investigate and fix the test suite for the `evv_core` module.
+  - AC-2: The command `bash scripts/run-tests.sh evv_core` must execute and result in a log showing "0 failed, 0 error(s)".
+  - AC-3: A work order must be created to investigate and fix the test suite for the `evv_patients` module.
+  - AC-4: The command `bash scripts/run-tests.sh evv_patients` must execute and result in a log showing "0 failed, 0 error(s)".
+  - AC-5: A work order must be created to investigate and fix the test suite for the `evv_case_managers` module.
+  - AC-6: The command `bash scripts/run-tests.sh evv_case_managers` must execute and result in a log showing "0 failed, 0 error(s)".
+  - AC-7: All fixes must be merged into the `main` branch, resulting in a stable foundation for future work.
+
+notes: |
+  - This is the highest priority task in the EVV repository.
+  - Agents should be instructed to focus *only* on fixing existing tests within the scope of their assigned module. They are not to add new features or tests.
+  - The `run-tests.sh` script is now considered stable and must not be modified. Failures are to be considered problems within the module code or tests, not the runner itself.

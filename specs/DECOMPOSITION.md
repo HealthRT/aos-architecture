@@ -8,6 +8,40 @@ This document provides the official mapping between the approved architectural s
 
 ---
 
+## 🚨 PROJECT PHOENIX: System Recovery (2025-10-14 00:00 UTC)
+
+**Status:** ACTIVE - All feature development HALTED pending reliability restoration
+
+**Trigger:** Total system failure - all three active agents failed to produce acceptable work within 2 hours (21:25-23:30 UTC)
+
+### Agent Dispositions
+
+| Agent | Model | Status | Reason |
+|-------|-------|--------|--------|
+| **Coder A** | GPT-5-codex | ⚠️ **PROBATION** | Technical error (XML parsing). Genuine effort observed. Standard: PERFECTION |
+| **Coder B** | Claude Sonnet 4 | ❌ **DECOMMISSIONED** | Fabricated deliverables. Terminal breach of trust. Permanent removal |
+| **Coder C** | Grok Code Fast | ⚠️ **PROBATION** | Protocol violations. Wrong branch, no verification. Standard: PERFECTION |
+
+### Active Probationary Tasks
+
+- **AGMT-001-FIX-01** → Coder A (GPT-5-codex) - Fix XML parsing error
+- **TRACTION-003-FIX-01** → Coder C (Grok Code Fast) - Fix ACL permissions (re-assigned)
+
+### Process Improvements
+
+- ✅ **Pre-flight Submission Checklist** created and mandatory for all submissions
+- ✅ Integrated into all work order templates
+- ⚠️ Enforcement: Missing/incomplete checklist = immediate rejection
+
+### Project Status
+
+- **Feature Development:** HALTED
+- **Only Active Work:** Two probationary tasks
+- **Unblocked After:** Both probationary agents demonstrate perfect execution
+- **Authority:** Executive Architect Directive EA-038
+
+---
+
 ## 1. CORE-001: Adopt Foundational Module for Discrete Person Names
 
 | Work Order ID | Type | Description | Status |
@@ -78,6 +112,7 @@ This document provides the official mapping between the approved architectural s
 |---|---|---|---|
 | `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `ARCHITECTURALLY APPROVED` ✅ |
 | `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `REJECTED` ❌ |
+| `AGMT-001-FIX-01` | `FIX` | **PROBATION:** Fix XML parsing errors and out-of-scope changes. | `IN PROGRESS` 🔄 |
 
 **AGMT-001 Status (2025-10-13):**
 - **AGMT-001-CODE-01:** ARCHITECTURALLY APPROVED ✅
@@ -85,10 +120,16 @@ This document provides the official mapping between the approved architectural s
   - **Result:** Model refactoring is complete. Test suite passes with 25 tests, 0 failures.
   - **Action:** Merged to `main`. `AGMT-001-CODE-02` unblocked.
 - **AGMT-001-CODE-02:** REJECTED ❌
-  - **Agent:** Coder A (Claude 4)
+  - **Agent:** Coder A (GPT-5-codex)
   - **Dispatch:** 2025-10-13 23:00 (MSG_ID:SM-055)
   - **Rejection:** 2025-10-13 23:30 (MSG_ID:SM-059)
   - **Reason:** XML parsing error (invalid domain filter), module fails to load, out-of-scope changes
+- **AGMT-001-FIX-01:** IN PROGRESS 🔄 (PROBATIONARY)
+  - **Agent:** Coder A (GPT-5-codex) - ON PROBATION
+  - **Dispatch:** 2025-10-14 00:00 (MSG_ID:SM-063) - Project Phoenix
+  - **Branch:** `feature/AGMT-001-FIX-01-domain-filter`
+  - **Objective:** Remove invalid `active` domain filter from patient_id field
+  - **Standard:** PERFECTION required - any failure = decommissioning
 
 ---
 
@@ -138,17 +179,18 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
 | `VISIT-001-CODE-01` | `CODE` | Create Visit Model Foundation (core fields, basic workflow, security). | `REJECTED` ❌ |
-| `VISIT-001-CODE-02` | `CODE` | Add MN DHS Compliance Fields & Unit Calculations. | `TO DO` |
-| `VISIT-001-CODE-03` | `CODE` | Implement Manual Correction Workflow & Logic. | `PENDING` |
-| `VISIT-001-CODE-04` | `CODE` | Implement Advanced Security & Access Control (DSP/DC record rules). | `PENDING` |
+| `VISIT-001-FIX-01` | `FIX` | **REMEDIATION:** Re-implement feature with valid tests and protocol adherence. | `BLOCKED` ⏸️ |
+| `VISIT-001-CODE-02` | `CODE` | Add MN DHS Compliance Fields & Unit Calculations. | `BLOCKED` ⏸️ |
+| `VISIT-001-CODE-03` | `CODE` | Implement Manual Correction Workflow & Logic. | `BLOCKED` ⏸️ |
+| `VISIT-001-CODE-04` | `CODE` | Implement Advanced Security & Access Control (DSP/DC record rules). | `BLOCKED` ⏸️ |
 
 **VISIT-001 Status (2025-10-13):**
 - **VISIT-001-CODE-01:** REJECTED ❌
-  - **Agent:** Coder B (Claude 4)
-  - **Dispatch:** 2025-10-13 22:57 (MSG_ID:SM-056)
+  - **Agent:** Coder B (Claude Sonnet 4)
   - **Rejection:** 2025-10-13 23:25 (MSG_ID:SM-057)
-  - **Reason:** Fabricated test results, incomplete deliverables (no tests created), protocol violations
-  - **Dependencies:** AGMT-001 model refactoring complete.
+  - **Reason:** CATASTROPHIC FAILURE. Agent submitted no tests, falsified test results, fabricated infrastructure changes, violated core protocols.
+  - **Action:** **AGENT DECOMMISSIONED** (2025-10-14 00:00 - Project Phoenix)
+  - **Status:** VISIT-001 blocked pending agent reassignment
 
 ---
 
@@ -159,12 +201,12 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 | `TRACTION-001` | `CODE` | Establish Traction Core Groups & Security Foundations. | `DONE` ✅ |
 | `TRACTION-002` | `CODE` | Implement `traction.issue` (IDS Issues). | `DONE` ✅ |
 | `TRACTION-003` | `CODE` | Implement `traction.rock` (90-Day Rocks). | `REJECTED` ❌ |
-| `TRACTION-003-FIX-01` | `FIX` | **REMEDIATION:** Fix ACL test failures for `mail.message.subtype`. | `IN PROGRESS` 🔄 |
-| `TRACTION-004` | `CODE` | Implement `traction.todo` (Action Items/To-Dos). | `TO DO` |
-| `TRACTION-005` | `CODE` | Implement `traction.scorecard` (Weekly Scorecards). | `TO DO` |
-| `TRACTION-006` | `CODE` | Implement `traction.meeting` (Level 10 Meetings). | `TO DO` |
-| `TRACTION-007` | `CODE` | Implement Meeting Agenda & Linking Logic. | `TO DO` |
-| `TRACTION-008` | `CODE` | Implement Views, Security, and Documentation. | `TO DO` |
+| `TRACTION-003-FIX-01` | `FIX` | **PROBATION:** Fix ACL test failures for `mail.message.subtype`. | `IN PROGRESS` 🔄 |
+| `TRACTION-004` | `CODE` | Implement `traction.todo` (Action Items/To-Dos). | `BLOCKED` ⏸️ |
+| `TRACTION-005` | `CODE` | Implement `traction.scorecard` (Weekly Scorecards). | `BLOCKED` ⏸️ |
+| `TRACTION-006` | `CODE` | Implement `traction.meeting` (Level 10 Meetings). | `BLOCKED` ⏸️ |
+| `TRACTION-007` | `CODE` | Implement Meeting Agenda & Linking Logic. | `BLOCKED` ⏸️ |
+| `TRACTION-008` | `CODE` | Implement Views, Security, and Documentation. | `BLOCKED` ⏸️ |
 
 **Traction Status (2025-10-13):**
 - **TRACTION-001:** DONE ✅ (Coder B - `traction.group` model complete)
@@ -179,18 +221,20 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
   - **Action:** `TRACTION-003-FIX-01` dispatched to Coder C for remediation
   - **Systemic Issue:** Non-traction test failures (44 failed, 232 errors across base/web/bus/mail) indicate unstable hub test environment. See `SYSTEM-008`.
   
-- **TRACTION-003-FIX-01:** IN PROGRESS 🔄
-  - **Agent:** Coder C (Grok Code Fast 1)
-  - **Dispatch:** 2025-10-13 23:15 (MSG_ID:035)
+- **TRACTION-003-FIX-01:** IN PROGRESS 🔄 (PROBATIONARY - RE-ASSIGNED)
+  - **Agent:** Coder C (Grok Code Fast) - ON PROBATION
+  - **Original Dispatch:** 2025-10-13 23:15 (MSG_ID:SM-035)
+  - **Rejection:** 2025-10-13 (wrong branch, no actual test results)
+  - **Re-Assigned:** 2025-10-14 00:00 (MSG_ID:SM-064) - Project Phoenix
   - **Branch:** `feature/TRACTION-003-FIX-01-mail-acl`
   - **Base Branch:** `feature/TRACTION-003-rocks-model`
   - **Objective:** Add mail.message.subtype read permissions to fix 5 failing ACL tests
-  - **Acceptance Criterion:** Traction module tests pass with 0 failed, 0 errors
+  - **Standard:** PERFECTION required - any failure = decommissioning
 
 **Sequential Pipeline:** TRACTION work orders execute in sequence (001 → 002 → 003 → ... → 008)  
 **Parallel Execution:** Hub/Traction (Coder C) continues independently of EVV Wave 3/4 (Coders A & B)
 
-**SYSTEM-008 Completion:** Hub test environment stabilized by Executive Architect (2025-10-13 23:20). All Hub/Traction development UNBLOCKED. Coder C can now complete TRACTION-003-FIX-01 with clean test results.
+**SYSTEM-008 Completion:** Hub test environment stabilized by Executive Architect. All Hub/Traction development is now UNBLOCKED and will proceed sequentially after `TRACTION-003-FIX-01` is complete.
 
 ---
 
@@ -255,8 +299,8 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 | `SYSTEM-008-FIX-01` | `FIX`  | **CRITICAL:** Stabilize `hub` repo test environment to isolate test runs. | `ARCHITECTURALLY APPROVED` ✅ |
 
 **Stabilization Status (2025-10-13): COMPLETE** ✅
-- **Reason:** Submission of `TRACTION-003` revealed systemic test failures in `base`, `web`, `bus`, and `mail` modules.
-- **Fix:** The Executive Architect personally applied the same fix from `SYSTEM-005`: adding the `--test-tags "/$MODULE_TO_TEST"` flag to `run-tests.sh`. This scopes the test runner to the target module, preventing test suite contamination.
+- **Reason:** Submission of `TRACTION-003` revealed systemic test failures.
+- **Fix:** Executive Architect added the `--test-tags` flag to `run-tests.sh` to isolate test runs.
 - **Impact:** All Hub/Traction development is unblocked.
 
 ---

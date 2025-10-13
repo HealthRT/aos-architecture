@@ -77,7 +77,20 @@ git checkout -b [New Branch]
 
 ---
 
-## 3. Problem Statement & Technical Details
+## 3. CRITICAL: IMMUTABLE TOOLING
+
+**DO NOT MODIFY THE TEST RUNNER SCRIPT:** `scripts/run-tests.sh`.
+
+This script is centrally managed by the Executive Architect and is considered immutable. It is intentionally locked with read-only permissions.
+
+-   **If `run-tests.sh` fails:** This is an **infrastructure issue**, not a code issue.
+-   **Your Action:** Do NOT attempt to "fix" the script. Document the failure in your completion report and escalate immediately.
+
+**Any unauthorized modification to core tooling will result in an automatic rejection of your work.**
+
+---
+
+## 4. Problem Statement & Technical Details
 
 (This section should contain the specific file paths, line numbers, and code snippets that need to be addressed.)
 
@@ -94,7 +107,7 @@ git checkout -b [New Branch]
 
 ---
 
-## 4. Required Implementation
+## 5. Required Implementation
 
 (This section should provide a clear, technical specification for the solution.)
 
@@ -114,7 +127,7 @@ self.env["bus.bus"]._sendmany([
 
 ---
 
-## 5. Acceptance Criteria
+## 6. Acceptance Criteria
 
 ⚠️ **CRITICAL WARNING - READ THIS FIRST** ⚠️
 
@@ -189,7 +202,7 @@ class Test<ModelName>Workflows(TransactionCase):
 
 ---
 
-## 6. Context Management & Iteration Limits
+## 7. Context Management & Iteration Limits
 
 **IMPORTANT:** AI agents have finite context windows. This section prevents context exhaustion.
 
@@ -222,7 +235,7 @@ class Test<ModelName>Workflows(TransactionCase):
 
 ---
 
-## 7. Required Context Documents
+## 8. Required Context Documents
 
 (A list of files the agent must read before starting.)
 - `@aos-architecture/decisions/[ADR_FILE].md`
@@ -232,18 +245,18 @@ class Test<ModelName>Workflows(TransactionCase):
 
 ---
 
-## 8. Technical Constraints
+## 9. Technical Constraints
 
 - **Odoo Version:** All code and XML must be compatible with **Odoo 18.0 Community Edition**.
 - **Prohibited Features:** Do not use deprecated fields/APIs or any features exclusive to Odoo Enterprise.
 
 ---
 
-## 9. MANDATORY: Proof of Execution
+## 10. MANDATORY: Proof of Execution
 
 **YOU MUST COMPLETE THIS AND POST IT TO THE GITHUB ISSUE BEFORE CREATING A PULL REQUEST.**
 
-### 9.1 Test Execution (REQUIRED for code changes)
+### 10.1 Test Execution (REQUIRED for code changes)
 ```bash
 # From within the target repository directory (hub/ or evv/)
 bash scripts/run-tests.sh [module_name]
@@ -255,10 +268,10 @@ bash scripts/run-tests.sh [module_name]
 - [ ] Verify `proof_of_execution_tests.log` created
 - [ ] **VERIFY CLEANUP:** Run `docker ps -a | grep [repo]-agent-test` → Must be empty
 
-### 9.2 Boot Verification (If Required by Work Order)
+### 10.2 Boot Verification (If Required by Work Order)
 
 If required, follow specific instructions in the work order for manually starting an environment to capture boot logs. This is not part of the standard automated test run.
 
-### 9.3 Module Upgrade Test (If Required by Work Order)
+### 10.3 Module Upgrade Test (If Required by Work Order)
 
 If required, follow specific instructions in the work order for manually starting an environment to capture upgrade logs.

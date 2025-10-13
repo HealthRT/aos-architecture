@@ -1,0 +1,28 @@
+---
+version: 1.0
+story_id: SYSTEM-004
+story_name: Create Dedicated UAT Environment Scripts
+story_type: System Enhancement
+story_description: |
+  Create a pair of user-friendly scripts for the human overseer to easily start and stop a persistent, interactive UAT (User Acceptance Testing) environment.
+
+  This addresses a critical workflow gap, as the current `run-tests.sh` script is designed for ephemeral, automated, non-interactive testing by agents and is unsuitable for manual UAT.
+
+dependencies:
+  - SYSTEM-002 # Leverages the same docker-compose.agent.yml and base container setup
+
+acceptance_criteria:
+  - AC-1: A new script `evv/scripts/start-uat-env.sh` must be created.
+  - AC-2: `start-uat-env.sh` must find an available port in the 8090-8100 range.
+  - AC-3: `start-uat-env.sh` must start the `odoo` and `db` services from `docker-compose.agent.yml` in detached mode.
+  - AC-4: `start-uat-env.sh` must use a predictable project name (e.g., `evv-uat-env`) for easy identification.
+  - AC-5: The database container must use a named, persistent Docker volume (e.g., `evv-uat-db-data`) to ensure data survives restarts.
+  - AC-6: On first run, the script must create a dedicated database (e.g., `evv_uat_db`) and install ALL modules located in the `evv/addons/` directory.
+  - AC-7: On subsequent runs, the script should simply start the existing containers without re-initializing the database.
+  - AC-8: Upon successful startup, the script must print the access URL (e.g., "UAT Environment running at: http://localhost:8095") and the master password to the console.
+  - AC-9: A new script `evv/scripts/stop-uat-env.sh` must be created.
+  - AC-10: `stop-uat-env.sh` must cleanly shut down all services associated with the `evv-uat-env` project and release the port, but MUST NOT delete the persistent database volume.
+
+notes: |
+  - These scripts are for the human overseer's use ONLY. Agents should continue to use `run-tests.sh`.
+  - Error handling should be robust, providing clear messages if a port is not available or if Docker commands fail.

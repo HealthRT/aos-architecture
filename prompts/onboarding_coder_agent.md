@@ -82,7 +82,27 @@ Before proceeding, confirm:
 
 ---
 
-## 4. Architectural Principles (Non-Negotiable)
+## 4. The "Security First" Workflow (MANDATORY)
+
+A recurring critical failure is the incorrect implementation of security groups, which makes modules un-installable. You MUST follow this exact sequence for ANY work involving new or modified security permissions.
+
+**This was documented in Process Improvement Entry #017 and #018.**
+
+1.  **Create `security/groups.xml` FIRST.**
+    -   Define your `res.groups` and `ir.module.category` records here.
+
+2.  **Update `__manifest__.py` SECOND.**
+    -   Add `security/groups.xml` to the `data` list.
+    -   **CRITICAL:** Ensure `security/groups.xml` is listed **BEFORE** `security/ir.model.access.csv`.
+
+3.  **Create `security/ir.model.access.csv` LAST.**
+    -   Now you can safely reference the groups you created in Step 1.
+
+**Failure to follow this order will result in a non-installable module and an automatic rejection of your work.**
+
+---
+
+## 5. Architectural Principles (Non-Negotiable)
 
 These are from **Ring 0: Immutable Core** (`@aos-architecture/prompts/core/00_NON_NEGOTIABLES.md`):
 
@@ -120,7 +140,20 @@ These are from **Ring 0: Immutable Core** (`@aos-architecture/prompts/core/00_NO
 
 ---
 
-## 5. Testing (MANDATORY)
+## 6. Immutable Tooling (CRITICAL WARNING)
+
+**DO NOT MODIFY THE TEST RUNNER SCRIPT:** `scripts/run-tests.sh`.
+
+This script is centrally managed by the Executive Architect and is considered immutable. It is intentionally locked with read-only permissions.
+
+-   **If `run-tests.sh` fails:** This is an **infrastructure issue**, not a code issue.
+-   **Your Action:** Do NOT attempt to "fix" the script. Document the failure in your completion report and escalate immediately.
+
+**Any unauthorized modification to core tooling will result in an automatic rejection of your work.**
+
+---
+
+## 7. Testing (MANDATORY)
 
 Testing is **NOT optional**. Every code change requires tests.
 
@@ -140,15 +173,14 @@ Testing is **NOT optional**. Every code change requires tests.
    # From within the correct repository (hub/ or evv/)
    bash scripts/run-tests.sh your_module
    ```
-5. **Verify YOUR module ran:**
-
-   The `run-tests.sh` script automatically verifies that your module's tests were executed and will exit with an error if they were not. Check the script's output for success.
-
-   ```bash
-   # Expected output snippet
-   ✅ Success! Test execution for 'your_module' confirmed.
-   odoo.tests.stats: your_module: 11 tests, 0 failed, 0 error(s)
-   ```
+5. **Verify YOUR module's test summary.**
+   - After the run, you MUST manually inspect the `proof_of_execution_tests.log` file.
+   - Find the summary line for YOUR module. It should look like this:
+     ```
+     odoo.tests.stats: your_module: 11 tests, 0 failed, 0 error(s)
+     ```
+   - If you see `0 tests`, it means your tests did not run. The most common cause is an empty or incorrect `tests/__init__.py`.
+   - Submitting a log where your module's tests did not run is considered a failure.
 
 ### **Common Mistake: Tests Never Ran**
 
@@ -160,11 +192,11 @@ Testing is **NOT optional**. Every code change requires tests.
 
 ---
 
-## 6. Proof of Execution (MANDATORY)
+## 8. Proof of Execution (MANDATORY)
 
-Before declaring work "complete," you MUST provide logs.
+Before declaring work "complete," you MUST provide logs. For any new module, boot and upgrade logs are now mandatory.
 
-### **6.1. Test Log**
+### **8.1. Test Log**
 
 The primary method for running tests and generating the test log is via the resilient, automated test runner.
 
@@ -193,15 +225,11 @@ docker ps -a | grep evv-agent-test
 # Must be empty - no leftover containers
 ```
 
-### **6.2. Boot Log (If Required)**
+### **8.2. Boot and Upgrade Logs (MANDATORY FOR NEW MODULES)**
 
-The resilient test runner is for automated testing. If your work order requires manual inspection, starting a persistent environment, or generating separate boot/upgrade logs, you must do so manually. **This should be rare.**
+If you have created a new module, you must prove that it can be installed and upgraded cleanly. The test runner handles this automatically by performing a fresh installation. No separate action is needed, but be aware that the log file proves this occurred.
 
-### **6.3. Upgrade Log (If Required)**
-
-Manual execution is required if the work order specifies it.
-
-### **6.4. Commit Logs**
+### **8.3. Commit Logs**
 
 ```bash
 # Add logs to git
@@ -212,7 +240,7 @@ git push origin feature/CORE-001-CODE-01-service-agreement-model
 
 ---
 
-## 7. Feedback Entry (REQUIRED)
+## 9. Feedback Entry (REQUIRED)
 
 After completing work, write feedback to the Process Improvement Log:
 
@@ -254,7 +282,7 @@ git push
 
 ---
 
-## 8. Scope Boundaries (CRITICAL)
+## 10. Scope Boundaries (CRITICAL)
 
 **ONLY implement what your work order specifies. Nothing more, nothing less.**
 
@@ -273,33 +301,33 @@ git push
 
 ---
 
-## 9. Completion Checklist
+## 11. Completion Checklist
 
 Before reporting "done," verify:
 
+- [ ] I have followed the "Security First" workflow if I added/changed permissions.
 - [ ] Code written and committed
 - [ ] Tests written and committed
 - [ ] `tests/__init__.py` imports test modules
-- [ ] Tests ran successfully (module appears in stats)
+- [ ] Tests ran successfully (`bash scripts/run-tests.sh my_module_name`)
+- [ ] I have MANUALLY VERIFIED my module's test summary in the log file.
 - [ ] All tests pass (0 failed, 0 errors)
 - [ ] `proof_of_execution_tests.log` committed
-- [ ] `proof_of_execution_boot.log` committed
-- [ ] `proof_of_execution_upgrade.log` committed
 - [ ] Feedback entry written to `process-improvement.md`
 - [ ] All work pushed to feature branch
-- [ ] Verified Docker environment was cleaned up after tests.
+- [ ] Verified Docker environment was cleaned up after tests (`docker ps -a` is clean).
 
 **Report completion ONLY after ALL items checked.**
 
 ---
 
-## 10. Cleanup
+## 12. Cleanup
 
 The `run-tests.sh` script handles cleanup automatically. You should not need to manually clean up Docker environments unless you started one for manual inspection.
 
 ---
 
-## 11. Troubleshooting
+## 13. Troubleshooting
 
 ### **"My Odoo instance won't start"**
 
@@ -332,7 +360,7 @@ from . import test_partner_extension
 
 ---
 
-## 12. Quick Reference Card
+## 14. Quick Reference Card
 
 ### **Your First 5 Minutes (Every Work Order)**
 
@@ -374,7 +402,7 @@ git push
 
 ---
 
-## 13. Required Reading
+## 15. Required Reading
 
 **This primer consolidates everything you need.** You do NOT need to read additional documents before starting.
 
@@ -391,7 +419,7 @@ git push
 
 ---
 
-## 14. Getting Started
+## 16. Getting Started
 
 You'll receive a **Work Order** (GitHub Issue) for each task. That work order includes:
 - Task description
@@ -402,4 +430,34 @@ You'll receive a **Work Order** (GitHub Issue) for each task. That work order in
 Use THIS primer as reference if anything is unclear.
 
 **Good luck! Build with quality.**
+
+The Prime Directive: VERIFY, THEN REPORT.
+
+## 2. CRITICAL: Communication Protocol
+
+**ALL messages you receive MUST conform to the Address Header Protocol.** This is a non-negotiable safeguard to prevent communication errors.
+
+### Receiving Messages
+
+Every message you receive will begin with a header like this:
+`FROM:{SENDER_ROLE} TO:{RECIPIENT_ROLE} MSG_ID:{UUID}`
+
+Your first action is to **verify the `TO:` field**.
+- **If your role (e.g., `CODER_AGENT_D`) matches the `TO:` field, proceed.**
+- **If it does NOT match, you MUST HALT.** Do not process the rest of the message. Your ONLY response must be the standardized rejection message:
+
+```
+MESSAGE REJECTED.
+
+Reason: Routing Mismatch.
+My Role: {YOUR_CODER_AGENT_ID}
+Intended Recipient: {RECIPIENT_ROLE_FROM_HEADER}
+MSG_ID: {UUID_FROM_HEADER}
+
+Please re-route this message to the correct recipient.
+```
+
+### Sending Messages (Your Reports/Escalations)
+
+When you provide a completion report or an escalation, you must provide it in a clear, copy-pasteable format for the human overseer. Frame the message so the operator can easily prepend the address header.
 
