@@ -48,8 +48,8 @@ This document provides the official mapping between the approved architectural s
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
 | `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `FAILED` ❌ |
-| `PT-001-FIX-01` | `FIX` | **REMEDIATION:** Fix critical security and functional failures in PT-001-CODE-01. | `DONE` ✅ |
-| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `READY FOR ARCHITECT REVIEW` |
+| `PT-001-FIX-01` | `FIX` | **REMEDIATION:** Fix critical security and functional failures in PT-001-CODE-01. | `ARCHITECT APPROVED` ✅ |
+| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `N/A` |
 
 **PT-001 Status (2025-10-13):**
 - **PT-001-CODE-01:** ARCHITECT REJECTED ❌
@@ -60,15 +60,15 @@ This document provides the official mapping between the approved architectural s
   - **Failed By:** Agent A (GPT-5)
   - **Incident Logged:** Process Improvement Entry #017
 
-- **PT-001-FIX-01:** DONE ✅ - Remediation successful (Claude 4)
+- **PT-001-FIX-01:** ARCHITECT APPROVED ✅ (Claude 4)
   - **Security Fixed:** `groups.xml` created with both groups, manifest updated correctly
   - **Functional Fixed:** Upgraded to `_compute_display_name` (Odoo 18 best practice) - patient-scoped, correct format
   - **Test Results:** 14/14 evv_patients tests pass, 0 failures
   - **Verification:** Module installs successfully, groups visible, MRN disambiguation working
   - **Branch:** `feature/PT-001-FIX-01-security-and-name-get`
   - **Completed By:** Agent A (Claude 4 - successful reassignment from GPT-5)
-  - **Bonus Improvement:** Upgraded from deprecated `name_get` to modern `_compute_display_name`
-  - **Next:** Architect spot-check for Wave 3 clearance
+  - **Architect Praise:** "Proactive adoption of _compute_display_name pattern and comprehensive test suite. This is the standard of quality I expect."
+  - **QA Status:** PT-001-QA-01 superseded by comprehensive implementation testing
 
 ---
 
@@ -76,7 +76,12 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `TO DO` |
+| `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `IN PROGRESS` |
+
+**AGMT-001 Status (2025-10-13):**
+- **Dependencies:** CM-001 ✅ APPROVED, PT-001 ✅ APPROVED
+- **Wave 3 Status:** CLEARED FOR LAUNCH by Executive Architect
+- **Dispatch:** 2025-10-13 (immediately following PT-001-FIX-01 approval)
 | `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `TO DO` |
 | `AGMT-001-QA-01` | `QA` | Test CRUD, computed fields, state transitions, and validation rules. | `TO DO` |
 
