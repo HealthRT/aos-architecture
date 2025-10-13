@@ -1526,3 +1526,34 @@ Create script to check for duplicate work order IDs across directories:
 
 ---
 
+### Entry #015: [WO-SYSTEM-002-01] - Resilient Test Runner Implementation
+
+**Date:** 2025-10-13
+**Agent:** Gemini 2.5 Pro
+**Work Order:** WO-SYSTEM-002-01
+
+#### What Was Built
+- Implemented a single, resilient `scripts/run-tests.sh` script that handles port allocation, environment startup, health checking, test execution, and guaranteed cleanup via a `trap`.
+- Updated `docker-compose.agent.yml` to use environment variables for dynamic port assignment and added a robust healthcheck.
+- Updated all relevant documentation (`README.md`, `onboarding_coder_agent.md`, `work_order_template.md`) to reflect the new single-script workflow.
+
+#### What Worked Well
+- The work order was extremely clear and provided specific, copy-pasteable code snippets for each required part of the script. This made implementation very fast and accurate.
+- The focus on a single, resilient script with a cleanup trap was the correct architectural decision to solve the previous problems.
+
+#### Challenges Encountered
+- **CRITICAL: Environment Failure Persists.** Despite implementing the script exactly as specified, I am still blocked by a fundamental environment issue. The Odoo process inside the container is not respecting the `ODOO_PORT` environment variable passed to `docker-compose`, causing it to default to port 8069 and then fail because the port is not correctly mapped.
+- I attempted to solve this by using a `.env` file, which is the standard mechanism for this, but the issue persists. This is a configuration issue within the Odoo Docker image or the agent's environment, not a scripting issue.
+- The cleanup `trap` also appears to be failing to remove old, orphaned containers from previous failed runs, indicating a potential permissions issue or a problem with how Docker Compose is managing the named projects.
+
+#### Work Order Quality Assessment
+- **Clarity:** [5/5] - Perfect.
+- **Completeness:** [5/5] - Perfect.
+- **Accuracy:** [1/5] - The work order is technically perfect, but the underlying assumption that the agent's environment can execute it is flawed. The work is blocked.
+
+#### Suggestions for Process Improvement
+- **CRITICAL: Fix the Odoo Docker Image/Environment.** The top priority must be to create a test environment where Odoo correctly respects the `ODOO_PORT` or equivalent environment variable for setting its HTTP port. Without this, no dynamic port allocation will ever work.
+- **Investigate `docker-compose down` Failures:** The cleanup trap is implemented correctly, but it's not removing old containers. This needs to be investigated. It might be a permissions issue or a problem with how Docker Compose handles project names with special characters or lengths. A manual `docker rm -f $(docker ps -aq -f "name=evv-agent-test")` might be a necessary, albeit heavy-handed, addition to the cleanup trap.
+
+---
+
