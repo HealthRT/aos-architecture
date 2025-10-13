@@ -47,10 +47,17 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `IN PROGRESS` |
-| `PT-001-CODE-02` | `CODE` | Implement views and security for `evv.patient`. | `TO DO` |
-| `PT-001-CODE-03` | `CODE` | Implement disambiguated search for `partner_id` linking. | `TO DO` |
-| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `TO DO` |
+| `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `DONE` ✅ |
+| `PT-001-CODE-02` | `CODE` | Implement views and security for `evv.patient`. | `N/A` |
+| `PT-001-CODE-03` | `CODE` | Implement disambiguated search for `partner_id` linking. | `N/A` |
+| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `READY FOR ARCHITECT REVIEW` |
+
+**PT-001 Status (2025-10-13):**
+- **Implementation:** DONE ✅ - 6 tests, 0 failures
+- **Deliverables:** Model, partner name_get override, views, security (DC/Admin ACLs), tests, docs
+- **PT-001-CODE-02/03:** Merged into CODE-01 (implemented together)
+- **Test Results:** evv_patients - 6 tests, 0.06s, 70 queries, 0 failed, 0 errors
+- **Next:** Architect spot-check (per Wave 2 QA strategy)
 
 ---
 
