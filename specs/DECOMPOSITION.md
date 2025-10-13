@@ -248,7 +248,15 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
   - **Rejection:** 2025-10-14 00:20 (MSG_ID:SM-066)
   - **Violations:** Missing mandatory Pre-flight Checklist, no test execution proof, out-of-scope changes, environment blame
   - **Action:** **AGENT DECOMMISSIONED** - Probationary failure
-  - **Status:** TRACTION-003-FIX-01 needs reassignment
+  - **Status:** TRACTION-003-FIX-01 reassigned to Coder A (GPT-5-codex) on 2025-10-14 00:55 (MSG_ID:SM-073)
+  
+- **TRACTION-003-FIX-01 (Attempt #3):** IN PROGRESS 🔄 (Reassigned to Coder A)
+  - **Agent:** Coder A (GPT-5-codex)
+  - **Dispatch:** 2025-10-14 00:55 (MSG_ID:SM-073) - Phoenix Simplification
+  - **Context:** Reassigned after Coder C decommissioning
+  - **Branch:** `feature/TRACTION-003-FIX-01-mail-acl`
+  - **Objective:** Add ONE line to ir.model.access.csv for mail.message.subtype read permissions
+  - **Status:** Awaiting completion
 
 **Sequential Pipeline:** TRACTION work orders execute in sequence (001 → 002 → 003 → ... → 008)  
 **Parallel Execution:** Hub/Traction (Coder C) continues independently of EVV Wave 3/4 (Coders A & B)
