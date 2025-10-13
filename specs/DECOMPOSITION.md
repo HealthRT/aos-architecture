@@ -141,6 +141,31 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 
 ---
 
+## 8. Hub/Traction MVP: EOS Level 10 Meetings & Items (Greenfield)
+
+| Work Order ID | Type | Description | Status |
+|---|---|---|---|
+| `TRACTION-001` | `CODE` | Establish Traction Core Groups & Security Foundations. | `IN PROGRESS` |
+| `TRACTION-002` | `CODE` | Implement `traction.issue` (IDS Issues). | `TO DO` |
+| `TRACTION-003` | `CODE` | Implement `traction.rock` (90-Day Rocks). | `TO DO` |
+| `TRACTION-004` | `CODE` | Implement `traction.todo` (Action Items/To-Dos). | `TO DO` |
+| `TRACTION-005` | `CODE` | Implement `traction.scorecard` (Weekly Scorecards). | `TO DO` |
+| `TRACTION-006` | `CODE` | Implement `traction.meeting` (Level 10 Meetings). | `TO DO` |
+| `TRACTION-007` | `CODE` | Implement Meeting Agenda & Linking Logic. | `TO DO` |
+| `TRACTION-008` | `CODE` | Implement Views, Security, and Documentation. | `TO DO` |
+
+**Traction Status (2025-10-13):**
+- **TRACTION-001:** IN PROGRESS (Coder B - parallel with AGMT-001-CODE-01)
+- **GitHub Issue:** #16 (HealthRT/hub)
+- **Branch:** `feature/TRACTION-001-core-groups`
+- **Dependencies:** None (foundational work)
+- **Test Runner:** SYSTEM-002-CODE-02 ✅ DONE (hub resilient test runner)
+- **Parallel Execution:** Running alongside EVV Wave 3 (different repository, no conflicts)
+
+**Sequencing:** TRACTION-001 must complete before TRACTION-002 through TRACTION-008 (sequential dependencies)
+
+---
+
 ## Dependency & Sequencing
 
 -   **Wave 0 (Infrastructure):** `SYSTEM-002-CODE-01`, `SYSTEM-002-CODE-02` (Can run in parallel; CRITICAL BLOCKER - must complete BEFORE feature work)
