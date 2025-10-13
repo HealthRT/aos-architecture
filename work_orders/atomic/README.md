@@ -60,6 +60,31 @@ Every atomic work order follows this structure:
 
 ---
 
+## Optimal Task Granularity
+
+**Guideline: 4-5 atomic tasks per work order phase**
+
+Based on operational data from pilot implementations:
+- **Too few (1-3 tasks):** Loses atomic benefits, tasks become too complex
+- **Optimal (4-5 tasks):** 30-60 minute completion time, manageable batch size
+- **Too many (7-10+ tasks):** Context fatigue, hard to track, long completion time
+
+**Best Practice:** Split large traditional work orders into sub-phases:
+```
+Traditional: FEATURE-001 → 10 atomic tasks (unwieldy)
+
+Refactored:
+- FEATURE-001-PHASE-A: Foundation (4 tasks)
+- FEATURE-001-PHASE-B: Implementation (4 tasks)  
+- FEATURE-001-PHASE-C: Testing (2 tasks)
+```
+
+**Natural Phase Boundaries:**
+1. **Foundation Phase:** Module structure, manifest, init files (2-3 tasks)
+2. **Core Logic Phase:** Models, business logic (2-4 tasks)
+3. **UI & Security Phase:** Views, ACLs (2-4 tasks)
+4. **Testing Phase:** Test files (1-3 tasks)
+
 ## Directory Structure
 
 ```
@@ -67,6 +92,7 @@ atomic/
 ├── visit/          # VISIT epic atomic work orders
 ├── agmt/           # AGMT epic atomic work orders
 ├── traction/       # TRACTION epic atomic work orders
+├── core/           # CORE epic atomic work orders
 └── README.md       # This file
 ```
 
