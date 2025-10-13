@@ -1,0 +1,22 @@
+name: Scrum - Decompose Approved Story
+on:
+  pull_request:
+    types: [labeled]
+permissions:
+  pull-requests: write
+  issues: write
+  contents: write
+jobs:
+  decompose:
+    if: contains(github.event.label.name, 'status:approved')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scrum agent
+        env:
+          ROLE: scrum
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/agent_runner.py
+

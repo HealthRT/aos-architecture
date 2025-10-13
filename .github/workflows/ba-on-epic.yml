@@ -1,0 +1,25 @@
+name: BA - Epic to Story
+on:
+  issues:
+    types: [labeled]
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+jobs:
+  ba_story:
+    if: contains(github.event.label.name, 'type:epic')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+      - name: Run BA agent
+        env:
+          ROLE: ba
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/agent_runner.py
+
