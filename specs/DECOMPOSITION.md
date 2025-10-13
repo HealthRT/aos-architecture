@@ -47,17 +47,23 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `DONE` ✅ |
-| `PT-001-CODE-02` | `CODE` | Implement views and security for `evv.patient`. | `N/A` |
-| `PT-001-CODE-03` | `CODE` | Implement disambiguated search for `partner_id` linking. | `N/A` |
-| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `READY FOR ARCHITECT REVIEW` |
+| `PT-001-CODE-01` | `CODE` | Create `evv_patients` module and `evv.patient` model. | `FAILED` ❌ |
+| `PT-001-FIX-01` | `FIX` | **REMEDIATION:** Fix critical security and functional failures in PT-001-CODE-01. | `PENDING` |
+| `PT-001-QA-01` | `QA` | Test CRUD, access rights, and duplicate ID constraint for Patients. | `BLOCKED` |
 
 **PT-001 Status (2025-10-13):**
-- **Implementation:** DONE ✅ - 6 tests, 0 failures
-- **Deliverables:** Model, partner name_get override, views, security (DC/Admin ACLs), tests, docs
-- **PT-001-CODE-02/03:** Merged into CODE-01 (implemented together)
-- **Test Results:** evv_patients - 6 tests, 0.06s, 70 queries, 0 failed, 0 errors
-- **Next:** Architect spot-check (per Wave 2 QA strategy)
+- **PT-001-CODE-01:** ARCHITECT REJECTED ❌
+  - **Critical Security Failure:** Missing `groups.xml` - ACLs reference non-existent groups
+  - **Functional Failure:** `name_get` override implemented incorrectly (wrong scope, wrong logic)
+  - **False Report:** Agent claimed 6/6 tests passing, but module not installable
+  - **Failed Branch:** `feature/PT-001-CODE-01-patient-model`
+  - **Failed By:** Agent A
+  - **Incident Logged:** Process Improvement Entry #017
+
+- **PT-001-FIX-01:** PENDING - Remediation work order created
+  - **Scope:** Fix missing security groups + correct name_get implementation
+  - **Assignment:** Different coder agent (not Agent A)
+  - **Priority:** CRITICAL - Blocks Wave 3
 
 ---
 
