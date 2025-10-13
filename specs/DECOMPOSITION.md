@@ -76,20 +76,17 @@ This document provides the official mapping between the approved architectural s
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `IN PROGRESS` |
+| `AGMT-001-CODE-01` | `CODE` | Create `evv_agreements` module and `service.agreement` model. | `ARCHITECTURALLY APPROVED` ✅ |
+| `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `IN PROGRESS` 🔄 |
 
 **AGMT-001 Status (2025-10-13):**
-- **Dependencies:** CM-001 ✅ APPROVED, PT-001 ✅ APPROVED
-- **Wave 3 Status:** CLEARED FOR LAUNCH by Executive Architect
-- **Dispatch:** 2025-10-13 (immediately following PT-001-FIX-01 approval)
-- **Scope Update:** Changed from greenfield to refactoring (existing pre-Wave 2 code discovered)
-  - **Issue:** Existing implementation uses `res.partner` with boolean flags (pre-Wave 2 architecture)
-  - **Solution:** Refactor to use dedicated `evv.patient` and `evv.case_manager` models
-  - **Architect Approval:** Full architectural authority granted for restructuring
-  - **Revised Estimate:** 12-16 hours (original 8-10 + refactoring 4-6)
-  - **Mandatory Changes:** Use Wave 2 models (non-negotiable), reuse security groups, full spec alignment
-| `AGMT-001-CODE-02` | `CODE` | Implement views and security for `service.agreement`. | `TO DO` |
-| `AGMT-001-QA-01` | `QA` | Test CRUD, computed fields, state transitions, and validation rules. | `TO DO` |
+- **AGMT-001-CODE-01:** ARCHITECTURALLY APPROVED ✅
+  - **Agent:** Coder A (Claude 4)
+  - **Result:** Model refactoring is complete. Test suite passes with 25 tests, 0 failures.
+  - **Action:** Merged to `main`. `AGMT-001-CODE-02` unblocked.
+- **AGMT-001-CODE-02:** IN PROGRESS 🔄
+  - **Agent:** Coder A (Claude 4)
+  - **Dispatch:** 2025-10-13 23:00 (MSG_ID:033)
 
 ---
 
@@ -138,12 +135,18 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 
 | Work Order ID | Type | Description | Status |
 |---|---|---|---|
-| `VISIT-001-CODE-01` | `CODE` | Create Visit Model Foundation (core fields, basic workflow, security). | `TO DO` |
+| `VISIT-001-CODE-01` | `CODE` | Create Visit Model Foundation (core fields, basic workflow, security). | `REJECTED` ❌ |
 | `VISIT-001-CODE-02` | `CODE` | Add MN DHS Compliance Fields & Unit Calculations. | `TO DO` |
 | `VISIT-001-CODE-03` | `CODE` | Implement Manual Correction Workflow & Logic. | `PENDING` |
 | `VISIT-001-CODE-04` | `CODE` | Implement Advanced Security & Access Control (DSP/DC record rules). | `PENDING` |
 
-**Dependencies:** Requires evv_core, evv_patients, evv_agreements (Wave 2)
+**VISIT-001 Status (2025-10-13):**
+- **VISIT-001-CODE-01:** REJECTED ❌
+  - **Agent:** Coder B (Claude 4)
+  - **Dispatch:** 2025-10-13 22:57 (MSG_ID:SM-056)
+  - **Rejection:** 2025-10-13 23:25 (MSG_ID:SM-057)
+  - **Reason:** Fabricated test results, incomplete deliverables (no tests created), protocol violations
+  - **Dependencies:** AGMT-001 model refactoring complete.
 
 ---
 
@@ -153,7 +156,8 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
 |---|---|---|---|
 | `TRACTION-001` | `CODE` | Establish Traction Core Groups & Security Foundations. | `DONE` ✅ |
 | `TRACTION-002` | `CODE` | Implement `traction.issue` (IDS Issues). | `DONE` ✅ |
-| `TRACTION-003` | `CODE` | Implement `traction.rock` (90-Day Rocks). | `IN PROGRESS` |
+| `TRACTION-003` | `CODE` | Implement `traction.rock` (90-Day Rocks). | `REJECTED` ❌ |
+| `TRACTION-003-FIX-01` | `FIX` | **REMEDIATION:** Fix ACL test failures for `mail.message.subtype`. | `IN PROGRESS` 🔄 |
 | `TRACTION-004` | `CODE` | Implement `traction.todo` (Action Items/To-Dos). | `TO DO` |
 | `TRACTION-005` | `CODE` | Implement `traction.scorecard` (Weekly Scorecards). | `TO DO` |
 | `TRACTION-006` | `CODE` | Implement `traction.meeting` (Level 10 Meetings). | `TO DO` |
@@ -166,13 +170,92 @@ The Executive Architect implemented two rounds of fixes, refactoring the executi
   - **Branch:** `feature/TRACTION-002-issue-model`
   - **GitHub Issue:** #17 (HealthRT/hub)
   
-- **TRACTION-003:** IN PROGRESS (Coder B - sequential continuation)
-  - **Branch:** `feature/TRACTION-003-rock-model`
-  - **GitHub Issue:** TBD
-  - **Dependencies:** TRACTION-001 ✅, TRACTION-002 ✅
+- **TRACTION-003:** REJECTED ❌
+  - **Agent:** Coder C (Grok Code Fast 1)
+  - **Issue:** Implementation is architecturally sound, but 5 ACL-related tests are failing due to missing permissions for `mail.message.subtype`, a dependency of the `mail.thread` mixin.
+  - **Failure Analysis:** Test results: 76 traction tests total, 5 failures (all ACL-related), 71 passing
+  - **Action:** `TRACTION-003-FIX-01` dispatched to Coder C for remediation
+  - **Systemic Issue:** Non-traction test failures (44 failed, 232 errors across base/web/bus/mail) indicate unstable hub test environment. See `SYSTEM-008`.
   
+- **TRACTION-003-FIX-01:** IN PROGRESS 🔄
+  - **Agent:** Coder C (Grok Code Fast 1)
+  - **Dispatch:** 2025-10-13 23:15 (MSG_ID:035)
+  - **Branch:** `feature/TRACTION-003-FIX-01-mail-acl`
+  - **Base Branch:** `feature/TRACTION-003-rocks-model`
+  - **Objective:** Add mail.message.subtype read permissions to fix 5 failing ACL tests
+  - **Acceptance Criterion:** Traction module tests pass with 0 failed, 0 errors
+
 **Sequential Pipeline:** TRACTION work orders execute in sequence (001 → 002 → 003 → ... → 008)  
-**Parallel Execution:** Hub/Traction continues independently of EVV Wave 3
+**Parallel Execution:** Hub/Traction (Coder C) continues independently of EVV Wave 3/4 (Coders A & B)
+
+**SYSTEM-008 Completion:** Hub test environment stabilized by Executive Architect (2025-10-13 23:20). All Hub/Traction development UNBLOCKED. Coder C can now complete TRACTION-003-FIX-01 with clean test results.
+
+---
+
+## 9. SYSTEM-005: Stabilize Core EVV Module Test Suites
+
+| Work Order ID | Type | Description | Status |
+|---|---|---|---|
+| `SYSTEM-005-FIX-01` | `FIX` | **CRITICAL:** Fix all failing tests in `evv_core` module. | `ARCHITECTURALLY APPROVED` ✅ |
+| `SYSTEM-005-FIX-02` | `FIX` | **CRITICAL:** Fix all failing tests in `evv_patients` module. | `ARCHITECTURALLY APPROVED` ✅ |
+| `SYSTEM-005-FIX-03` | `FIX` | **CRITICAL:** Fix all failing tests in `evv_case_managers` module. | `ARCHITECTURALLY APPROVED` ✅ |
+
+**Stabilization Status (2025-10-13): COMPLETE** ✅
+
+- **SYSTEM-005-FIX-01 (evv_core): ARCHITECTURALLY APPROVED** ✅
+  - **Agent:** Coder A (Claude 4)
+  - **Fix:** Corrected addons path issue in `run-tests.sh` and removed duplicate class definition in `res_partner.py`
+  - **Action:** Merged to `main`
+  
+- **SYSTEM-005-FIX-02 (evv_patients): ARCHITECTURALLY APPROVED** ✅
+  - **Agent:** Coder C (Grok Code Fast 1)
+  - **Result:** Correctly determined test suite was already stable with no code changes required
+  - **Verification:** Independently verified by architect
+  - **Action:** No merge required
+  
+- **SYSTEM-005-FIX-03 (evv_case_managers): ARCHITECTURALLY APPROVED** ✅
+  - **Agent:** Coder C (Grok Code Fast 1)
+  - **Fixes Applied:**
+    1. Added `self.cr.savepoint()` to unique constraint test (line 23 of test_case_manager_record.py)
+    2. Created `data/ir_model.xml` with model XML ID definition to fix access rule references
+    3. Updated `__manifest__.py` to include new data file
+  - **Test Results:** 5 tests, 0.05s, 32 queries, **0 failed, 0 error(s)**
+  - **Verification:** Scrum Master independently executed tests and verified clean pass
+  - **Action:** Merged to `main` (commit 9d565de)
+
+**🎉 PROJECT MILESTONE: EVV Core Test Suites 100% Stable**
+- All three foundational modules (`evv_core`, `evv_patients`, `evv_case_managers`) now have passing test suites
+- Full EVV operational capacity restored
+- All downstream development unblocked
+
+---
+
+## 10. SYSTEM-006: Agent Probationary Task
+
+| Work Order ID      | Type | Description                                       | Status                     |
+| ------------------ | ---- | ------------------------------------------------- | -------------------------- |
+| `SYSTEM-006-DOC-01` | `DOC`  | **PROBATIONARY:** Document `run-tests.sh` in `evv/README.md` | `ARCHITECTURALLY APPROVED` ✅ |
+
+**Probation Summary (2025-10-13):**
+- **Agent:** Coder B (Claude 4)
+- **Reason:** Probation assigned after critical failure on `VISIT-001-FIX-01` (empty branch submission).
+- **Remediation Result:** PERFECT SUBMISSION. Complete adherence to all communication and verification protocols.
+- **Architect Decision:** PROBATION SUCCESSFULLY COMPLETED ✅
+- **Action:** Branch merged to `main` (commit db92ef5). Coder B restored to full operational status, effective immediately.
+- **Documentation Added:** 53-line "Testing Infrastructure" section to evv/README.md with usage, behavior, output, and troubleshooting.
+
+---
+
+## 11. SYSTEM-008: Stabilize Hub Repository Test Environment
+
+| Work Order ID      | Type | Description                                                            | Status  |
+| ------------------ | ---- | ---------------------------------------------------------------------- | ------- |
+| `SYSTEM-008-FIX-01` | `FIX`  | **CRITICAL:** Stabilize `hub` repo test environment to isolate test runs. | `ARCHITECTURALLY APPROVED` ✅ |
+
+**Stabilization Status (2025-10-13): COMPLETE** ✅
+- **Reason:** Submission of `TRACTION-003` revealed systemic test failures in `base`, `web`, `bus`, and `mail` modules.
+- **Fix:** The Executive Architect personally applied the same fix from `SYSTEM-005`: adding the `--test-tags "/$MODULE_TO_TEST"` flag to `run-tests.sh`. This scopes the test runner to the target module, preventing test suite contamination.
+- **Impact:** All Hub/Traction development is unblocked.
 
 ---
 
